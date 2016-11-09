@@ -1,4 +1,4 @@
-package cockroachdb
+package postgres
 
 import (
 	"fmt"
@@ -12,7 +12,7 @@ type Link struct{}
 
 // InitDB create db if not exists
 func (link *Link) InitDB(exec sqlx.Execer, dbName string) (errExec error) {
-	_, errExec = exec.Exec(`CREATE DATABASE IF NOT EXISTS ` + dbName)
+	_, errExec = exec.Exec(`CREATE DATABASE ` + dbName)
 	if errExec != nil {
 		return errExec
 	}
@@ -58,17 +58,28 @@ func (link *Link) MigrateUp(exec sqlx.Execer) (errExec error) {
             time_created DATE NOT NULL DEFAULT CURRENT_DATE,
             is_latest INT NULL DEFAULT 1,
             UNIQUE (is_latest, entityone_id),
-            INDEX (status_id, is_latest),
             CONSTRAINT es_fk_e
             FOREIGN KEY (entityone_id)
-            REFERENCES entityone (entityone_id),
-            INDEX (entityone_id)
+            REFERENCES entityone (entityone_id)
         )
     `)
 	if errExec != nil {
 		return errExec
 	}
 
+	_, errExec = exec.Exec(
+		`CREATE INDEX es_idx1 ON entityone_status(status_id, is_latest)`,
+	)
+	if errExec != nil {
+		return errExec
+	}
+
+	_, errExec = exec.Exec(
+		`CREATE INDEX es_idx2 ON entityone_status(entityone_id)`,
+	)
+	if errExec != nil {
+		return errExec
+	}
 	return nil
 }
 
@@ -90,10 +101,10 @@ func (link *Link) MigrateDown(exec sqlx.Execer) (errExec error) {
 // InsertOne will insert a Entityone into db
 func (link *Link) InsertOne(exec sqlx.Ext) (id int64, err error) {
 	err = exec.QueryRowx(`
-		INSERT INTO entityone(entityone_id, time_created)
-		VALUES(DEFAULT, DEFAULT)
-		RETURNING entityone_id
-	`).Scan(&id)
+        INSERT INTO entityone(entityone_id, time_created)
+        VALUES(DEFAULT, DEFAULT)
+        RETURNING entityone_id
+    `).Scan(&id)
 	if err != nil {
 		return id, fmt.Errorf("entityone Insert(): %v", err)
 	}

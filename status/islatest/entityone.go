@@ -17,9 +17,9 @@ type Entityone struct {
 
 // Status of the entity
 type Status struct {
-	entityID    int64     `db:"entityone_id"`
-	actionID    ActionID  `db:"action_id"`
-	statusID    StatusID  `db:"status_id"`
+	EntityID    int64     `db:"entityone_id"`
+	ActionID    ActionID  `db:"action_id"`
+	StatusID    StatusID  `db:"status_id"`
 	TimeCreated time.Time `db:"time_created"`
 }
 
@@ -63,6 +63,7 @@ type SQLLink interface {
 	MigrateDown(exec sqlx.Execer) (errExec error)
 	InsertOne(sqlx.Ext) (int64, error)
 	SaveStatus(exec sqlx.Execer, entityID int64, actionID int, statusID int) error
+	GetFilterSelectEntityOneQuery(statusFilter []int) ([]interface{}, string)
 }
 
 // Create will create an entityone
@@ -87,9 +88,9 @@ func (e *Entityone) Create(db *sqlx.DB, link SQLLink) (err error) {
 	}
 
 	e.Status = Status{
-		entityID:    e.ID,
-		actionID:    ActionCreate,
-		statusID:    StatusCreated,
+		EntityID:    e.ID,
+		ActionID:    ActionCreate,
+		StatusID:    StatusCreated,
 		TimeCreated: time.Now(),
 	}
 
@@ -105,8 +106,41 @@ func (e *Entityone) UpdateStatus(exec sqlx.Ext, link SQLLink, actionID ActionID,
 	}
 
 	// Update status
-	e.actionID = actionID
-	e.statusID = statusID
+	e.ActionID = actionID
+	e.StatusID = statusID
 
 	return nil
+}
+
+// SelectEntityone will retrieve a slice of entityones that are in status created
+func SelectEntityone(q sqlx.Queryer, link SQLLink) (entityOnes []*Entityone, err error) {
+
+	query := `
+        SELECT
+            e.entityone_id, e.time_created,
+            es.entityone_id, es.action_id, es.status_id, es.time_created
+        FROM entityone e
+        INNER JOIN entityone_status es ON es.entityone_id = e.entityone_id
+            AND es.is_latest = 1
+    `
+
+	params, queryFilter := link.GetFilterSelectEntityOneQuery([]int{int(StatusCreated)})
+
+	rows, err := q.Queryx(query+queryFilter, params...)
+	if err != nil {
+		return entityOnes, fmt.Errorf("entityone Select: %v", err)
+	}
+
+	for rows.Next() {
+		eo := Entityone{}
+		err := rows.StructScan(&eo)
+		if err != nil {
+			return entityOnes, fmt.Errorf("entityone Select: %v", err)
+		}
+
+		entityOnes = append(entityOnes, &eo)
+
+	}
+
+	return entityOnes, nil
 }

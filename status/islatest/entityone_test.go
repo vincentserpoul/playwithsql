@@ -10,6 +10,7 @@ import (
 	"github.com/vincentserpoul/playwithsql"
 	"github.com/vincentserpoul/playwithsql/status/islatest/cockroachdb"
 	"github.com/vincentserpoul/playwithsql/status/islatest/mysql"
+	"github.com/vincentserpoul/playwithsql/status/islatest/postgres"
 )
 
 func BenchmarkCreate(b *testing.B) {
@@ -39,7 +40,7 @@ func TestUpdateStatus(t *testing.T) {
 		t.Errorf("UpdateStatus entityone: %v", err)
 	}
 
-	if e.actionID != ActionCancel && e.statusID != StatusCancelled {
+	if e.ActionID != ActionCancel && e.StatusID != StatusCancelled {
 		t.Errorf("UpdateStatus entityone: status and action not updated")
 	}
 }
@@ -47,6 +48,30 @@ func TestUpdateStatus(t *testing.T) {
 func BenchmarkUpdateStatus(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		_ = entityToUpdate.UpdateStatus(db, sqlLink, ActionCancel, StatusCancelled)
+	}
+}
+
+func TestSelect(t *testing.T) {
+	var e Entityone
+
+	err := e.Create(db, sqlLink)
+	if err != nil {
+		t.Errorf("Select entityone: %v", err)
+	}
+
+	entityOnes, err := SelectEntityone(db, sqlLink)
+	if err != nil {
+		t.Errorf("Select entityone: %v", err)
+	}
+
+	if len(entityOnes) == 0 {
+		t.Errorf("Select entityone didn't retrieve any")
+	}
+}
+
+func BenchmarkSelect(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		SelectEntityone(db, sqlLink)
 	}
 }
 
@@ -80,6 +105,21 @@ func TestMain(m *testing.M) {
 			},
 		}
 		sqlLink = &mysql.Link{}
+	case "postgres":
+		conf = &playwithsql.PostgresDB{
+			Host:     "localhost",
+			Port:     "5432",
+			User:     "root",
+			Password: "test",
+			Dbname:   dbName,
+			SSL: playwithsql.SSL{
+				CertPath:   "",
+				KeyPath:    "",
+				CAPath:     "",
+				ServerName: "",
+			},
+		}
+		sqlLink = &postgres.Link{}
 	case "cockroachdb":
 		conf = &playwithsql.CockroachDB{
 			Host:   "localhost",
@@ -100,8 +140,9 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
+	defer db.Close()
 
-	err = sqlLink.InitDB(db, dbName)
+	err = db.Ping()
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
