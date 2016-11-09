@@ -85,14 +85,15 @@ func TestMain(m *testing.M) {
 	var conf playwithsql.ConfType
 	dbName := "entityone_test"
 
-	dbType := flag.String("db", "mysql", "type of db to bench: mysql, cockroachdb")
+	dbType := flag.String("db", "mysql", "type of db to bench: mysql, cockroachdb, postgres")
+	host := flag.String("host", "localhost", "host IP")
 	flag.Parse()
 
 	switch *dbType {
 	case "mysql":
 		conf = &playwithsql.MySQLDB{
 			Protocol: "tcp",
-			Host:     "localhost",
+			Host:     *host,
 			Port:     "3306",
 			User:     "root",
 			Password: "test",
@@ -107,7 +108,7 @@ func TestMain(m *testing.M) {
 		sqlLink = &mysql.Link{}
 	case "postgres":
 		conf = &playwithsql.PostgresDB{
-			Host:     "localhost",
+			Host:     *host,
 			Port:     "5432",
 			User:     "root",
 			Password: "test",
