@@ -126,7 +126,9 @@ func SelectEntityone(q sqlx.Queryer, link SQLLink) (entityOnes []*Entityone, err
 
 	params, queryFilter := link.GetFilterSelectEntityOneQuery([]int{int(StatusCreated)})
 
-	rows, err := q.Queryx(query+queryFilter, params...)
+	limit := ` LIMIT 1`
+
+	rows, err := q.Queryx(query+queryFilter+limit, params...)
 	if err != nil {
 		return entityOnes, fmt.Errorf("entityone Select: %v", err)
 	}
