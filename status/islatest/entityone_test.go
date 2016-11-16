@@ -11,6 +11,7 @@ import (
 	"github.com/vincentserpoul/playwithsql/status/islatest/cockroachdb"
 	"github.com/vincentserpoul/playwithsql/status/islatest/mysql"
 	"github.com/vincentserpoul/playwithsql/status/islatest/postgres"
+	"github.com/vincentserpoul/playwithsql/status/islatest/sqlite"
 )
 
 func BenchmarkCreate(b *testing.B) {
@@ -106,6 +107,9 @@ func TestMain(m *testing.M) {
 			},
 		}
 		sqlLink = &mysql.Link{}
+	case "sqlite":
+		conf = &playwithsql.SQLiteDB{}
+		sqlLink = &sqlite.Link{}
 	case "postgres":
 		conf = &playwithsql.PostgresDB{
 			Host:     *host,
