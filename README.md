@@ -8,5 +8,5 @@ implementing as immutable as possible data modelization and benchmarking it on d
 - [x] PerconaDB
 - [x] Postgres
 - [x] CockroachDB
-- [ ] RQLite
+- [x] SQLite
 
