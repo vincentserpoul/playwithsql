@@ -1,6 +1,7 @@
 package playwithsql
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/jmoiron/sqlx"
@@ -14,7 +15,10 @@ type SQLiteDB struct{}
 
 // NewDBHandler connect to db and return the connection
 func (sqliteConf *SQLiteDB) NewDBHandler() (*sqlx.DB, error) {
-	os.Remove("./test.db")
+	err := os.Remove("./test.db")
+	if err != nil {
+		return nil, fmt.Errorf("infrastructure NewDBHandler: %v", err)
+	}
 
 	db := sqlx.MustConnect("sqlite3", "./test.db")
 

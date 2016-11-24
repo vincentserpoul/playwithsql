@@ -57,11 +57,14 @@ func (mysqlConf *MySQLDB) NewDBHandler() (*sqlx.DB, error) {
 			return nil, fmt.Errorf("infrastructure NewDBHandler: %v", err)
 		}
 		clientCert = append(clientCert, certs)
-		mysql.RegisterTLSConfig("mysqltls", &tls.Config{
+		err = mysql.RegisterTLSConfig("mysqltls", &tls.Config{
 			RootCAs:      rootCertPool,
 			Certificates: clientCert,
 			ServerName:   mysqlConf.SSL.ServerName,
 		})
+		if err != nil {
+			return nil, fmt.Errorf("infrastructure NewDBHandler: %v", err)
+		}
 		dsn += "&tls=mysqltls"
 	}
 
