@@ -19,7 +19,11 @@ func BenchmarkCreate(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		var e Entityone
 		_ = e.Create(db, sqlLink)
-		testEntityoneIDs = append(testEntityoneIDs, e.ID)
+
+		// limit the number of tests
+		if len(testEntityoneIDs) < 500 {
+			testEntityoneIDs = append(testEntityoneIDs, e.ID)
+		}
 	}
 }
 
