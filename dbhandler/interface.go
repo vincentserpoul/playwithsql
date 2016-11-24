@@ -1,4 +1,4 @@
-package playwithsql
+package dbhandler
 
 import "github.com/jmoiron/sqlx"
 

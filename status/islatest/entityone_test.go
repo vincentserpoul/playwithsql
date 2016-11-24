@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/vincentserpoul/playwithsql"
+	"github.com/vincentserpoul/playwithsql/dbhandler"
 	"github.com/vincentserpoul/playwithsql/status/islatest/cockroachdb"
 	"github.com/vincentserpoul/playwithsql/status/islatest/mysql"
 	"github.com/vincentserpoul/playwithsql/status/islatest/postgres"
@@ -139,7 +139,7 @@ var testEntityoneIDs []int64
 func TestMain(m *testing.M) {
 
 	var err error
-	var conf playwithsql.ConfType
+	var conf dbhandler.ConfType
 	dbName := "entityone_test"
 
 	dbType := flag.String("db", "mysql", "type of db to bench: mysql, cockroachdb, postgres")
@@ -148,14 +148,14 @@ func TestMain(m *testing.M) {
 
 	switch *dbType {
 	case "mysql":
-		conf = &playwithsql.MySQLDB{
+		conf = &dbhandler.MySQLDB{
 			Protocol: "tcp",
 			Host:     *host,
 			Port:     "3306",
 			User:     "root",
 			Password: "test",
 			Dbname:   dbName,
-			SSL: playwithsql.SSL{
+			SSL: dbhandler.SSL{
 				CertPath:   "",
 				KeyPath:    "",
 				CAPath:     "",
@@ -164,16 +164,16 @@ func TestMain(m *testing.M) {
 		}
 		sqlLink = &mysql.Link{}
 	case "sqlite":
-		conf = &playwithsql.SQLiteDB{}
+		conf = &dbhandler.SQLiteDB{}
 		sqlLink = &sqlite.Link{}
 	case "postgres":
-		conf = &playwithsql.PostgresDB{
+		conf = &dbhandler.PostgresDB{
 			Host:     *host,
 			Port:     "5432",
 			User:     "root",
 			Password: "test",
 			Dbname:   dbName,
-			SSL: playwithsql.SSL{
+			SSL: dbhandler.SSL{
 				CertPath:   "",
 				KeyPath:    "",
 				CAPath:     "",
@@ -182,12 +182,12 @@ func TestMain(m *testing.M) {
 		}
 		sqlLink = &postgres.Link{}
 	case "cockroachdb":
-		conf = &playwithsql.CockroachDB{
+		conf = &dbhandler.CockroachDB{
 			Host:   "localhost",
 			Port:   "26257",
 			User:   "root",
 			Dbname: dbName,
-			SSL: playwithsql.SSL{
+			SSL: dbhandler.SSL{
 				CertPath:   "",
 				KeyPath:    "",
 				CAPath:     "",
