@@ -8,6 +8,7 @@ initdb() {
 removeContainer() {
     docker rm -f mydb;
 }
+
 echo "Choose your flavor:"
 select flavor in "mysql 8.0.0" "percona 5.7.15" "mariadb 10.1.19"; do
     case $flavor in
@@ -18,4 +19,4 @@ select flavor in "mysql 8.0.0" "percona 5.7.15" "mariadb 10.1.19"; do
 done
 
 # to launch the tests benchmark
-# go test -db=mysql -bench=.  -test.benchtime=3s
+# ./mysql/container_launch.sh;go test -db=mysql -bench=.  -test.benchtime=3s;docker rm -f mydb;

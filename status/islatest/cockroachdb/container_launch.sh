@@ -5,4 +5,4 @@ sleep 5s;
 docker exec -it roach1 ./cockroach sql --execute="CREATE DATABASE entityone_test;";
 
 # to launch the tests benchmark
-# go test -db=cockroachdb -bench=.  -test.benchtime=3s
+# ./cockroachdb/container_launch.sh;go test -db=cockroachdb -bench=.  -test.benchtime=3s;docker rm -f roach1;
