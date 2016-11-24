@@ -49,8 +49,10 @@ func TestUpdateStatus(t *testing.T) {
 }
 
 func BenchmarkUpdateStatus(b *testing.B) {
+	var e Entityone
 	for i := 0; i < b.N; i++ {
-		_ = entityToUpdate.UpdateStatus(db, sqlLink, ActionCancel, StatusCancelled)
+		e.ID = testEntityoneIDs[b.N%len(testEntityoneIDs)]
+		_ = e.UpdateStatus(db, sqlLink, ActionCancel, StatusCancelled)
 	}
 }
 
@@ -70,7 +72,11 @@ func TestSelectEntityoneOneByStatus(t *testing.T) {
 
 func BenchmarkSelectEntityoneOneByStatus(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		SelectEntityoneOneByStatus(db, sqlLink, StatusCreated)
+		_, err := SelectEntityoneOneByStatus(db, sqlLink, StatusCreated)
+		if err != nil {
+			b.Errorf("Select entityone by status: %v", err)
+			return
+		}
 	}
 }
 
@@ -114,13 +120,16 @@ func TestSelectEntityoneOneByPK(t *testing.T) {
 
 func BenchmarkSelectEntityoneOneByPK(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		SelectEntityoneOneByPK(db, sqlLink, testEntityoneIDs[b.N%len(testEntityoneIDs)])
+		_, err := SelectEntityoneOneByPK(db, sqlLink, testEntityoneIDs[b.N%len(testEntityoneIDs)])
+		if err != nil {
+			b.Errorf("Select entityone by status: %v", err)
+			return
+		}
 	}
 }
 
 var db *sqlx.DB
 var sqlLink SQLLink
-var entityToUpdate Entityone
 var testEntityoneIDs []int64
 
 func TestMain(m *testing.M) {
@@ -188,24 +197,18 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
-	defer db.Close()
-
-	err = db.Ping()
-	if err != nil {
-		log.Fatalf("%v", err)
-	}
+	defer func() {
+		errClose := db.Close()
+		if errClose != nil {
+			log.Fatalf("%v", errClose)
+		}
+	}()
 
 	err = sqlLink.MigrateDown(db)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
 	err = sqlLink.MigrateUp(db)
-	if err != nil {
-		log.Fatalf("%v", err)
-	}
-
-	// We need at least one entity for the update
-	err = entityToUpdate.Create(db, sqlLink)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}

@@ -71,10 +71,10 @@ func (e *Entityone) Create(db *sqlx.DB, link SQLLink) (err error) {
 	tx := db.MustBegin()
 	defer func() {
 		if err != nil {
-			tx.Rollback()
-			return
+			err = tx.Rollback()
+		} else {
+			err = tx.Commit()
 		}
-		err = tx.Commit()
 	}()
 
 	e.ID, err = link.InsertOne(db)
@@ -94,7 +94,7 @@ func (e *Entityone) Create(db *sqlx.DB, link SQLLink) (err error) {
 		TimeCreated: time.Now(),
 	}
 
-	return nil
+	return err
 }
 
 // UpdateStatus will update the status of an Entityone into db
