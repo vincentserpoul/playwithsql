@@ -24,3 +24,5 @@ _testmain.go
 *.prof
 
 test.db
+torch.svg
+.DS_Store
