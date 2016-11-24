@@ -98,7 +98,7 @@ func (e *Entityone) Create(db *sqlx.DB, link SQLLink) (err error) {
 }
 
 // UpdateStatus will update the status of an Entityone into db
-func (e *Entityone) UpdateStatus(exec sqlx.Ext, link SQLLink, actionID ActionID, statusID StatusID) error {
+func (e *Entityone) UpdateStatus(exec sqlx.Execer, link SQLLink, actionID ActionID, statusID StatusID) error {
 	err := link.SaveStatus(exec, e.ID, int(actionID), int(statusID))
 
 	if err != nil {
