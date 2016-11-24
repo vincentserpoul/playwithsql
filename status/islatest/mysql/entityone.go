@@ -161,13 +161,21 @@ func (link *Link) SaveStatus(
 
 // GetFilterSelectEntityOneQuery returns params and filters according to criterias
 func (link *Link) GetFilterSelectEntityOneQuery(
+	idFilter []int64,
 	statusFilter []int,
 ) (params []interface{}, queryFilter string) {
 
 	if len(statusFilter) > 0 {
 		for _, filter := range statusFilter {
 			params = append(params, filter)
-			queryFilter += `AND es.status_id = ?`
+			queryFilter += ` AND es.status_id = ? `
+		}
+	}
+
+	if len(idFilter) > 0 {
+		for _, filter := range idFilter {
+			params = append(params, filter)
+			queryFilter += ` AND e.entityone_id = ? `
 		}
 	}
 

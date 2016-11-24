@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/vincentserpoul/playwithsql"
@@ -18,6 +19,7 @@ func BenchmarkCreate(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		var e Entityone
 		_ = e.Create(db, sqlLink)
+		testEntityoneIDs = append(testEntityoneIDs, e.ID)
 	}
 }
 
@@ -52,33 +54,74 @@ func BenchmarkUpdateStatus(b *testing.B) {
 	}
 }
 
-func TestSelect(t *testing.T) {
+func TestSelectEntityoneOneByStatus(t *testing.T) {
 	var e Entityone
 
 	err := e.Create(db, sqlLink)
 	if err != nil {
-		t.Errorf("Select entityone: %v", err)
+		t.Errorf("Select entityone by status: %v", err)
 	}
 
-	entityOnes, err := SelectEntityone(db, sqlLink)
+	_, err = SelectEntityoneOneByStatus(db, sqlLink, StatusCreated)
 	if err != nil {
-		t.Errorf("Select entityone: %v", err)
-	}
-
-	if len(entityOnes) == 0 {
-		t.Errorf("Select entityone didn't retrieve any")
+		t.Errorf("Select entityone by status: %v", err)
 	}
 }
 
-func BenchmarkSelect(b *testing.B) {
+func BenchmarkSelectEntityoneOneByStatus(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		SelectEntityone(db, sqlLink)
+		SelectEntityoneOneByStatus(db, sqlLink, StatusCreated)
+	}
+}
+
+func TestSelectEntityoneOneByPK(t *testing.T) {
+	var e Entityone
+
+	err := e.Create(db, sqlLink)
+	if err != nil {
+		t.Errorf("Select entityone by pk: %v", err)
+		return
+	}
+
+	entityOne, err := SelectEntityoneOneByPK(db, sqlLink, e.ID)
+	if err != nil {
+		t.Errorf("Select entityone by pk: %v", err)
+		return
+	}
+
+	if entityOne.ID != e.ID {
+		t.Errorf("Select entityone by pk retrieved entity %d instead of %d", entityOne.ID, e.ID)
+		return
+	}
+	var emptyTime time.Time
+	if entityOne.TimeCreated == emptyTime {
+		t.Errorf("Select entityone by pk retrieved but entity time created not correctly retrieved: %v", entityOne)
+		return
+	}
+	if entityOne.Status.TimeCreated == emptyTime {
+		t.Errorf("Select entityone by pk retrieved but entity status time created not correctly retrieved: %v", entityOne)
+		return
+	}
+	if entityOne.Status.ActionID == 0 {
+		t.Errorf("Select entityone by pk retrieved but entity status actionid created not correctly retrieved: %v", entityOne)
+		return
+	}
+	if entityOne.Status.StatusID == 0 {
+		t.Errorf("Select entityone by pk retrieved but entity status statusid created not correctly retrieved: %v", entityOne)
+		return
+	}
+}
+
+func BenchmarkSelectEntityoneOneByPK(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		SelectEntityoneOneByPK(db, sqlLink, testEntityoneIDs[b.N%len(testEntityoneIDs)])
 	}
 }
 
 var db *sqlx.DB
 var sqlLink SQLLink
 var entityToUpdate Entityone
+var testEntityoneIDs []int64
 
 func TestMain(m *testing.M) {
 

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 initdb() {
-    sleep 15s;
+    sleep 30s;
     docker exec -it mydb mysql -u root -ptest -e 'CREATE DATABASE entityone_test';
 }
 
