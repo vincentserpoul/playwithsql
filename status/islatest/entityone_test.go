@@ -183,7 +183,7 @@ func TestMain(m *testing.M) {
 		sqlLink = &postgres.Link{}
 	case "cockroachdb":
 		conf = &dbhandler.CockroachDB{
-			Host:   "localhost",
+			Host:   *host,
 			Port:   "26257",
 			User:   "root",
 			Dbname: dbName,
