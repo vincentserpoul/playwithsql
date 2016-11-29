@@ -26,6 +26,7 @@ apt-get install sqlite3 gcc
 go get github.com/vincentserpoul/playwithsql
 cd src/github.com/vincentserpoul/playwithsql/
 go get ./...
+```
 
 # The results
 
