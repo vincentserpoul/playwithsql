@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/vincentserpoul/playwithsql/query"
 )
 
 // Entityone represents an event
@@ -63,7 +64,7 @@ type SQLLink interface {
 	MigrateDown(exec sqlx.Execer) (errExec error)
 	InsertOne(sqlx.Ext) (int64, error)
 	SaveStatus(exec sqlx.Execer, entityID int64, actionID int, statusID int) error
-	GetFilterSelectEntityOneQuery(idFilter []int64, statusFilter []int) ([]interface{}, string)
+	IsParamQuestionMark() bool
 }
 
 // Create will create an entityone
@@ -118,7 +119,7 @@ func SelectEntityoneOneByStatus(
 	link SQLLink,
 	statusID StatusID,
 ) (selectedEntity *Entityone, err error) {
-	entityOnes, err := selectEntity(q, link, 0, int(statusID), 1)
+	entityOnes, err := selectEntity(q, link, []int64{}, []int{int(statusID)}, []int{}, []int{}, []int{}, 3)
 	if err != nil {
 		return nil, err
 	}
@@ -135,7 +136,7 @@ func SelectEntityoneOneByPK(
 	link SQLLink,
 	entityID int64,
 ) (selectedEntity *Entityone, err error) {
-	entityOnes, err := selectEntity(q, link, entityID, 0, 0)
+	entityOnes, err := selectEntity(q, link, []int64{entityID}, []int{}, []int{}, []int{}, []int{}, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -151,8 +152,11 @@ func SelectEntityoneOneByPK(
 func selectEntity(
 	q sqlx.Queryer,
 	link SQLLink,
-	entityID int64,
-	statusID int,
+	entityIDs []int64,
+	isStatusIDs []int,
+	notStatusIDs []int,
+	neverStatusIDs []int,
+	hasStatusIDs []int,
 	limit int,
 ) (entityOnes []*Entityone, err error) {
 
@@ -166,26 +170,17 @@ func selectEntity(
         WHERE 0 = 0
     `
 
-	var filterEntities []int64
-	var filterStatuses []int
-
-	if entityID != 0 {
-		filterEntities = append(filterEntities, entityID)
-	}
-
-	if statusID != 0 {
-		filterStatuses = append(filterStatuses, statusID)
-	}
-
-	params, queryFilter := link.GetFilterSelectEntityOneQuery(
-		filterEntities,
-		filterStatuses,
+	params, queryFilter := getFilterSelectEntityOneQuery(
+		link,
+		entityIDs,
+		isStatusIDs,
 	)
+
 	query += queryFilter
 
 	if limit > 0 {
-		limit := ` LIMIT 1`
-		query += limit
+		limitStr := ` LIMIT ` + strconv.Itoa(limit)
+		query += limitStr
 	}
 
 	rows, err := q.Queryx(query, params...)
@@ -205,4 +200,33 @@ func selectEntity(
 	}
 
 	return entityOnes, nil
+}
+
+func getFilterSelectEntityOneQuery(
+	link SQLLink,
+	entityIDs []int64,
+	isStatusIDs []int,
+) (params []interface{}, queryFilter string) {
+
+	i := 0
+
+	if len(entityIDs) > 0 {
+		queryFilter += ` AND e.entityone_id IN `
+		queryFilter += query.InQueryParams(len(entityIDs), link.IsParamQuestionMark(), i)
+		for _, param := range entityIDs {
+			params = append(params, param)
+			i++
+		}
+	}
+
+	if len(isStatusIDs) > 0 {
+		queryFilter += `  AND es.status_id IN `
+		queryFilter += query.InQueryParams(len(isStatusIDs), link.IsParamQuestionMark(), i)
+		for _, param := range isStatusIDs {
+			params = append(params, param)
+			i++
+		}
+	}
+
+	return params, queryFilter
 }

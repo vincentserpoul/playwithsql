@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"fmt"
-	"strconv"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -18,21 +17,13 @@ func (link *Link) InitDB(exec sqlx.Execer, dbName string) (errExec error) {
 	}
 
 	_, errExec = exec.Exec(`SET DATABASE = ` + dbName)
-	if errExec != nil {
-		return errExec
-	}
-
-	return nil
+	return errExec
 }
 
 // DestroyDB destroy db if exists
 func (link *Link) DestroyDB(exec sqlx.Execer, dbName string) (errExec error) {
 	_, errExec = exec.Exec(`DROP DATABASE IF EXISTS ` + dbName)
-	if errExec != nil {
-		return errExec
-	}
-
-	return nil
+	return errExec
 }
 
 // MigrateUp creates the needed tables
@@ -77,10 +68,7 @@ func (link *Link) MigrateUp(exec sqlx.Execer) (errExec error) {
 	_, errExec = exec.Exec(
 		`CREATE INDEX es_idx2 ON entityone_status(entityone_id)`,
 	)
-	if errExec != nil {
-		return errExec
-	}
-	return nil
+	return errExec
 }
 
 // MigrateDown destroys the needed tables
@@ -91,11 +79,7 @@ func (link *Link) MigrateDown(exec sqlx.Execer) (errExec error) {
 	}
 
 	_, errExec = exec.Exec("DROP TABLE IF EXISTS entityone")
-	if errExec != nil {
-		return errExec
-	}
-
-	return nil
+	return errExec
 }
 
 // InsertOne will insert a Entityone into db
@@ -165,28 +149,7 @@ func (link *Link) SaveStatus(
 	return nil
 }
 
-// GetFilterSelectEntityOneQuery returns params and filters according to criterias
-func (link *Link) GetFilterSelectEntityOneQuery(
-	idFilter []int64,
-	statusFilter []int,
-) (params []interface{}, queryFilter string) {
-
-	var i int
-	if len(statusFilter) > 0 {
-		for _, filter := range statusFilter {
-			params = append(params, filter)
-			queryFilter += `AND es.status_id = $` + strconv.Itoa(i+1)
-			i++
-		}
-	}
-
-	if len(idFilter) > 0 {
-		for _, filter := range idFilter {
-			params = append(params, filter)
-			queryFilter += ` AND e.entityone_id = $` + strconv.Itoa(i+1)
-			i++
-		}
-	}
-
-	return params, queryFilter
+// IsParamQuestionMark tells if params in SQL are ? or $1
+func (link *Link) IsParamQuestionMark() bool {
+	return false
 }
