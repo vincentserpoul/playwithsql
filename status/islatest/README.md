@@ -1,7 +1,7 @@
 # The db schema
 
 
-![schema](https://github.com/vincentserpoul/playwithsql/status/islatest/status_islatest.png)
+![schema](status_islatest.png)
 
 # The results
 
