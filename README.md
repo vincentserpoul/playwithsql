@@ -16,6 +16,8 @@ implementing as immutable as possible data modelization and benchmarking it on d
 * 1x ubuntu 16 GB Memory / 160 GB Disk / SGP1 - Ubuntu 16.04.1 x64
 
 on ubuntu:
+* install golang 1.7.3
+* install gcc and sqlite3
 
 ```
 wget https://storage.googleapis.com/golang/go1.7.3.linux-amd64.tar.gz
