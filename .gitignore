@@ -26,3 +26,4 @@ _testmain.go
 test.db
 torch.svg
 .DS_Store
+*.mwb.bak
