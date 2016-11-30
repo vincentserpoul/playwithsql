@@ -12,8 +12,8 @@ implementing as immutable as possible data modelization and benchmarking it on d
 
 # The setup
 
-1x coreos 16 GB Memory / 160 GB Disk / SGP1 - CoreOS 1185.3.0 (stable)
-1x ubuntu 16 GB Memory / 160 GB Disk / SGP1 - Ubuntu 16.04.1 x64
+* 1x coreos 16 GB Memory / 160 GB Disk / SGP1 - CoreOS 1185.3.0 (stable)
+* 1x ubuntu 16 GB Memory / 160 GB Disk / SGP1 - Ubuntu 16.04.1 x64
 
 on ubuntu:
 
