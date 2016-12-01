@@ -15,10 +15,18 @@ import (
 	"github.com/vincentserpoul/playwithsql/status/islatest/sqlite"
 )
 
+func TestCreate(t *testing.T) {
+	var e Entityone
+	err := e.Create(testDBConn, testSQLLink)
+	if err != nil {
+		t.Errorf("create entityone: %v", err)
+	}
+}
+
 func BenchmarkCreate(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		var e Entityone
-		_ = e.Create(db, sqlLink)
+		_ = e.Create(testDBConn, testSQLLink)
 
 		// limit the number of tests
 		if len(testEntityoneIDs) < 500 {
@@ -27,22 +35,14 @@ func BenchmarkCreate(b *testing.B) {
 	}
 }
 
-func TestCreate(t *testing.T) {
-	var e Entityone
-	err := e.Create(db, sqlLink)
-	if err != nil {
-		t.Errorf("create entityone: %v", err)
-	}
-}
-
 func TestUpdateStatus(t *testing.T) {
 	var e Entityone
 
-	err := e.Create(db, sqlLink)
+	err := e.Create(testDBConn, testSQLLink)
 	if err != nil {
 		t.Errorf("UpdateStatus entityone: %v", err)
 	}
-	err = e.UpdateStatus(db, sqlLink, ActionCancel, StatusCancelled)
+	err = e.UpdateStatus(testDBConn, testSQLLink, ActionCancel, StatusCancelled)
 	if err != nil {
 		t.Errorf("UpdateStatus entityone: %v", err)
 	}
@@ -56,19 +56,19 @@ func BenchmarkUpdateStatus(b *testing.B) {
 	var e Entityone
 	for i := 0; i < b.N; i++ {
 		e.ID = testEntityoneIDs[b.N%len(testEntityoneIDs)]
-		_ = e.UpdateStatus(db, sqlLink, ActionCancel, StatusCancelled)
+		_ = e.UpdateStatus(testDBConn, testSQLLink, ActionCancel, StatusCancelled)
 	}
 }
 
 func TestSelectEntityoneOneByStatus(t *testing.T) {
 	var e Entityone
 
-	err := e.Create(db, sqlLink)
+	err := e.Create(testDBConn, testSQLLink)
 	if err != nil {
 		t.Errorf("Select entityone by status: %v", err)
 	}
 
-	_, err = SelectEntityoneOneByStatus(db, sqlLink, StatusCreated)
+	_, err = SelectEntityoneOneByStatus(testDBConn, testSQLLink, StatusCreated)
 	if err != nil {
 		t.Errorf("Select entityone by status: %v", err)
 	}
@@ -76,7 +76,7 @@ func TestSelectEntityoneOneByStatus(t *testing.T) {
 
 func BenchmarkSelectEntityoneOneByStatus(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_, err := SelectEntityoneOneByStatus(db, sqlLink, StatusCreated)
+		_, err := SelectEntityoneOneByStatus(testDBConn, testSQLLink, StatusCreated)
 		if err != nil {
 			b.Errorf("Select entityone by status: %v", err)
 			return
@@ -87,13 +87,13 @@ func BenchmarkSelectEntityoneOneByStatus(b *testing.B) {
 func TestSelectEntityoneOneByPK(t *testing.T) {
 	var e Entityone
 
-	err := e.Create(db, sqlLink)
+	err := e.Create(testDBConn, testSQLLink)
 	if err != nil {
 		t.Errorf("Select entityone by pk: %v", err)
 		return
 	}
 
-	entityOne, err := SelectEntityoneOneByPK(db, sqlLink, e.ID)
+	entityOne, err := SelectEntityoneOneByPK(testDBConn, testSQLLink, e.ID)
 	if err != nil {
 		t.Errorf("Select entityone by pk: %v", err)
 		return
@@ -124,7 +124,7 @@ func TestSelectEntityoneOneByPK(t *testing.T) {
 
 func BenchmarkSelectEntityoneOneByPK(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_, err := SelectEntityoneOneByPK(db, sqlLink, testEntityoneIDs[b.N%len(testEntityoneIDs)])
+		_, err := SelectEntityoneOneByPK(testDBConn, testSQLLink, testEntityoneIDs[b.N%len(testEntityoneIDs)])
 		if err != nil {
 			b.Errorf("Select entityone by status: %v", err)
 			return
@@ -132,97 +132,68 @@ func BenchmarkSelectEntityoneOneByPK(b *testing.B) {
 	}
 }
 
-var db *sqlx.DB
-var sqlLink SQLLink
+type SQLLinkContainer struct {
+	SQLLink
+}
+
+var testDBConn *sqlx.DB
+var testSQLLink *SQLLinkContainer
 var testEntityoneIDs []int64
 
 func TestMain(m *testing.M) {
 
 	var err error
-	var conf dbhandler.ConfType
-	dbName := "entityone_test"
 
+	dbName := "entityone_test"
 	dbType := flag.String("db", "mysql", "type of db to bench: mysql, cockroachdb, postgres")
 	host := flag.String("host", "localhost", "host IP")
 	flag.Parse()
 
-	switch *dbType {
-	case "mysql":
-		conf = &dbhandler.MySQLDB{
-			Protocol: "tcp",
-			Host:     *host,
-			Port:     "3306",
-			User:     "root",
-			Password: "test",
-			Dbname:   dbName,
-			SSL: dbhandler.SSL{
-				CertPath:   "",
-				KeyPath:    "",
-				CAPath:     "",
-				ServerName: "",
-			},
-		}
-		sqlLink = &mysql.Link{}
-	case "sqlite":
-		conf = &dbhandler.SQLiteDB{}
-		sqlLink = &sqlite.Link{}
-	case "postgres":
-		conf = &dbhandler.PostgresDB{
-			Host:     *host,
-			Port:     "5432",
-			User:     "root",
-			Password: "test",
-			Dbname:   dbName,
-			SSL: dbhandler.SSL{
-				CertPath:   "",
-				KeyPath:    "",
-				CAPath:     "",
-				ServerName: "",
-			},
-		}
-		sqlLink = &postgres.Link{}
-	case "cockroachdb":
-		conf = &dbhandler.CockroachDB{
-			Host:   *host,
-			Port:   "26257",
-			User:   "root",
-			Dbname: dbName,
-			SSL: dbhandler.SSL{
-				CertPath:   "",
-				KeyPath:    "",
-				CAPath:     "",
-				ServerName: "",
-			},
-		}
-		sqlLink = &cockroachdb.Link{}
-	}
-
-	db, err = conf.NewDBHandler()
-	if err != nil {
-		log.Fatalf("%v", err)
-	}
+	tempDBConn, err := dbhandler.Get(*dbType, *host, dbName)
 	defer func() {
-		errClose := db.Close()
+		errClose := testDBConn.Close()
 		if errClose != nil {
 			log.Fatalf("%v", errClose)
 		}
 	}()
-
-	err = sqlLink.MigrateDown(db)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
-	err = sqlLink.MigrateUp(db)
+	testDBConn = tempDBConn
+
+	tempSQLLink := GetSQLLinkContainer(*dbType)
+	testSQLLink = tempSQLLink
+
+	err = testSQLLink.MigrateDown(testDBConn)
+	if err != nil {
+		log.Fatalf("%v", err)
+	}
+	err = testSQLLink.MigrateUp(testDBConn)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
 
 	retCode := m.Run()
 
-	err = sqlLink.MigrateDown(db)
+	err = testSQLLink.MigrateDown(testDBConn)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
 
 	os.Exit(retCode)
+}
+
+func GetSQLLinkContainer(dbType string) *SQLLinkContainer {
+	switch dbType {
+	case "mysql":
+		return &SQLLinkContainer{&mysql.Link{}}
+	case "sqlite":
+		return &SQLLinkContainer{&sqlite.Link{}}
+	case "postgres":
+		return &SQLLinkContainer{&postgres.Link{}}
+	case "cockroachdb":
+		return &SQLLinkContainer{&cockroachdb.Link{}}
+	}
+
+	return nil
 }
