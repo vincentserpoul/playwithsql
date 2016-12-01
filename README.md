@@ -1,3 +1,5 @@
+[![Go Report Card](https://goreportcard.com/badge/github.com/vincentserpoul/playwithsql)](https://goreportcard.com/report/github.com/vincentserpoul/playwithsql)
+
 # playwithsql
 implementing as immutable as possible data modelization and benchmarking it on different platforms.
 
