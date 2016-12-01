@@ -7,21 +7,25 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/vincentserpoul/playwithsql/query"
+	"github.com/vincentserpoul/playwithsql/status/islatest/cockroachdb"
+	"github.com/vincentserpoul/playwithsql/status/islatest/mysql"
+	"github.com/vincentserpoul/playwithsql/status/islatest/postgres"
+	"github.com/vincentserpoul/playwithsql/status/islatest/sqlite"
 )
 
 // Entityone represents an event
 type Entityone struct {
-	ID          int64     `db:"entityone_id"`
-	TimeCreated time.Time `db:"time_created"`
-	Status
+	ID          int64     `db:"entityone_id" json:"entityone_id"`
+	TimeCreated time.Time `db:"time_created" json:"time_created"`
+	Status      `json:"status"`
 }
 
 // Status of the entity
 type Status struct {
-	EntityID    int64     `db:"status_entityone_id"`
-	ActionID    ActionID  `db:"action_id"`
-	StatusID    StatusID  `db:"status_id"`
-	TimeCreated time.Time `db:"status_time_created"`
+	EntityID    int64     `db:"status_entityone_id" json:"entityone_id"`
+	ActionID    ActionID  `db:"action_id" json:"action_id"`
+	StatusID    StatusID  `db:"status_id" json:"status_id"`
+	TimeCreated time.Time `db:"status_time_created" json:"time_created"`
 }
 
 // ActionID represents the action performed on the tradeoffer request
@@ -83,6 +87,8 @@ func (e *Entityone) Create(db *sqlx.DB, link SQLLink) (err error) {
 		return fmt.Errorf("Entityone createEntityone: %v", err)
 	}
 
+	e.TimeCreated = time.Now()
+
 	err = link.SaveStatus(tx, e.ID, int(ActionCreate), int(StatusCreated))
 	if err != nil {
 		return fmt.Errorf("Entityone createEntityone: %v", err)
@@ -113,12 +119,12 @@ func (e *Entityone) UpdateStatus(exec sqlx.Execer, link SQLLink, actionID Action
 	return nil
 }
 
-// SelectEntityoneOneByStatus will retrieve one entityone from a selected status
-func SelectEntityoneOneByStatus(
+// SelectEntityoneByStatus will retrieve one entityone from a selected status
+func SelectEntityoneByStatus(
 	q sqlx.Queryer,
 	link SQLLink,
 	statusID StatusID,
-) (selectedEntity *Entityone, err error) {
+) (selectedEntity []*Entityone, err error) {
 	entityOnes, err := selectEntity(q, link, []int64{}, []int{int(statusID)}, []int{}, []int{}, []int{}, 3)
 	if err != nil {
 		return nil, err
@@ -126,8 +132,8 @@ func SelectEntityoneOneByStatus(
 	if len(entityOnes) == 0 {
 		return nil, fmt.Errorf("no entity found for status %d", statusID)
 	}
-	selectedEntity = entityOnes[0]
-	return selectedEntity, err
+
+	return entityOnes, err
 }
 
 // SelectEntityoneOneByPK will retrieve one entityone from a selected status
@@ -229,4 +235,25 @@ func getFilterSelectEntityOneQuery(
 	}
 
 	return params, queryFilter
+}
+
+// SQLLinkContainer allows to contains an interface
+type SQLLinkContainer struct {
+	SQLLink
+}
+
+// GetSQLLinkContainer returns the type of link according to the dbtype
+func GetSQLLinkContainer(dbType string) *SQLLinkContainer {
+	switch dbType {
+	case "mysql":
+		return &SQLLinkContainer{&mysql.Link{}}
+	case "sqlite":
+		return &SQLLinkContainer{&sqlite.Link{}}
+	case "postgres":
+		return &SQLLinkContainer{&postgres.Link{}}
+	case "cockroachdb":
+		return &SQLLinkContainer{&cockroachdb.Link{}}
+	}
+
+	return nil
 }

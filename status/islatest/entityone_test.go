@@ -9,10 +9,6 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/vincentserpoul/playwithsql/dbhandler"
-	"github.com/vincentserpoul/playwithsql/status/islatest/cockroachdb"
-	"github.com/vincentserpoul/playwithsql/status/islatest/mysql"
-	"github.com/vincentserpoul/playwithsql/status/islatest/postgres"
-	"github.com/vincentserpoul/playwithsql/status/islatest/sqlite"
 )
 
 func TestCreate(t *testing.T) {
@@ -60,7 +56,7 @@ func BenchmarkUpdateStatus(b *testing.B) {
 	}
 }
 
-func TestSelectEntityoneOneByStatus(t *testing.T) {
+func TestSelectEntityoneByStatus(t *testing.T) {
 	var e Entityone
 
 	err := e.Create(testDBConn, testSQLLink)
@@ -68,15 +64,15 @@ func TestSelectEntityoneOneByStatus(t *testing.T) {
 		t.Errorf("Select entityone by status: %v", err)
 	}
 
-	_, err = SelectEntityoneOneByStatus(testDBConn, testSQLLink, StatusCreated)
+	_, err = SelectEntityoneByStatus(testDBConn, testSQLLink, StatusCreated)
 	if err != nil {
 		t.Errorf("Select entityone by status: %v", err)
 	}
 }
 
-func BenchmarkSelectEntityoneOneByStatus(b *testing.B) {
+func BenchmarkSelectEntityoneByStatus(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_, err := SelectEntityoneOneByStatus(testDBConn, testSQLLink, StatusCreated)
+		_, err := SelectEntityoneByStatus(testDBConn, testSQLLink, StatusCreated)
 		if err != nil {
 			b.Errorf("Select entityone by status: %v", err)
 			return
@@ -132,10 +128,6 @@ func BenchmarkSelectEntityoneOneByPK(b *testing.B) {
 	}
 }
 
-type SQLLinkContainer struct {
-	SQLLink
-}
-
 var testDBConn *sqlx.DB
 var testSQLLink *SQLLinkContainer
 var testEntityoneIDs []int64
@@ -181,19 +173,4 @@ func TestMain(m *testing.M) {
 	}
 
 	os.Exit(retCode)
-}
-
-func GetSQLLinkContainer(dbType string) *SQLLinkContainer {
-	switch dbType {
-	case "mysql":
-		return &SQLLinkContainer{&mysql.Link{}}
-	case "sqlite":
-		return &SQLLinkContainer{&sqlite.Link{}}
-	case "postgres":
-		return &SQLLinkContainer{&postgres.Link{}}
-	case "cockroachdb":
-		return &SQLLinkContainer{&cockroachdb.Link{}}
-	}
-
-	return nil
 }

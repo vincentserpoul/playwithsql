@@ -9,3 +9,4 @@ docker run -dit --name roach4 --net=roachnet --hostname=roach4 cockroachdb/cockr
 docker run -dit --name roach5 --net=roachnet --hostname=roach5 cockroachdb/cockroach  start --insecure --join=roach1;
 sleep 5s;
 docker exec -it roach1 ./cockroach sql --execute="CREATE DATABASE entityone_test;";
+docker exec -it roach1 ./cockroach sql --execute="CREATE DATABASE playwithsql;";
