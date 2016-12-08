@@ -1,10 +1,6 @@
 package cockroachdb
 
-import (
-	"fmt"
-
-	"github.com/jmoiron/sqlx"
-)
+import "github.com/jmoiron/sqlx"
 
 // Link is used to insert and update in mysql
 type Link struct{}
@@ -68,76 +64,4 @@ func (link *Link) MigrateDown(exec sqlx.Execer) (errExec error) {
 
 	_, errExec = exec.Exec("DROP TABLE IF EXISTS entityone")
 	return errExec
-}
-
-// InsertOne will insert a Entityone into db
-func (link *Link) InsertOne(exec sqlx.Ext) (id int64, err error) {
-	err = exec.QueryRowx(`
-		INSERT INTO entityone(entityone_id, time_created)
-		VALUES(DEFAULT, DEFAULT)
-		RETURNING entityone_id
-	`).Scan(&id)
-	if err != nil {
-		return id, fmt.Errorf("entityone Insert(): %v", err)
-	}
-
-	return id, nil
-}
-
-// SaveStatus will save the status in database for the selected entity
-func (link *Link) SaveStatus(
-	exec sqlx.Execer,
-	entityID int64,
-	actionID int,
-	statusID int,
-) error {
-	typeEntity := "entityone"
-
-	queryUpd := fmt.Sprintf(
-		"UPDATE %s_status "+
-			"SET is_latest = null "+
-			"WHERE %s_id=$1 AND is_latest = 1",
-		typeEntity,
-		typeEntity,
-	)
-
-	_, err := exec.Exec(queryUpd, entityID)
-	if err != nil {
-		return fmt.Errorf("infrastructure %s SaveStatus(%v, %d, %d): err %v",
-			typeEntity,
-			entityID,
-			actionID,
-			statusID,
-			err,
-		)
-	}
-
-	queryIns := fmt.Sprintf(
-		"INSERT INTO %s_status(%s_id, action_id, status_id) VALUES($1, $2, $3)",
-		typeEntity,
-		typeEntity,
-	)
-
-	_, err = exec.Exec(queryIns,
-		entityID,
-		actionID,
-		statusID,
-	)
-
-	if err != nil {
-		return fmt.Errorf("infrastructure %s SaveStatus(%v, %d, %d): err %v",
-			typeEntity,
-			entityID,
-			actionID,
-			statusID,
-			err,
-		)
-	}
-
-	return nil
-}
-
-// IsParamQuestionMark tells if params in SQL are ? or $1
-func (link *Link) IsParamQuestionMark() bool {
-	return false
 }

@@ -1,0 +1,12 @@
+version: '2'
+services:
+  cockroachdb:
+    container_name: roach1
+    image: cockroachdb/cockroach
+    ports:
+    - "8080:8080"
+    - "26257:26257"
+    entrypoint:
+      - "/cockroach/cockroach"
+      - "start"
+      - "--insecure"

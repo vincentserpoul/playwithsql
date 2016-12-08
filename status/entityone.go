@@ -1,4 +1,4 @@
-package islatest
+package status
 
 import (
 	"fmt"
@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/vincentserpoul/playwithsql/query"
 	"github.com/vincentserpoul/playwithsql/status/islatest/cockroachdb"
 	"github.com/vincentserpoul/playwithsql/status/islatest/mysql"
 	"github.com/vincentserpoul/playwithsql/status/islatest/postgres"
@@ -68,6 +67,15 @@ type SQLLink interface {
 	MigrateDown(exec sqlx.Execer) (errExec error)
 	InsertOne(sqlx.Ext) (int64, error)
 	SaveStatus(exec sqlx.Execer, entityID int64, actionID int, statusID int) error
+	SelectEntity(
+		q sqlx.Queryer,
+		entityIDs []int64,
+		isStatusIDs []int,
+		notStatusIDs []int,
+		neverStatusIDs []int,
+		hasStatusIDs []int,
+		limit int,
+	) (*sqlx.Rows, error)
 	IsParamQuestionMark() bool
 }
 
@@ -105,7 +113,12 @@ func (e *Entityone) Create(db *sqlx.DB, link SQLLink) (err error) {
 }
 
 // UpdateStatus will update the status of an Entityone into db
-func (e *Entityone) UpdateStatus(exec sqlx.Execer, link SQLLink, actionID ActionID, statusID StatusID) error {
+func (e *Entityone) UpdateStatus(
+	exec sqlx.Execer,
+	link SQLLink,
+	actionID ActionID,
+	statusID StatusID,
+) error {
 	err := link.SaveStatus(exec, e.ID, int(actionID), int(statusID))
 
 	if err != nil {
@@ -125,12 +138,17 @@ func SelectEntityoneByStatus(
 	link SQLLink,
 	statusID StatusID,
 ) (selectedEntity []*Entityone, err error) {
-	entityOnes, err := selectEntity(q, link, []int64{}, []int{int(statusID)}, []int{}, []int{}, []int{}, 3)
+	rows, err := link.SelectEntity(q, []int64{}, []int{int(statusID)}, []int{}, []int{}, []int{}, 3)
+	if err != nil {
+		return nil, err
+	}
+
+	entityOnes, err := extractEntityonesFromRows(rows)
 	if err != nil {
 		return nil, err
 	}
 	if len(entityOnes) == 0 {
-		return nil, fmt.Errorf("no entity found for status %d", statusID)
+		return nil, fmt.Errorf("no entity found for status %d", int(statusID))
 	}
 
 	return entityOnes, err
@@ -142,7 +160,12 @@ func SelectEntityoneOneByPK(
 	link SQLLink,
 	entityID int64,
 ) (selectedEntity *Entityone, err error) {
-	entityOnes, err := selectEntity(q, link, []int64{entityID}, []int{}, []int{}, []int{}, []int{}, 0)
+	rows, err := link.SelectEntity(q, []int64{entityID}, []int{}, []int{}, []int{}, []int{}, 0)
+	if err != nil {
+		return nil, err
+	}
+
+	entityOnes, err := extractEntityonesFromRows(rows)
 	if err != nil {
 		return nil, err
 	}
@@ -154,46 +177,7 @@ func SelectEntityoneOneByPK(
 	return selectedEntity, err
 }
 
-// selectEntity will retrieve a slice of entityones that are in status created
-func selectEntity(
-	q sqlx.Queryer,
-	link SQLLink,
-	entityIDs []int64,
-	isStatusIDs []int,
-	notStatusIDs []int,
-	neverStatusIDs []int,
-	hasStatusIDs []int,
-	limit int,
-) (entityOnes []*Entityone, err error) {
-
-	query := `
-        SELECT
-            e.entityone_id, e.time_created,
-            es.entityone_id as status_entityone_id, es.action_id, es.status_id, es.time_created as status_time_created
-        FROM entityone e
-        INNER JOIN entityone_status es ON es.entityone_id = e.entityone_id
-            AND es.is_latest = 1
-        WHERE 0 = 0
-    `
-
-	params, queryFilter := getFilterSelectEntityOneQuery(
-		link,
-		entityIDs,
-		isStatusIDs,
-	)
-
-	query += queryFilter
-
-	if limit > 0 {
-		limitStr := ` LIMIT ` + strconv.Itoa(limit)
-		query += limitStr
-	}
-
-	rows, err := q.Queryx(query, params...)
-	if err != nil {
-		return entityOnes, fmt.Errorf("entityone Select: %v", err)
-	}
-
+func extractEntityonesFromRows(rows *sqlx.Rows) (entityOnes []*Entityone, err error) {
 	for rows.Next() {
 
 		eo := Entityone{}
@@ -206,35 +190,6 @@ func selectEntity(
 	}
 
 	return entityOnes, nil
-}
-
-func getFilterSelectEntityOneQuery(
-	link SQLLink,
-	entityIDs []int64,
-	isStatusIDs []int,
-) (params []interface{}, queryFilter string) {
-
-	i := 0
-
-	if len(entityIDs) > 0 {
-		queryFilter += ` AND e.entityone_id IN `
-		queryFilter += query.InQueryParams(len(entityIDs), link.IsParamQuestionMark(), i)
-		for _, param := range entityIDs {
-			params = append(params, param)
-			i++
-		}
-	}
-
-	if len(isStatusIDs) > 0 {
-		queryFilter += `  AND es.status_id IN `
-		queryFilter += query.InQueryParams(len(isStatusIDs), link.IsParamQuestionMark(), i)
-		for _, param := range isStatusIDs {
-			params = append(params, param)
-			i++
-		}
-	}
-
-	return params, queryFilter
 }
 
 // SQLLinkContainer allows to contains an interface

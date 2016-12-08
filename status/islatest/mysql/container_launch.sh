@@ -11,11 +11,11 @@ removeContainer() {
 }
 
 echo "Choose your flavor:"
-select flavor in "mysql 8.0.0" "percona 5.7.15" "mariadb 10.1.19"; do
+select flavor in "mysql 8.0.0" "percona 5.7.16" "mariadb 10.1.19"; do
     case $flavor in
-        "mysql 8.0.0" ) removeContainer;docker run -dit --name mydb -e MYSQL_ROOT_PASSWORD=test -p 3306:3306 mysql:8.0.0;initdb;break;;
-        "percona 5.7.15" ) removeContainer;docker run -dit --name mydb -e MYSQL_ROOT_PASSWORD=test -p 3306:3306 percona:5.7.15;initdb;break;;
-        "mariadb 10.1.19" ) removeContainer;docker run -dit --name mydb -e MYSQL_ROOT_PASSWORD=test -p 3306:3306 mariadb:10.1.19;initdb;break;;
+        "mysql 8.0.0" ) removeContainer;docker-compose -f ./islatest/mysql/docker-compose-solo-mysql.yml up -d;initdb;break;;
+        "percona 5.7.16" ) removeContainer;docker-compose -f ./islatest/mysql/docker-compose-solo-percona.yml up -d;initdb;break;;
+        "mariadb 10.1.19" ) removeContainer;docker-compose -f ./islatest/mysql/docker-compose-solo-maria.yml up -d;initdb;break;;
     esac
 done
 

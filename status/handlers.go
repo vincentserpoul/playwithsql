@@ -1,4 +1,4 @@
-package islatest
+package status
 
 import (
 	"encoding/json"
