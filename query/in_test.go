@@ -29,6 +29,34 @@ func TestInQueryParams(t *testing.T) {
 
 func BenchmarkInQueryParams(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		InQueryParams(0, true, 1)
+		InQueryParams(i, true, 1)
+	}
+}
+
+func TestInQueryNamedParams(t *testing.T) {
+	cases := []struct {
+		LenParams  int
+		NameParam  string
+		ExpQFilter string
+	}{
+		{LenParams: 0, NameParam: "test", ExpQFilter: ""},
+		{LenParams: 3, NameParam: "", ExpQFilter: ""},
+		{LenParams: 3, NameParam: "test", ExpQFilter: "(:test,:test,:test)"},
+	}
+
+	for _, c := range cases {
+		foundQuery := InQueryNamedParams(c.LenParams, c.NameParam)
+		if foundQuery != c.ExpQFilter {
+			t.Errorf("InQueryParams(%d, %s) should have returned %s, but returned %s\n",
+				c.LenParams, c.NameParam, c.ExpQFilter, foundQuery,
+			)
+			return
+		}
+	}
+}
+
+func BenchmarkInQueryNamedParams(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		InQueryNamedParams(i, "test")
 	}
 }

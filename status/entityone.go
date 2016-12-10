@@ -66,9 +66,9 @@ type SQLLink interface {
 	MigrateUp(exec sqlx.Execer) (errExec error)
 	MigrateDown(exec sqlx.Execer) (errExec error)
 	InsertOne(sqlx.Ext) (int64, error)
-	SaveStatus(exec sqlx.Execer, entityID int64, actionID int, statusID int) error
+	SaveStatus(q *sqlx.Tx, entityID int64, actionID int, statusID int) error
 	SelectEntity(
-		q sqlx.Queryer,
+		q *sqlx.DB,
 		entityIDs []int64,
 		isStatusIDs []int,
 		notStatusIDs []int,
@@ -84,7 +84,8 @@ func (e *Entityone) Create(db *sqlx.DB, link SQLLink) (err error) {
 	tx := db.MustBegin()
 	defer func() {
 		if err != nil {
-			err = tx.Rollback()
+			errRoll := tx.Rollback()
+			err = fmt.Errorf("%v (rollback errors: %v)", err, errRoll)
 		} else {
 			err = tx.Commit()
 		}
@@ -114,13 +115,22 @@ func (e *Entityone) Create(db *sqlx.DB, link SQLLink) (err error) {
 
 // UpdateStatus will update the status of an Entityone into db
 func (e *Entityone) UpdateStatus(
-	exec sqlx.Execer,
+	db *sqlx.DB,
 	link SQLLink,
 	actionID ActionID,
 	statusID StatusID,
-) error {
-	err := link.SaveStatus(exec, e.ID, int(actionID), int(statusID))
+) (err error) {
+	tx := db.MustBegin()
+	defer func() {
+		if err != nil {
+			errRoll := tx.Rollback()
+			err = fmt.Errorf("%v (rollback errors: %v)", err, errRoll)
+		} else {
+			err = tx.Commit()
+		}
+	}()
 
+	err = link.SaveStatus(tx, e.ID, int(actionID), int(statusID))
 	if err != nil {
 		return fmt.Errorf("entityone UpdateStatus(): %v", err)
 	}
@@ -134,7 +144,7 @@ func (e *Entityone) UpdateStatus(
 
 // SelectEntityoneByStatus will retrieve one entityone from a selected status
 func SelectEntityoneByStatus(
-	q sqlx.Queryer,
+	q *sqlx.DB,
 	link SQLLink,
 	statusID StatusID,
 ) (selectedEntity []*Entityone, err error) {
@@ -156,7 +166,7 @@ func SelectEntityoneByStatus(
 
 // SelectEntityoneOneByPK will retrieve one entityone from a selected status
 func SelectEntityoneOneByPK(
-	q sqlx.Queryer,
+	q *sqlx.DB,
 	link SQLLink,
 	entityID int64,
 ) (selectedEntity *Entityone, err error) {

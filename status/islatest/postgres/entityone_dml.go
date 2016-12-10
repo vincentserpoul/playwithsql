@@ -23,61 +23,17 @@ func (link *Link) InsertOne(exec sqlx.Ext) (id int64, err error) {
 
 // SaveStatus will save the status in database for the selected entity
 func (link *Link) SaveStatus(
-	exec sqlx.Execer,
+	exec *sqlx.Tx,
 	entityID int64,
 	actionID int,
 	statusID int,
 ) error {
-	typeEntity := "entityone"
-
-	queryUpd := fmt.Sprintf(
-		"UPDATE %s_status "+
-			"SET is_latest = null "+
-			"WHERE %s_id=$1 AND is_latest = 1",
-		typeEntity,
-		typeEntity,
-	)
-
-	_, err := exec.Exec(queryUpd, entityID)
-	if err != nil {
-		return fmt.Errorf("infrastructure %s SaveStatus(%v, %d, %d): err %v",
-			typeEntity,
-			entityID,
-			actionID,
-			statusID,
-			err,
-		)
-	}
-
-	queryIns := fmt.Sprintf(
-		"INSERT INTO %s_status(%s_id, action_id, status_id) "+
-			" VALUES($1, $2, $3)",
-		typeEntity,
-		typeEntity,
-	)
-
-	_, err = exec.Exec(queryIns,
-		entityID,
-		actionID,
-		statusID,
-	)
-
-	if err != nil {
-		return fmt.Errorf("infrastructure %s SaveStatus(%v, %d, %d): err %v",
-			typeEntity,
-			entityID,
-			actionID,
-			statusID,
-			err,
-		)
-	}
-
-	return nil
+	return islatest.SaveStatus(exec, entityID, actionID, statusID)
 }
 
 // SelectEntity returns sqlx.Rows
 func (link *Link) SelectEntity(
-	q sqlx.Queryer,
+	q *sqlx.DB,
 	entityIDs []int64,
 	isStatusIDs []int,
 	notStatusIDs []int,
@@ -85,7 +41,7 @@ func (link *Link) SelectEntity(
 	hasStatusIDs []int,
 	limit int,
 ) (*sqlx.Rows, error) {
-	return islatest.SelectEntity(link.IsParamQuestionMark())(
+	return islatest.SelectEntity(
 		q,
 		entityIDs,
 		isStatusIDs,

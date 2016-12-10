@@ -32,3 +32,26 @@ func InQueryParams(
 
 	return inQuery
 }
+
+// InQueryNamedParams returns a param string for IN queries
+func InQueryNamedParams(
+	lenParams int,
+	nameParam string,
+) (inQuery string) {
+	if lenParams == 0 {
+		return inQuery
+	}
+	if nameParam == "" {
+		return inQuery
+	}
+
+	inQuery += `(`
+	var queryParams []string
+	for i := 0; i < lenParams; i++ {
+		queryParams = append(queryParams, `:`+nameParam)
+	}
+	inQuery += strings.Join(queryParams, `,`)
+	inQuery += `)`
+
+	return inQuery
+}
