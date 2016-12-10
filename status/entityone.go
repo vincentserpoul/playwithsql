@@ -66,7 +66,12 @@ type SQLLink interface {
 	MigrateUp(exec sqlx.Execer) (errExec error)
 	MigrateDown(exec sqlx.Execer) (errExec error)
 	InsertOne(sqlx.Ext) (int64, error)
-	SaveStatus(q *sqlx.Tx, entityID int64, actionID int, statusID int) error
+	SaveStatus(
+		exec *sqlx.Tx,
+		entityID int64,
+		actionID int,
+		statusID int,
+	) error
 	SelectEntity(
 		q *sqlx.DB,
 		entityIDs []int64,
