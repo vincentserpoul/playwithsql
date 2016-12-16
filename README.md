@@ -11,6 +11,8 @@ implementing as immutable as possible data modelization and benchmarking it on d
 - [x] Postgres
 - [x] CockroachDB
 - [x] SQLite
+- [ ] Microsoft SQL Server
+- [ ] Oracle
 
 # The setup
 
