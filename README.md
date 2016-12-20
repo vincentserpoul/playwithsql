@@ -11,7 +11,7 @@ implementing as immutable as possible data modelization and benchmarking it on d
 - [x] Postgres
 - [x] CockroachDB
 - [x] SQLite
-- [ ] Microsoft SQL Server
+- [x] Microsoft SQL Server
 - [ ] Oracle
 
 # The setup
@@ -20,7 +20,7 @@ implementing as immutable as possible data modelization and benchmarking it on d
 * 1 ubuntu 16.04
 
 on ubuntu:
-* install golang 1.7.3
+* install golang 1.7.4
 * install gcc and sqlite3
 
 ```
