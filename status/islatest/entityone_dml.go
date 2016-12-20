@@ -28,7 +28,7 @@ func SelectEntity(
             WHERE 0 = 0
         `
 
-	namedParams, queryFilter := getFilterSelectEntityOneNamedQuery(entityIDs, isStatusIDs)
+	namedParams, queryFilter := GetFilterSelectEntityOneNamedQuery(entityIDs, isStatusIDs)
 
 	query += queryFilter
 
@@ -52,7 +52,8 @@ func SelectEntity(
 
 }
 
-func getFilterSelectEntityOneNamedQuery(
+// GetFilterSelectEntityOneNamedQuery returns query filter and params for the query
+func GetFilterSelectEntityOneNamedQuery(
 	entityIDs []int64,
 	isStatusIDs []int,
 ) (map[string]interface{}, string) {

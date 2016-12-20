@@ -57,6 +57,14 @@ func Get(dbType string, host string, dbName string) (db *sqlx.DB, err error) {
 				ServerName: "",
 			},
 		}
+	case "mssql":
+		conf = &MSSQLDB{
+			Host:     host,
+			Port:     "1433",
+			User:     "sa",
+			Password: "thank5MsSQLforcingMe",
+			Dbname:   dbName,
+		}
 	}
 
 	return conf.NewDBHandler()

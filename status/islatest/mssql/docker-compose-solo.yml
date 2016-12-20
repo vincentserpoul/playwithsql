@@ -1,0 +1,11 @@
+version: '2'
+services:
+  mysql:
+    container_name: mssqldb
+    # image: microsoft/mssql-server-linux doesn't contain tools to create db
+    image: militellovinx/mssql-server-linux
+    ports:
+    - "1433:1433"
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=thank5MsSQLforcingMe
