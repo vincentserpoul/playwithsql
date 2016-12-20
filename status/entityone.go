@@ -7,6 +7,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/vincentserpoul/playwithsql/status/islatest/cockroachdb"
+	"github.com/vincentserpoul/playwithsql/status/islatest/mssql"
 	"github.com/vincentserpoul/playwithsql/status/islatest/mysql"
 	"github.com/vincentserpoul/playwithsql/status/islatest/postgres"
 	"github.com/vincentserpoul/playwithsql/status/islatest/sqlite"
@@ -223,6 +224,8 @@ func GetSQLLinkContainer(dbType string) *SQLLinkContainer {
 		return &SQLLinkContainer{&postgres.Link{}}
 	case "cockroachdb":
 		return &SQLLinkContainer{&cockroachdb.Link{}}
+	case "mssql":
+		return &SQLLinkContainer{&mssql.Link{}}
 	}
 
 	return nil
