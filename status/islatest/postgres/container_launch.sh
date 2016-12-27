@@ -1,5 +1,5 @@
 #!/bin/sh
-docker rm -f postgresdb;
+docker-compose -f ./islatest/postgres/docker-compose-solo.yml down;
 docker-compose -f ./islatest/postgres/docker-compose-solo.yml up -d;
 sleep 5s;
 docker exec -it postgresdb psql -c 'CREATE DATABASE entityone_test;';

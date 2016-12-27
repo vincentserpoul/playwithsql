@@ -1,5 +1,5 @@
 #!/bin/sh
-docker rm -f mssqldb;
+docker-compose -f ./islatest/mssql/docker-compose-solo.yml down;
 docker-compose -f ./islatest/mssql/docker-compose-solo.yml up -d;
 sleep 5s;
 

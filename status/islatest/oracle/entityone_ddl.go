@@ -97,11 +97,27 @@ func (link *Link) MigrateUp(exec sqlx.Execer) (errExec error) {
 
 // MigrateDown destroys the needed tables
 func (link *Link) MigrateDown(exec sqlx.Execer) (errExec error) {
-	_, errExec = exec.Exec("DROP TABLE entityone_status")
+	_, errExec = exec.Exec(`
+		DECLARE cnt NUMBER;
+		BEGIN
+			SELECT COUNT(*) INTO cnt FROM user_tables WHERE table_name = 'entityone_status';
+			IF cnt <> 0 THEN
+			EXECUTE IMMEDIATE 'DROP TABLE entityone_status';
+			END IF;
+		END;	
+	`)
 	if errExec != nil {
 		return errExec
 	}
 
-	_, errExec = exec.Exec("DROP TABLE entityone")
+	_, errExec = exec.Exec(`
+		DECLARE cnt NUMBER;
+		BEGIN
+			SELECT COUNT(*) INTO cnt FROM user_tables WHERE table_name = 'entityone';
+			IF cnt <> 0 THEN
+			EXECUTE IMMEDIATE 'DROP TABLE entityone';
+			END IF;
+		END;	
+	`)
 	return errExec
 }

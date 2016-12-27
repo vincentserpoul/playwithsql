@@ -1,5 +1,5 @@
 #!/bin/sh
-docker rm -f roach1;
+docker-compose -f ./islatest/cockroachdb/docker-compose-solo.yml down;
 docker-compose -f ./islatest/cockroachdb/docker-compose-solo.yml up -d;
 sleep 5s;
 docker exec -it roach1 ./cockroach sql --execute="CREATE DATABASE entityone_test;";
