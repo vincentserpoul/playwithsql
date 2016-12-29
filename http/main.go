@@ -9,12 +9,12 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/tylerb/graceful"
 	"github.com/vincentserpoul/playwithsql/dbhandler"
-	"github.com/vincentserpoul/playwithsql/status/islatest"
+	"github.com/vincentserpoul/playwithsql/status"
 )
 
 type localEnv struct {
 	DB           *sqlx.DB
-	IslatestLink *islatest.SQLLinkContainer
+	IslatestLink *status.SQLLinkContainer
 }
 
 func main() {
@@ -29,7 +29,7 @@ func main() {
 		log.Fatalf("%v", err)
 	}
 
-	islatestSQLLink := islatest.GetSQLLinkContainer(*dbType)
+	islatestSQLLink := status.GetSQLLinkContainer(*dbType)
 	err = islatestSQLLink.MigrateUp(db)
 	if err != nil {
 		log.Fatalf("%v", err)
