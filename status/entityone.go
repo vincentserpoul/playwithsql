@@ -6,12 +6,12 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/vincentserpoul/playwithsql/status/islatest/cockroachdb"
-	"github.com/vincentserpoul/playwithsql/status/islatest/mssql"
-	"github.com/vincentserpoul/playwithsql/status/islatest/mysql"
-	"github.com/vincentserpoul/playwithsql/status/islatest/oracle"
-	"github.com/vincentserpoul/playwithsql/status/islatest/postgres"
-	"github.com/vincentserpoul/playwithsql/status/islatest/sqlite"
+	ilcockroachdb "github.com/vincentserpoul/playwithsql/status/islatest/cockroachdb"
+	ilmssql "github.com/vincentserpoul/playwithsql/status/islatest/mssql"
+	ilmysql "github.com/vincentserpoul/playwithsql/status/islatest/mysql"
+	iloracle "github.com/vincentserpoul/playwithsql/status/islatest/oracle"
+	ilpostgres "github.com/vincentserpoul/playwithsql/status/islatest/postgres"
+	ilsqlite "github.com/vincentserpoul/playwithsql/status/islatest/sqlite"
 )
 
 // Entityone represents an event
@@ -217,17 +217,17 @@ type SQLLinkContainer struct {
 func GetSQLLinkContainer(dbType string) *SQLLinkContainer {
 	switch dbType {
 	case "mysql":
-		return &SQLLinkContainer{&mysql.Link{}}
+		return &SQLLinkContainer{&ilmysql.Link{}}
 	case "sqlite":
-		return &SQLLinkContainer{&sqlite.Link{}}
+		return &SQLLinkContainer{&ilsqlite.Link{}}
 	case "postgres":
-		return &SQLLinkContainer{&postgres.Link{}}
+		return &SQLLinkContainer{&ilpostgres.Link{}}
 	case "cockroachdb":
-		return &SQLLinkContainer{&cockroachdb.Link{}}
+		return &SQLLinkContainer{&ilcockroachdb.Link{}}
 	case "mssql":
-		return &SQLLinkContainer{&mssql.Link{}}
+		return &SQLLinkContainer{&ilmssql.Link{}}
 	case "oracle":
-		return &SQLLinkContainer{&oracle.Link{}}
+		return &SQLLinkContainer{&iloracle.Link{}}
 	}
 
 	return nil
