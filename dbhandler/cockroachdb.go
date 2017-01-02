@@ -1,8 +1,6 @@
 package dbhandler
 
 import (
-	"github.com/serenize/snaker"
-
 	"github.com/jmoiron/sqlx"
 	// to connect to cockroachdb
 	_ "github.com/lib/pq"
@@ -27,8 +25,6 @@ func (CockroachConf CockroachDB) NewDBHandler() (*sqlx.DB, error) {
 		CockroachConf.Dbname + "?sslmode=disable"
 
 	db := sqlx.MustConnect("postgres", dsn)
-
-	db.MapperFunc(snaker.CamelToSnake)
 
 	return db, nil
 }

@@ -83,7 +83,6 @@ type SQLLink interface {
 		hasStatusIDs []int,
 		limit int,
 	) (*sqlx.Rows, error)
-	IsParamQuestionMark() bool
 }
 
 // Create will create an entityone

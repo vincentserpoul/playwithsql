@@ -8,7 +8,6 @@ import (
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
-	"github.com/serenize/snaker"
 )
 
 // MySQLDB is a conf for the mysql database
@@ -69,15 +68,6 @@ func (mysqlConf *MySQLDB) NewDBHandler() (*sqlx.DB, error) {
 	}
 
 	db := sqlx.MustConnect("mysql", dsn)
-
-	db.MapperFunc(snaker.CamelToSnake)
-
-	// we don't want to close the connection
-
-	//  if err != nil {
-	//      log.Printf("infrastructure db Close(): %v", err)
-	//  }
-	// }()
 
 	return db, nil
 }

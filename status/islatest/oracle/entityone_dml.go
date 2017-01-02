@@ -11,7 +11,10 @@ import (
 // InsertOne will insert a Entityone into db
 func (link *Link) InsertOne(exec sqlx.Ext) (id int64, err error) {
 
-	res, err := exec.Exec(`INSERT INTO entityone(entityone_id) VALUES (default)`)
+	res, err := exec.Exec(`
+		INSERT INTO entityone(entityone_id) VALUES (default)
+		RETURNING entityone_id /*LastInsertId*/ INTO :id
+	`, nil)
 	if err != nil {
 		return id, fmt.Errorf("entityone Insert(): %v", err)
 	}
@@ -47,8 +50,9 @@ func (link *Link) SelectEntity(
 
 	query := `
             SELECT
-                e.entityone_id, e.time_created,
-                es.entityone_id as status_entityone_id, es.action_id, es.status_id, es.time_created as status_time_created
+                e.entityone_id as "entityone_id", e.time_created as "time_created",
+                es.entityone_id as "status_entityone_id", es.action_id as "action_id",
+				es.status_id as "status_id", es.time_created as "status_time_created"
             FROM entityone e
             INNER JOIN entityone_status es ON es.entityone_id = e.entityone_id
                 AND es.is_latest = 1
@@ -77,9 +81,4 @@ func (link *Link) SelectEntity(
 	query = q.Rebind(query)
 	return q.Queryx(query, injectedNamedParams...)
 
-}
-
-// IsParamQuestionMark tells if params in SQL are ? or $1
-func (link *Link) IsParamQuestionMark() bool {
-	return false
 }

@@ -1,6 +1,10 @@
 package oracle
 
-import "github.com/jmoiron/sqlx"
+import (
+	"fmt"
+
+	"github.com/jmoiron/sqlx"
+)
 
 // Link is used to insert and update in mysql
 type Link struct{}
@@ -28,43 +32,43 @@ func (link *Link) MigrateUp(exec sqlx.Execer) (errExec error) {
 	_, errExec = exec.Exec(
 		`
         CREATE TABLE entityone (
-            entityone_id NUMBER(10,0) PRIMARY KEY
-				USING INDEX (CREATE INDEX e_pk_ei ON entityone(entityone_id))),
-            time_created DATE DEFAULT SYSDATE NOT NULL
+            entityone_id NUMBER(10,0) NOT NULL,
+			time_created DATE DEFAULT SYSDATE NOT NULL,
+			CONSTRAINT e_pk PRIMARY KEY (entityone_id)
+				USING INDEX (CREATE INDEX e_pk_ei ON entityone(entityone_id))
         )
     `)
 	if errExec != nil {
-		return errExec
+		return fmt.Errorf("MigrateUp: create table entityone %v", errExec)
 	}
 
 	_, errExec = exec.Exec(`CREATE SEQUENCE entityone_seq START WITH 1`)
 	if errExec != nil {
-		return errExec
+		return fmt.Errorf("MigrateUp: create sequence %v", errExec)
 	}
 
 	_, errExec = exec.Exec(
 		`
 		CREATE OR REPLACE TRIGGER entityone_trig
-		BEFORE INSERT ON entityone 
-		FOR EACH ROW
+		BEFORE INSERT ON entityone FOR EACH ROW
 		BEGIN
-		SELECT entityone_seq.NEXTVAL
-		INTO   :new.id
-		FROM   dual;
+			SELECT entityone_seq.NEXTVAL
+			INTO   :new.entityone_id
+			FROM   dual;
 		END;
 	`)
 	if errExec != nil {
-		return errExec
+		return fmt.Errorf("MigrateUp: create trigger %v", errExec)
 	}
 
 	_, errExec = exec.Exec(
 		`
         CREATE TABLE entityone_status (
             entityone_id NUMBER(10,0) NOT NULL,
-            action_id NUMBER(1, 0) NOT NULL DEFAULT 1,
-            status_id NUMBER(1, 0) NOT NULL DEFAULT 1,
+            action_id NUMBER(3, 0) NOT NULL,
+            status_id NUMBER(3, 0) NOT NULL ,
             time_created DATE DEFAULT SYSDATE NOT NULL,
-            is_latest NUMBER(1, 0) NULL DEFAULT 1,
+            is_latest NUMBER(1, 0) DEFAULT 1,
      		CONSTRAINT es_ux_ilei UNIQUE (is_latest, entityone_id)
 				USING INDEX (CREATE UNIQUE INDEX es_ux_ilei ON entityone_status(is_latest, entityone_id)),
             CONSTRAINT es_fk_e FOREIGN KEY (entityone_id)
@@ -72,25 +76,11 @@ func (link *Link) MigrateUp(exec sqlx.Execer) (errExec error) {
         )
     `)
 	if errExec != nil {
-		return errExec
+		return fmt.Errorf("MigrateUp: create table entityone_status %v", errExec)
 	}
 
 	_, errExec = exec.Exec(
-		`CREATE INDEX es_idx1 ON entityone_status(status_id, is_latest)`,
-	)
-	if errExec != nil {
-		return errExec
-	}
-
-	_, errExec = exec.Exec(
-		`CREATE INDEX es_idx1 ON entityone_status(status_id, is_latest)`,
-	)
-	if errExec != nil {
-		return errExec
-	}
-
-	_, errExec = exec.Exec(
-		`CREATE INDEX es_idx2 ON entityone_status(entityone_id)`,
+		`CREATE INDEX es_idx_ei ON entityone_status(entityone_id)`,
 	)
 	return errExec
 }

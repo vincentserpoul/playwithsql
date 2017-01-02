@@ -1,8 +1,6 @@
 package dbhandler
 
 import (
-	"github.com/serenize/snaker"
-
 	"github.com/jmoiron/sqlx"
 
 	// to connect to mssql
@@ -28,8 +26,6 @@ func (MSSQLConf MSSQLDB) NewDBHandler() (*sqlx.DB, error) {
 		";database=" + MSSQLConf.Dbname
 
 	db := sqlx.MustConnect("mssql", dsn)
-
-	db.MapperFunc(snaker.CamelToSnake)
 
 	return db, nil
 }

@@ -1,8 +1,6 @@
 package dbhandler
 
 import (
-	"github.com/serenize/snaker"
-
 	"github.com/jmoiron/sqlx"
 
 	// to connect to Oracle
@@ -28,8 +26,6 @@ func (OracleConf OracleDB) NewDBHandler() (*sqlx.DB, error) {
 		OracleConf.Sid
 
 	db := sqlx.MustConnect("ora", dsn)
-
-	db.MapperFunc(snaker.CamelToSnake)
 
 	return db, nil
 }

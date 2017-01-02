@@ -53,8 +53,3 @@ func (link *Link) SelectEntity(
 		limit,
 	)
 }
-
-// IsParamQuestionMark tells if params in SQL are ? or $1
-func (link *Link) IsParamQuestionMark() bool {
-	return true
-}

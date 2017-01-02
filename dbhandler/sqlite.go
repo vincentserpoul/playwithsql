@@ -6,7 +6,6 @@ import (
 	"github.com/jmoiron/sqlx"
 	// sqlite driver
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/serenize/snaker"
 )
 
 // SQLiteDB is used to have to interface valid
@@ -23,8 +22,6 @@ func (sqliteConf *SQLiteDB) NewDBHandler() (*sqlx.DB, error) {
 	}
 
 	db := sqlx.MustConnect("sqlite3", "./test.db")
-
-	db.MapperFunc(snaker.CamelToSnake)
 
 	return db, nil
 }
