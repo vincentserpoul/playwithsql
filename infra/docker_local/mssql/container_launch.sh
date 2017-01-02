@@ -1,6 +1,6 @@
 #!/bin/sh
-docker-compose -f ./islatest/mssql/docker-compose-solo.yml down;
-docker-compose -f ./islatest/mssql/docker-compose-solo.yml up -d;
+docker-compose -f ./infra/docker_local/mssql/docker-compose-solo.yml down;
+docker-compose -f ./infra/docker_local/mssql/docker-compose-solo.yml up -d;
 sleep 5s;
 
 docker exec -it mssqldb /bin/bash -c 'echo "create database entityone_test;" > createdb.sql && /usr/bin/sqlcmd -U sa -P thank5MsSQLforcingMe -i ./createdb.sql;'

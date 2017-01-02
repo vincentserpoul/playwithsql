@@ -12,7 +12,7 @@ implementing as immutable as possible data modelization and benchmarking it on d
 - [x] CockroachDB
 - [x] SQLite
 - [x] Microsoft SQL Server
-- [ ] Oracle
+- [x] Oracle
 
 # The setup
 
@@ -21,7 +21,7 @@ implementing as immutable as possible data modelization and benchmarking it on d
 
 on ubuntu:
 * install golang 1.7.4
-* install gcc and sqlite3
+* install gcc and sqlite3 and oracle
 
 ```
 wget https://storage.googleapis.com/golang/go1.7.3.linux-amd64.tar.gz
@@ -32,4 +32,10 @@ apt-get install -y sqlite3 gcc
 go get github.com/vincentserpoul/playwithsql
 cd src/github.com/vincentserpoul/playwithsql/
 go get ./...
+```
+
+# Launch local status benches
+
+```
+./status/launch_all.sh
 ```
