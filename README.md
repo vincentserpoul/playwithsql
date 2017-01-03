@@ -24,9 +24,11 @@ implementing as immutable as possible data modelization and benchmarking it on d
 Download [Oracle instant client](http://www.oracle.com/technetwork/topics/linuxx86-64soft-092277.html) for Oracle (basic and SDK) to the infra folder
 
 ```
-scp -i ~/.ssh/YOURPRIVATEKEY ./infra/instantclient-* root@YOURUBUNTUIP://root/
-scp -i ~/.ssh/YOURPRIVATEKEY ./infra/install_ubuntu.sh root@YOURUBUNTUIP://root/
-ssh -i ~/.ssh/YOURPRIVATEKEY root@YOURUBUNTUIP "/root/install_ubuntu.sh"
+COREOSIP=192.xxx UBUNTUIP=192.xxx YOURPRIVATEKEY=~/.ssh/keykeyxxxx &&
+scp -i $YOURPRIVATEKEY ./infra/instantclient-* root@$UBUNTUIP://root/ &&
+scp -i $YOURPRIVATEKEY ./infra/install_ubuntu.sh root@$UBUNTUIP://root/ &&
+ssh -i $YOURPRIVATEKEY root@$UBUNTUIP "/root/install_ubuntu.sh"
+COREOSIP
 ```
 
 # Launch local status benches
