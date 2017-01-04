@@ -2,8 +2,8 @@
 
 initdb() {
     sleep 30s;
-    docker exec -it mydb mysql -u root -ptest -e 'CREATE DATABASE entityone_test';
-    docker exec -it mydb mysql -u root -ptest -e 'CREATE DATABASE playwithsql';
+    docker exec -i mydb mysql -u root -ptest -e 'CREATE DATABASE entityone_test';
+    docker exec -i mydb mysql -u root -ptest -e 'CREATE DATABASE playwithsql';
 }
 
 removeContainer() {

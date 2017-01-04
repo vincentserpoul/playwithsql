@@ -2,7 +2,7 @@
 
 # run cockroachdb container
 ssh -i $YOURPRIVATEKEY core@$COREOSIP "
-    cd /home/core/playwithsql &&
+    PATH='/opt/bin:/usr/bin' && cd /home/core/playwithsql &&
     ./infra/docker_local/cockroachdb/container_launch.sh"
 ssh -i $YOURPRIVATEKEY root@$UBUNTUIP "
     cd root/src/github.com/vincentserpoul/playwithsql/ && 
