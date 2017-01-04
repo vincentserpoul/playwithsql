@@ -27,8 +27,10 @@ Download [Oracle instant client](http://www.oracle.com/technetwork/topics/linuxx
 COREOSIP=192.xxx UBUNTUIP=192.xxx YOURPRIVATEKEY=~/.ssh/keykeyxxxx &&
 scp -i $YOURPRIVATEKEY ./infra/instantclient-* root@$UBUNTUIP://root/ &&
 scp -i $YOURPRIVATEKEY ./infra/install_ubuntu.sh root@$UBUNTUIP://root/ &&
-ssh -i $YOURPRIVATEKEY root@$UBUNTUIP "/root/install_ubuntu.sh"
-COREOSIP
+ssh -i $YOURPRIVATEKEY root@$UBUNTUIP "/root/install_ubuntu.sh" &&
+scp -i $YOURPRIVATEKEY ./infra/install_coreos.sh core@$COREOSIP://home/core &&
+ssh -i $YOURPRIVATEKEY core@$COREOSIP "chmod +x install_coreos.sh" &&
+ssh -i $YOURPRIVATEKEY core@$COREOSIP "./install_coreos.sh"
 ```
 
 # Launch local status benches

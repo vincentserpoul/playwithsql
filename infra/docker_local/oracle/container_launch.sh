@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 docker-compose -f ./infra/docker_local/oracle/docker-compose-solo.yml down;
 docker-compose -f ./infra/docker_local/oracle/docker-compose-solo.yml up -d;

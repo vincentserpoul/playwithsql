@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 initdb() {
     sleep 30s;

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # /!\ I know it's not a container launch, but no choice with sqlite
 rm -f ./test.db;

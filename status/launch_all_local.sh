@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
  
 ./infra/docker_local/cockroachdb/container_launch.sh;go test ./status/ -db=cockroachdb -bench=./status/islatest/cockroachdb -test.benchtime=3s;docker rm -f roach1;
 ./infra/docker_local/mysql/container_launch.sh;go test ./status/ -db=mysql -bench=./status/islatest/mysql -test.benchtime=3s;docker rm -f mydb;

@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/bin/bash
+
 docker rm -f roach1;
 docker network create -d bridge roachnet;
 docker run -dit --name roach1 --net=roachnet --hostname=roach1 -p 26257:26257 -p 8080:8080 cockroachdb/cockroach  start --insecure;

@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/bin/bash
+
 docker-compose -f ./infra/docker_local/mssql/docker-compose-solo.yml down;
 docker-compose -f ./infra/docker_local/mssql/docker-compose-solo.yml up -d;
 sleep 5s;
