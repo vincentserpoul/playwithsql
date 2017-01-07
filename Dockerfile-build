@@ -1,0 +1,46 @@
+FROM buildpack-deps:xenial-scm
+
+COPY ./infra/instantclient-basiclite-linux.x64-12.1.0.2.0.zip /root/
+COPY ./infra/instantclient-sdk-linux.x64-12.1.0.2.0.zip /root/
+
+## ORACLE NEEDS
+RUN apt-get clean && apt-get update && apt-get install -y --no-install-recommends \
+		g++ \
+		gcc \
+		libc6-dev \
+		make \
+		pkg-config \
+        alien \
+        libaio1 \
+        unzip && \
+    rm -rf /var/lib/apt/lists/*
+RUN mkdir -p /opt/oracle
+WORKDIR /opt/oracle
+RUN unzip /root/instantclient-basiclite-linux.x64-12.1.0.2.0.zip && \
+    unzip /root/instantclient-sdk-linux.x64-12.1.0.2.0.zip
+
+ENV LD_LIBRARY_PATH=/opt/oracle/instantclient_12_1:/opt/oracle/instantclient_12_1/sdk/include
+ENV PKG_CONFIG_PATH=/opt/oracle
+ENV PATH=/opt/oracle/instantclient_12_1:$PATH
+ENV ORACLE_HOME=/opt/oracle/instantclient_12_1:/opt/oracle/instantclient_12_1/sdk/include
+
+RUN ln -sf /opt/oracle/instantclient_12_1/libclntsh.so.12.1 /opt/oracle/instantclient_12_1/libclntsh.so && \
+    ln -sf /opt/oracle/instantclient_12_1/libocci.so.12.1 /opt/oracle/instantclient_12_1/libocci.so
+
+## Golang install
+ENV GOLANG_VERSION 1.7.4
+ENV GOLANG_DOWNLOAD_URL https://golang.org/dl/go$GOLANG_VERSION.linux-amd64.tar.gz
+ENV GOLANG_DOWNLOAD_SHA256 47fda42e46b4c3ec93fa5d4d4cc6a748aa3f9411a2a2b7e08e3a6d80d753ec8b
+
+RUN curl -fsSL "$GOLANG_DOWNLOAD_URL" -o golang.tar.gz \
+	&& echo "$GOLANG_DOWNLOAD_SHA256  golang.tar.gz" | sha256sum -c - \
+	&& tar -C /usr/local -xzf golang.tar.gz \
+	&& rm golang.tar.gz
+
+ENV GOPATH /go
+ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
+
+RUN mkdir -p "$GOPATH/src" "$GOPATH/bin" && chmod -R 777 "$GOPATH"
+WORKDIR $GOPATH
+
+COPY go-wrapper /usr/local/bin/

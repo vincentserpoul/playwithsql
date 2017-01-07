@@ -1,0 +1,13 @@
+FROM busybox:ubuntu-14.04
+
+MAINTAINER Vincent Serpoul "<vincent@serpoul.com>"
+
+WORKDIR /app
+
+# copy binary into image
+COPY playwithsqlhttp /app/
+
+# Add influxd to the PATH
+ENV PATH=/app:$PATH
+
+ENTRYPOINT ["playwithsqlhttp"]
