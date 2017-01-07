@@ -1,13 +1,41 @@
-FROM busybox:ubuntu-14.04
+FROM ubuntu:17.04
 
 MAINTAINER Vincent Serpoul "<vincent@serpoul.com>"
+
+COPY ./infra/build/instantclient-basiclite-linux.x64-12.1.0.2.0.zip /root/
+COPY ./infra/build/instantclient-sdk-linux.x64-12.1.0.2.0.zip /root/
+COPY ./infra/build/oci8.pc /root/
+
+## ORACLE NEEDS
+RUN apt-get clean && apt-get update && apt-get install -y --no-install-recommends \
+        sqlite3 \
+        gcc \
+        alien \
+        libaio1 \
+        pkg-config \
+        unzip && \
+    rm -rf /var/lib/apt/lists/*
+RUN mkdir -p /opt/oracle
+WORKDIR /opt/oracle
+RUN unzip /root/instantclient-basiclite-linux.x64-12.1.0.2.0.zip && \
+    unzip /root/instantclient-sdk-linux.x64-12.1.0.2.0.zip
+
+ENV LD_LIBRARY_PATH=/opt/oracle/instantclient_12_1:/opt/oracle/instantclient_12_1/sdk/include
+ENV PKG_CONFIG_PATH=/opt/oracle
+ENV PATH=/opt/oracle/instantclient_12_1:$PATH
+ENV ORACLE_HOME=/opt/oracle/instantclient_12_1:/opt/oracle/instantclient_12_1/sdk/include
+
+RUN ln -sf /opt/oracle/instantclient_12_1/libclntsh.so.12.1 /opt/oracle/instantclient_12_1/libclntsh.so && \
+    ln -sf /opt/oracle/instantclient_12_1/libocci.so.12.1 /opt/oracle/instantclient_12_1/libocci.so
+
+RUN cp -aL /root/oci8.pc $PKG_CONFIG_PATH/oci8.pc
 
 WORKDIR /app
 
 # copy binary into image
-COPY playwithsqlcmd /app/
+COPY playwithsql-cmd /app/
 
 # Add influxd to the PATH
 ENV PATH=/app:$PATH
 
-ENTRYPOINT ["playwithsqlcmd", "-db=oracle", "-host=oracledb"]
+ENTRYPOINT ["playwithsql-cmd", "-db=oracle", "-host=oracledb"]

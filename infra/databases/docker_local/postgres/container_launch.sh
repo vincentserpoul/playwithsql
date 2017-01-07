@@ -1,7 +1,7 @@
 #!/bin/bash
 
-docker-compose -f ./infra/docker_local/postgres/docker-compose-solo.yml down;
-docker-compose -f ./infra/docker_local/postgres/docker-compose-solo.yml up -d;
+docker-compose -f ./infra/databases/docker_local/postgres/docker-compose-solo.yml down;
+docker-compose -f ./infra/databases/docker_local/postgres/docker-compose-solo.yml up -d;
 sleep 5s;
 docker exec -i postgresdb psql -c 'CREATE DATABASE entityone_test;';
 docker exec -i postgresdb psql -c 'CREATE DATABASE playwithsql;';

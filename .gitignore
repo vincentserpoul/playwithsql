@@ -28,6 +28,8 @@ torch.svg
 .DS_Store
 *.mwb.bak
 
-infra/instantclient-basic-linux.x64-12.1.0.2.0.zip
-infra/instantclient-basiclite-linux.x64-12.1.0.2.0.zip
-infra/instantclient-sdk-linux.x64-12.1.0.2.0.zip
+infra/build/instantclient-basic-linux.x64-12.1.0.2.0.zip
+infra/build/instantclient-basiclite-linux.x64-12.1.0.2.0.zip
+infra/build/instantclient-sdk-linux.x64-12.1.0.2.0.zip
+
+playwithsql-cmd
