@@ -12,7 +12,6 @@ import (
 
 // EntityoneCreateHandler creates an entityone and returns it
 func EntityoneCreateHandler(db *sqlx.DB, link *SQLLinkContainer) httprouter.Handle {
-
 	return httprouter.Handle(func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 		var e Entityone

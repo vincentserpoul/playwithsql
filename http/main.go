@@ -20,6 +20,7 @@ type localEnv struct {
 func main() {
 
 	dbName := "playwithsql"
+
 	dbType := flag.String("db", "mysql", "type of db to bench: mysql, cockroachdb, postgres")
 	host := flag.String("host", "localhost", "host IP")
 	flag.Parse()
