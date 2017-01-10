@@ -38,4 +38,4 @@ COPY playwithsql-cmd /app/
 # Add influxd to the PATH
 ENV PATH=/app:$PATH
 
-ENTRYPOINT ["playwithsql-cmd", "-db=oracle", "-host=oracledb"]
+ENTRYPOINT ["playwithsql-cmd"]
