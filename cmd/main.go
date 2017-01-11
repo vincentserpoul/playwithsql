@@ -40,12 +40,33 @@ func main() {
 		log.Fatalf("%v", err)
 	}
 
+	// Create
 	createTimeTaken, testEntityoneIDs, err := BenchmarkCreate(int(loops), db, islatestSQLLink)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
+	log.Printf("%s;create;%d;%d\n", *dbType, loops, createTimeTaken.Nanoseconds())
 
-	log.Printf("%s;create;%d;%d;%d", *dbType, loops, createTimeTaken.Nanoseconds(), len(testEntityoneIDs))
+	// Update
+	updateTimeTaken, err := BenchmarkUpdateStatus(int(loops), db, islatestSQLLink, testEntityoneIDs)
+	if err != nil {
+		log.Fatalf("%v", err)
+	}
+	log.Printf("%s;update;%d;%d\n", *dbType, loops, updateTimeTaken.Nanoseconds())
+
+	// Select by status
+	selectByStatusTimeTaken, err := BenchmarkSelectEntityoneByStatus(int(loops), db, islatestSQLLink)
+	if err != nil {
+		log.Fatalf("%v", err)
+	}
+	log.Printf("%s;selectByStatus;%d;%d\n", *dbType, loops, selectByStatusTimeTaken.Nanoseconds())
+
+	// Select by PK
+	selectByPKTimeTaken, err := BenchmarkSelectEntityoneOneByPK(int(loops), db, islatestSQLLink, testEntityoneIDs)
+	if err != nil {
+		log.Fatalf("%v", err)
+	}
+	log.Printf("%s;selectByPK;%d;%d\n", *dbType, loops, selectByPKTimeTaken.Nanoseconds())
 }
 
 // BenchmarkCreate will loop a loops number of time and give the resulting time taken
@@ -74,30 +95,58 @@ func BenchmarkCreate(loops int, dbConn *sqlx.DB, benchSQLLink *status.SQLLinkCon
 	return timeTaken, testEntityoneIDs, err
 }
 
-// func BenchmarkUpdateStatus(b *testing.B) {
-// 	var e Entityone
-// 	for i := 0; i < b.N; i++ {
-// 		e.ID = testEntityoneIDs[b.N%len(testEntityoneIDs)]
-// 		_ = e.UpdateStatus(testDBConn, testSQLLink, ActionCancel, StatusCancelled)
-// 	}
-// }
+// BenchmarkUpdateStatus benchmark for status updates (include deletes)
+func BenchmarkUpdateStatus(loops int, dbConn *sqlx.DB, benchSQLLink *status.SQLLinkContainer, testEntityoneIDs []int64) (
+	timeTaken time.Duration,
+	err error,
+) {
+	var e status.Entityone
+	before := time.Now()
 
-// func BenchmarkSelectEntityoneByStatus(b *testing.B) {
-// 	for i := 0; i < b.N; i++ {
-// 		_, err := SelectEntityoneByStatus(testDBConn, testSQLLink, StatusCreated)
-// 		if err != nil {
-// 			b.Errorf("Select entityone by status: %v", err)
-// 			return
-// 		}
-// 	}
-// }
+	for i := 0; i < loops; i++ {
+		e.ID = testEntityoneIDs[i%len(testEntityoneIDs)]
+		_ = e.UpdateStatus(dbConn, benchSQLLink, status.ActionCancel, status.StatusCancelled)
+	}
 
-// func BenchmarkSelectEntityoneOneByPK(b *testing.B) {
-// 	for i := 0; i < b.N; i++ {
-// 		_, err := SelectEntityoneOneByPK(testDBConn, testSQLLink, testEntityoneIDs[b.N%len(testEntityoneIDs)])
-// 		if err != nil {
-// 			b.Errorf("Select entityone by status: %v", err)
-// 			return
-// 		}
-// 	}
-// }
+	after := time.Now()
+	timeTaken = after.Sub(before)
+
+	return timeTaken, err
+}
+
+// BenchmarkSelectEntityoneByStatus benchmark with select by status
+func BenchmarkSelectEntityoneByStatus(loops int, dbConn *sqlx.DB, benchSQLLink *status.SQLLinkContainer) (
+	timeTaken time.Duration,
+	err error,
+) {
+	before := time.Now()
+	for i := 0; i < loops; i++ {
+		_, errSel := status.SelectEntityoneByStatus(dbConn, benchSQLLink, status.StatusCancelled)
+		if errSel != nil {
+			return timeTaken, errSel
+		}
+	}
+
+	after := time.Now()
+	timeTaken = after.Sub(before)
+
+	return timeTaken, nil
+}
+
+// BenchmarkSelectEntityoneOneByPK benchmark with select by primary key
+func BenchmarkSelectEntityoneOneByPK(loops int, dbConn *sqlx.DB, benchSQLLink *status.SQLLinkContainer, testEntityoneIDs []int64) (
+	timeTaken time.Duration,
+	err error,
+) {
+	before := time.Now()
+	for i := 0; i < loops; i++ {
+		_, errSel := status.SelectEntityoneOneByPK(dbConn, benchSQLLink, testEntityoneIDs[i%len(testEntityoneIDs)])
+		if err != nil {
+			return timeTaken, errSel
+		}
+	}
+	after := time.Now()
+	timeTaken = after.Sub(before)
+
+	return timeTaken, nil
+}
