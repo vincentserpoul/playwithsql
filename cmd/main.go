@@ -46,28 +46,28 @@ func main() {
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
-	fmt.Printf("%s;create;%d;%d\n", *dbType, loops, createTimeTaken.Nanoseconds())
+	fmt.Printf("%s;create;%d;%d\n", *dbType, loops, int64(loops/int64(createTimeTaken.Seconds())))
 
 	// Update
 	updateTimeTaken, err := BenchmarkUpdateStatus(int(loops), db, islatestSQLLink, testEntityoneIDs)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
-	fmt.Printf("%s;update;%d;%d\n", *dbType, loops, updateTimeTaken.Nanoseconds())
+	fmt.Printf("%s;update;%d;%d\n", *dbType, loops, int64(loops/int64(updateTimeTaken.Seconds())))
 
 	// Select by status
 	selectByStatusTimeTaken, err := BenchmarkSelectEntityoneByStatus(int(loops), db, islatestSQLLink)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
-	fmt.Printf("%s;selectByStatus;%d;%d\n", *dbType, loops, selectByStatusTimeTaken.Nanoseconds())
+	fmt.Printf("%s;selectByStatus;%d;%d\n", *dbType, loops, int64(loops/int64(selectByStatusTimeTaken.Seconds())))
 
 	// Select by PK
 	selectByPKTimeTaken, err := BenchmarkSelectEntityoneOneByPK(int(loops), db, islatestSQLLink, testEntityoneIDs)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
-	fmt.Printf("%s;selectByPK;%d;%d\n", *dbType, loops, selectByPKTimeTaken.Nanoseconds())
+	fmt.Printf("%s;selectByPK;%d;%v\n", *dbType, loops, int64(loops/int64(selectByPKTimeTaken.Seconds())))
 }
 
 // BenchmarkCreate will loop a loops number of time and give the resulting time taken

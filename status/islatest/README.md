@@ -20,7 +20,7 @@ PASS
 ok  	github.com/vincentserpoul/playwithsql/status/islatest	338.031s
 ```
 
-## MariaDB 10.1.19
+## MariaDB 10.1.20
 
 ```
 BenchmarkCreate-2                       	   10000	   6013189 ns/op

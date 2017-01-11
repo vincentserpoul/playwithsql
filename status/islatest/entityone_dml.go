@@ -24,8 +24,7 @@ func SelectEntity(
                 es.entityone_id as status_entityone_id, es.action_id, es.status_id, es.time_created as status_time_created
             FROM entityone e
             INNER JOIN entityone_status es ON es.entityone_id = e.entityone_id
-                AND es.is_latest = 1
-            WHERE 0 = 0
+            WHERE es.is_latest = 1
         `
 
 	namedParams, queryFilter := GetFilterSelectEntityOneNamedQuery(entityIDs, isStatusIDs)
