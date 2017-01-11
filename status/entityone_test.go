@@ -46,6 +46,15 @@ func TestUpdateStatus(t *testing.T) {
 	if e.ActionID != ActionCancel && e.StatusID != StatusCancelled {
 		t.Errorf("UpdateStatus entityone: status and action not updated")
 	}
+
+	err = e.UpdateStatus(testDBConn, testSQLLink, ActionCancel, StatusCreated)
+	if err != nil {
+		t.Errorf("UpdateStatus entityone: %v", err)
+	}
+
+	if e.ActionID != ActionCancel && e.StatusID != StatusCancelled {
+		t.Errorf("UpdateStatus entityone: status and action not updated")
+	}
 }
 
 func BenchmarkUpdateStatus(b *testing.B) {

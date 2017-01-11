@@ -43,13 +43,20 @@ func (link *Link) MigrateUp(exec sqlx.Execer) (errExec error) {
             status_id INT NOT NULL DEFAULT 1,
             time_created DATETIME NOT NULL DEFAULT GETDATE(),
             is_latest INT NULL DEFAULT 1,
-			CONSTRAINT es_ux_ilei 
-            UNIQUE (is_latest, entityone_id),
             CONSTRAINT es_fk_e
             FOREIGN KEY (entityone_id)
             REFERENCES entityone (entityone_id)
         )
     `)
+	if errExec != nil {
+		return errExec
+	}
+
+	_, errExec = exec.Exec(`
+		CREATE UNIQUE INDEX es_ux_ilei 
+		ON entityone_status(entityone_id, is_latest)
+		WHERE is_latest IS NOT NULL
+	`)
 	if errExec != nil {
 		return errExec
 	}
