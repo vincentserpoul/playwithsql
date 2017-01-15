@@ -13,7 +13,7 @@ func Get(dbType string, host string, dbName string) (db *sqlx.DB, err error) {
 	var conf ConfType
 
 	switch dbType {
-	case "mysql":
+	case "mysql", "percona", "mariadb":
 		conf = &MySQLDB{
 			Protocol: "tcp",
 			Host:     host,

@@ -208,26 +208,26 @@ func extractEntityonesFromRows(rows *sqlx.Rows) (entityOnes []*Entityone, err er
 	return entityOnes, nil
 }
 
-// SQLLinkContainer allows to contains an interface
-type SQLLinkContainer struct {
+// SQLIntImpl allows to contains an interface
+type SQLIntImpl struct {
 	SQLLink
 }
 
-// GetSQLLinkContainer returns the type of link according to the dbtype
-func GetSQLLinkContainer(dbType string) *SQLLinkContainer {
+// GetSQLIntImpl returns the type of link according to the dbtype
+func GetSQLIntImpl(dbType string) *SQLIntImpl {
 	switch dbType {
-	case "mysql":
-		return &SQLLinkContainer{&ilmysql.Link{}}
+	case "mysql", "percona", "mariadb":
+		return &SQLIntImpl{&ilmysql.Link{}}
 	case "sqlite":
-		return &SQLLinkContainer{&ilsqlite.Link{}}
+		return &SQLIntImpl{&ilsqlite.Link{}}
 	case "postgres":
-		return &SQLLinkContainer{&ilpostgres.Link{}}
+		return &SQLIntImpl{&ilpostgres.Link{}}
 	case "cockroachdb":
-		return &SQLLinkContainer{&ilcockroachdb.Link{}}
+		return &SQLIntImpl{&ilcockroachdb.Link{}}
 	case "mssql":
-		return &SQLLinkContainer{&ilmssql.Link{}}
+		return &SQLIntImpl{&ilmssql.Link{}}
 	case "oracle":
-		return &SQLLinkContainer{&iloracle.Link{}}
+		return &SQLIntImpl{&iloracle.Link{}}
 	}
 
 	return nil

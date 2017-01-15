@@ -14,7 +14,7 @@ import (
 
 type localEnv struct {
 	DB           *sqlx.DB
-	IslatestLink *status.SQLLinkContainer
+	IslatestLink *status.SQLIntImpl
 }
 
 func main() {
@@ -30,7 +30,7 @@ func main() {
 		log.Fatalf("%v", err)
 	}
 
-	islatestSQLLink := status.GetSQLLinkContainer(*dbType)
+	islatestSQLLink := status.GetSQLIntImpl(*dbType)
 	err = islatestSQLLink.MigrateUp(db)
 	if err != nil {
 		log.Fatalf("%v", err)

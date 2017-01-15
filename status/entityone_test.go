@@ -138,7 +138,7 @@ func BenchmarkSelectEntityoneOneByPK(b *testing.B) {
 }
 
 var testDBConn *sqlx.DB
-var testSQLLink *SQLLinkContainer
+var testSQLLink *SQLIntImpl
 var testEntityoneIDs []int64
 
 func TestMain(m *testing.M) {
@@ -162,7 +162,7 @@ func TestMain(m *testing.M) {
 	}
 	testDBConn = tempDBConn
 
-	tempSQLLink := GetSQLLinkContainer(*dbType)
+	tempSQLLink := GetSQLIntImpl(*dbType)
 	testSQLLink = tempSQLLink
 
 	err = testSQLLink.MigrateDown(testDBConn)

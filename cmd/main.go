@@ -31,7 +31,7 @@ func main() {
 		log.Fatalf("%v", err)
 	}
 
-	islatestSQLLink := status.GetSQLLinkContainer(*dbType)
+	islatestSQLLink := status.GetSQLIntImpl(*dbType)
 	err = islatestSQLLink.MigrateDown(db)
 	if err != nil {
 		log.Fatalf("%v", err)
@@ -71,7 +71,7 @@ func main() {
 }
 
 // BenchmarkCreate will loop a loops number of time and give the resulting time taken
-func BenchmarkCreate(loops int, dbConn *sqlx.DB, benchSQLLink *status.SQLLinkContainer) (
+func BenchmarkCreate(loops int, dbConn *sqlx.DB, benchSQLLink *status.SQLIntImpl) (
 	timeTaken time.Duration,
 	testEntityoneIDs []int64,
 	err error,
@@ -97,7 +97,7 @@ func BenchmarkCreate(loops int, dbConn *sqlx.DB, benchSQLLink *status.SQLLinkCon
 }
 
 // BenchmarkUpdateStatus benchmark for status updates (include deletes)
-func BenchmarkUpdateStatus(loops int, dbConn *sqlx.DB, benchSQLLink *status.SQLLinkContainer, testEntityoneIDs []int64) (
+func BenchmarkUpdateStatus(loops int, dbConn *sqlx.DB, benchSQLLink *status.SQLIntImpl, testEntityoneIDs []int64) (
 	timeTaken time.Duration,
 	err error,
 ) {
@@ -119,7 +119,7 @@ func BenchmarkUpdateStatus(loops int, dbConn *sqlx.DB, benchSQLLink *status.SQLL
 }
 
 // BenchmarkSelectEntityoneByStatus benchmark with select by status
-func BenchmarkSelectEntityoneByStatus(loops int, dbConn *sqlx.DB, benchSQLLink *status.SQLLinkContainer) (
+func BenchmarkSelectEntityoneByStatus(loops int, dbConn *sqlx.DB, benchSQLLink *status.SQLIntImpl) (
 	timeTaken time.Duration,
 	err error,
 ) {
@@ -138,7 +138,7 @@ func BenchmarkSelectEntityoneByStatus(loops int, dbConn *sqlx.DB, benchSQLLink *
 }
 
 // BenchmarkSelectEntityoneOneByPK benchmark with select by primary key
-func BenchmarkSelectEntityoneOneByPK(loops int, dbConn *sqlx.DB, benchSQLLink *status.SQLLinkContainer, testEntityoneIDs []int64) (
+func BenchmarkSelectEntityoneOneByPK(loops int, dbConn *sqlx.DB, benchSQLLink *status.SQLIntImpl, testEntityoneIDs []int64) (
 	timeTaken time.Duration,
 	err error,
 ) {
