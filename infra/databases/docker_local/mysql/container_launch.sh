@@ -23,7 +23,7 @@ then
         case $flavor in
             "mysql 8.0.0" ) runContainer "mysql";break;;
             "percona 5.7.16" ) runContainer "percona";break;;
-            "mariadb 10.1.20" ) runContainer "maria";break;;
+            "mariadb 10.1.20" ) runContainer "mariadb";break;;
         esac
     done
 else

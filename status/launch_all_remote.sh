@@ -42,17 +42,17 @@ ssh -i $YOURPRIVATEKEY core@$COREOSIPDB1 "
     ./infra/databases/docker_local/mysql/container_launch.sh percona"
 ssh -i $YOURPRIVATEKEY core@$COREOSIPBENCH "
     (docker rm -f pws-cmd  || true) &&
-    docker run -t --name pws-cmd vincentserpoul/playwithsql-cmd -db=mysql -host=$COREOSIPDB1 -loops=$LOOPS &&
+    docker run -t --name pws-cmd vincentserpoul/playwithsql-cmd -db=percona -host=$COREOSIPDB1 -loops=$LOOPS &&
     docker rm -f pws-cmd"
 ssh -i $YOURPRIVATEKEY core@$COREOSIPDB1 "docker rm -f mydb"
 
 # run maria container
 ssh -i $YOURPRIVATEKEY core@$COREOSIPDB1 "
     PATH='/opt/bin:/usr/bin' && cd /home/core/playwithsql &&
-    ./infra/databases/docker_local/mysql/container_launch.sh maria"
+    ./infra/databases/docker_local/mysql/container_launch.sh mariadb"
 ssh -i $YOURPRIVATEKEY core@$COREOSIPBENCH "
     (docker rm -f pws-cmd  || true) &&
-    docker run -t --name pws-cmd vincentserpoul/playwithsql-cmd -db=mysql -host=$COREOSIPDB1 -loops=$LOOPS &&
+    docker run -t --name pws-cmd vincentserpoul/playwithsql-cmd -db=mariadb -host=$COREOSIPDB1 -loops=$LOOPS &&
     docker rm -f pws-cmd"
 ssh -i $YOURPRIVATEKEY core@$COREOSIPDB1 "docker rm -f mydb"
 
