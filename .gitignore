@@ -33,4 +33,6 @@ infra/build/instantclient-basiclite-linux.x64-12.1.0.2.0.zip
 infra/build/instantclient-sdk-linux.x64-12.1.0.2.0.zip
 
 playwithsql-cmd
+
 infra/server/dotoken
+infra/server/sshkey_fingerprint
