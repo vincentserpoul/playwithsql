@@ -40,7 +40,11 @@ type TokenSource struct {
 func (d *DOProvider) CreatePlayWithSQLServers(howManyDBServers int) (err error) {
 
 	// Create bench server
-	d.BenchServer, err = createPlayWithSQLServer(d.Client, "CoreOSBench", d.SSHKeyFingerprint)
+	d.BenchServer, err = createPlayWithSQLServer(
+		d.Client, "CoreOSBench",
+		d.SSHKeyFingerprint,
+		[]string{"bench"},
+	)
 	if err != nil {
 		return fmt.Errorf("CreatePlayWithSQLServers could not create bench droplet: %v", err)
 	}
@@ -51,6 +55,7 @@ func (d *DOProvider) CreatePlayWithSQLServers(howManyDBServers int) (err error) 
 			d.Client,
 			"CoreOSDB"+strconv.Itoa(i),
 			d.SSHKeyFingerprint,
+			[]string{"db"},
 		)
 		if errDB != nil {
 			log.Fatalf("could not create db droplet: %v", errDB)
@@ -83,17 +88,52 @@ func (d *DOProvider) CreatePlayWithSQLServers(howManyDBServers int) (err error) 
 
 // GetBenchServerIP returns the IP of the bench server
 func (d *DOProvider) GetBenchServerIP() (string, error) {
+	if d.BenchServer == nil {
+		return "", fmt.Errorf("No bench server found")
+	}
 	return d.BenchServer.PublicIPv4()
 }
 
 // GetMasterDBServerIP returns the IP of the master db server
 func (d *DOProvider) GetMasterDBServerIP() (string, error) {
+	if d.BenchServer == nil {
+		return "", fmt.Errorf("No bench server found")
+	}
 	return d.DBServers[0].PublicIPv4()
 }
 
 // DeleteAllPlayWithSQLServers destroys all instances of play with SQL
 func (d *DOProvider) DeleteAllPlayWithSQLServers() error {
 	return deleteAllPlayWithSQLServers(d.Client)
+}
+
+// FetchAllPlayWithSQLServers contacts provider and reassign the servers to the struct
+func (d *DOProvider) FetchAllPlayWithSQLServers() error {
+	list, _, err := d.Client.Droplets.ListByTag(
+		"playwithsql",
+		&godo.ListOptions{
+			Page:    1,
+			PerPage: 100,
+		},
+	)
+	if err != nil {
+		return err
+	}
+
+	d.DBServers = make([]*godo.Droplet, len(list))
+	var iDbServ int
+	for k, droplet := range list {
+		for _, tag := range droplet.Tags {
+			if tag == "bench" {
+				d.BenchServer = &list[k]
+			} else if tag == "db" {
+				d.DBServers[iDbServ] = &list[k]
+				iDbServ++
+			}
+		}
+	}
+
+	return nil
 }
 
 // isDropletActive check if a droplet is active or not
@@ -118,7 +158,9 @@ func createPlayWithSQLServer(
 	client *godo.Client,
 	name string,
 	SSHKeyFingerprint string,
+	moreTags []string,
 ) (*godo.Droplet, error) {
+	tags := append(moreTags, "playwithsql")
 	createRequest := &godo.DropletCreateRequest{
 		Name:   name,
 		Region: "sgp1",
@@ -131,7 +173,7 @@ func createPlayWithSQLServer(
 				Fingerprint: SSHKeyFingerprint,
 			},
 		},
-		Tags: []string{"playwithsql"},
+		Tags: tags,
 	}
 
 	newDroplet, _, err := client.Droplets.Create(createRequest)
