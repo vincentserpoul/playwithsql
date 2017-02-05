@@ -16,6 +16,8 @@ docker service create \
 # ./run-docker.sh cockroachdb 10000
 # ./run-docker.sh mssql 10000
 # ./run-docker.sh mysql 10000
+# ./run-docker.sh mariadb 10000
+# ./run-docker.sh percona 10000
 # ./run-docker.sh oracle 10000
 # ./run-docker.sh postgres 10000
 # ./run-docker.sh sqlite 10000
