@@ -1,9 +1,0 @@
-version: '2'
-services:
-  mysql:
-    container_name: mydb
-    image: percona:5.7.16
-    ports:
-    - "3306:3306"
-    environment:
-      - MYSQL_ROOT_PASSWORD=test

@@ -13,6 +13,9 @@ import (
 	"github.com/vincentserpoul/playwithsql/status"
 )
 
+// TODO
+// add median and variance time
+
 func main() {
 
 	dbName := "playwithsql"
@@ -28,7 +31,7 @@ func main() {
 
 	db, err := dbhandler.Get(*dbType, *dbHost, dbName)
 	if err != nil {
-		log.Fatalf("%v", err)
+		log.Fatalf("%s - %s - %s, \n%v", *dbType, *dbHost, dbName, err)
 	}
 
 	islatestSQLLink := status.GetSQLIntImpl(*dbType)

@@ -1,9 +1,0 @@
-version: '2'
-services:
-  mysql:
-    container_name: oracledb
-    image: wnameless/oracle-xe-11g
-    ports:
-    - "1521:1521"
-    environment:
-      - ORACLE_ALLOW_REMOTE=true
