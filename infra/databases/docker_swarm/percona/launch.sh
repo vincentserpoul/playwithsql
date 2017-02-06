@@ -7,14 +7,14 @@ initdb () {
     docker exec -i $CONTAINER_NAME mysql -u root -ptest -e 'CREATE DATABASE playwithsql';
 }
 
-removeContainer () {
+removeService () {
     docker service rm pws_percona
 }
 
-runContainer () {
-    removeContainer;
+runService () {
+    removeService;
     docker deploy --compose-file ./infra/databases/docker_swarm/percona/compose-solo.yml pws;
     initdb;
 }
 
-runContainer
+runService

@@ -7,14 +7,14 @@ initdb () {
     docker exec -i $CONTAINER_NAME mysql -u root -ptest -e 'CREATE DATABASE playwithsql';
 }
 
-removeContainer () {
+removeService () {
     docker service rm pws_mariadb
 }
 
-runContainer () {
-    removeContainer;
+runService () {
+    removeService;
     docker deploy --compose-file ./infra/databases/docker_swarm/mariadb/compose-solo.yml pws;
     initdb;
 }
 
-runContainer
+runService;

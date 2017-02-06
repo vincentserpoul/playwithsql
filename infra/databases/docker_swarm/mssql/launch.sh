@@ -7,14 +7,14 @@ initdb () {
     docker exec -i $CONTAINER_NAME /bin/bash -c 'echo "create database playwithsql;" > createdb.sql && /usr/bin/sqlcmd -U sa -P thank5MsSQLforcingMe -i ./createdb.sql;';
 }
 
-removeContainer () {
+removeService () {
     docker service rm pws_mssql
 }
 
-runContainer () {
-    removeContainer;
+runService () {
+    removeService;
     docker deploy --compose-file ./infra/databases/docker_swarm/mssql/compose-solo.yml pws;
     initdb;
 }
 
-runContainer
+runService;

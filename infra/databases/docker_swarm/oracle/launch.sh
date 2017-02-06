@@ -13,14 +13,14 @@ quit
 EOF';
 }
 
-removeContainer () {
+removeService () {
     docker service rm pws_oracle
 }
 
-runContainer () {
-    removeContainer;
+runService () {
+    removeService;
     docker deploy --compose-file ./infra/databases/docker_swarm/oracle/compose-solo.yml pws;
     initdb;
 }
 
-runContainer
+runService;

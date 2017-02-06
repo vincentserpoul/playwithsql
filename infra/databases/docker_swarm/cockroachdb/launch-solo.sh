@@ -7,14 +7,14 @@ initdb () {
     docker exec -i $CONTAINER_NAME ./cockroach sql --execute="CREATE DATABASE playwithsql;";
 }
 
-removeContainer () {
-    docker service rm pws_mysql
+removeService () {
+    docker service rm pws_cockroachdb
 }
 
-runContainer () {
-    removeContainer;
+runService () {
+    removeService;
     docker deploy --compose-file ./infra/databases/docker_swarm/cockroachdb/compose-solo.yml pws;
     initdb;
 }
 
-runContainer
+runService;

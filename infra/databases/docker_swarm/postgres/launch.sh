@@ -7,14 +7,14 @@ initdb () {
     docker exec -i $CONTAINER_NAME psql -c 'CREATE DATABASE playwithsql';
 }
 
-removeContainer () {
+removeService () {
     docker service rm pws_postgres
 }
 
-runContainer () {
-    removeContainer;
+runService () {
+    removeService;
     docker deploy --compose-file ./infra/databases/docker_swarm/postgres/compose-solo.yml pws;
     initdb;
 }
 
-runContainer
+runService;
