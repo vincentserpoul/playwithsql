@@ -2,9 +2,9 @@ FROM ubuntu:17.04
 
 MAINTAINER Vincent Serpoul "<vincent@serpoul.com>"
 
-COPY ./infra/build/instantclient-basiclite-linux.x64-12.1.0.2.0.zip /root/
-COPY ./infra/build/instantclient-sdk-linux.x64-12.1.0.2.0.zip /root/
-COPY ./infra/build/oci8.pc /root/
+COPY ./infra/oracle/instantclient-basiclite-linux.x64-12.1.0.2.0.zip /root/
+COPY ./infra/oracle/instantclient-sdk-linux.x64-12.1.0.2.0.zip /root/
+COPY ./infra/oracle/oci8.pc /root/
 
 ## ORACLE NEEDS
 RUN apt-get clean && apt-get update && apt-get install -y --no-install-recommends \
