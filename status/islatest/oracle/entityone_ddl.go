@@ -1,35 +1,35 @@
 package oracle
 
 import (
+	"context"
+	"database/sql"
 	"fmt"
-
-	"github.com/jmoiron/sqlx"
 )
 
 // Link is used to insert and update in mysql
 type Link struct{}
 
 // InitDB create db if not exists
-func (link *Link) InitDB(exec sqlx.Execer, dbName string) (errExec error) {
-	_, errExec = exec.Exec(`CREATE USER ` + dbName + ` IDENTIFIED BY ` + dbName)
+func (link *Link) InitDB(ctx context.Context, db *sql.DB, dbName string) (errExec error) {
+	_, errExec = db.ExecContext(ctx, `CREATE USER `+dbName+` IDENTIFIED BY `+dbName)
 	if errExec != nil {
 		return errExec
 	}
 
-	_, errExec = exec.Exec(`ALTER SESSION SET CURRENT_SCHEMA = ` + dbName)
+	_, errExec = db.ExecContext(ctx, `ALTER SESSION SET CURRENT_SCHEMA = `+dbName)
 
 	return errExec
 }
 
 // DestroyDB destroy db if exists
-func (link *Link) DestroyDB(exec sqlx.Execer, dbName string) (errExec error) {
-	_, errExec = exec.Exec(`DROP USER ` + dbName)
+func (link *Link) DestroyDB(ctx context.Context, db *sql.DB, dbName string) (errExec error) {
+	_, errExec = db.ExecContext(ctx, `DROP USER `+dbName)
 	return errExec
 }
 
 // MigrateUp creates the needed tables
-func (link *Link) MigrateUp(exec sqlx.Execer) (errExec error) {
-	_, errExec = exec.Exec(`
+func (link *Link) MigrateUp(ctx context.Context, db *sql.DB) (errExec error) {
+	_, errExec = db.ExecContext(ctx, `
         CREATE TABLE entityone (
             entityone_id NUMBER(10,0) NOT NULL,
 			time_created DATE DEFAULT SYSDATE NOT NULL,
@@ -41,12 +41,12 @@ func (link *Link) MigrateUp(exec sqlx.Execer) (errExec error) {
 		return fmt.Errorf("MigrateUp: create table entityone %v", errExec)
 	}
 
-	_, errExec = exec.Exec(`CREATE SEQUENCE entityone_seq START WITH 1`)
+	_, errExec = db.ExecContext(ctx, `CREATE SEQUENCE entityone_seq START WITH 1`)
 	if errExec != nil {
 		return fmt.Errorf("MigrateUp: create sequence %v", errExec)
 	}
 
-	_, errExec = exec.Exec(`
+	_, errExec = db.ExecContext(ctx, `
 		CREATE OR REPLACE TRIGGER entityone_trig
 		BEFORE INSERT ON entityone FOR EACH ROW
 		BEGIN
@@ -59,7 +59,7 @@ func (link *Link) MigrateUp(exec sqlx.Execer) (errExec error) {
 		return fmt.Errorf("MigrateUp: create trigger %v", errExec)
 	}
 
-	_, errExec = exec.Exec(`
+	_, errExec = db.ExecContext(ctx, `
         CREATE TABLE entityone_status (
             entityone_id NUMBER(10,0) NOT NULL,
             action_id NUMBER(3, 0) NOT NULL,
@@ -74,7 +74,7 @@ func (link *Link) MigrateUp(exec sqlx.Execer) (errExec error) {
 		return fmt.Errorf("MigrateUp: create table entityone_status %v", errExec)
 	}
 
-	_, errExec = exec.Exec(`
+	_, errExec = db.ExecContext(ctx, `
 		CREATE UNIQUE INDEX es_ux_il ON entityone_status(
 		(
 			case when is_latest is not null
@@ -87,15 +87,15 @@ func (link *Link) MigrateUp(exec sqlx.Execer) (errExec error) {
 		return fmt.Errorf("MigrateUp: create unique index on entityone_status %v", errExec)
 	}
 
-	_, errExec = exec.Exec(
+	_, errExec = db.ExecContext(ctx,
 		`CREATE INDEX es_idx_ei ON entityone_status(entityone_id)`,
 	)
 	return errExec
 }
 
 // MigrateDown destroys the needed tables
-func (link *Link) MigrateDown(exec sqlx.Execer) (errExec error) {
-	_, errExec = exec.Exec(`
+func (link *Link) MigrateDown(ctx context.Context, db *sql.DB) (errExec error) {
+	_, errExec = db.ExecContext(ctx, `
 		DECLARE cnt NUMBER;
 		BEGIN
 			SELECT COUNT(*) INTO cnt FROM user_tables WHERE table_name = 'ENTITYONE_STATUS';
@@ -108,7 +108,7 @@ func (link *Link) MigrateDown(exec sqlx.Execer) (errExec error) {
 		return errExec
 	}
 
-	_, errExec = exec.Exec(`
+	_, errExec = db.ExecContext(ctx, `
 		DECLARE cnt NUMBER;
 		BEGIN
 			SELECT COUNT(*) INTO cnt FROM user_tables WHERE table_name = 'ENTITYONE';
@@ -121,7 +121,7 @@ func (link *Link) MigrateDown(exec sqlx.Execer) (errExec error) {
 		return errExec
 	}
 
-	_, errExec = exec.Exec(`
+	_, errExec = db.ExecContext(ctx, `
 		DECLARE cnt NUMBER;
 		BEGIN
 			SELECT COUNT(*) INTO cnt FROM user_sequences WHERE sequence_name = 'ENTITYONE_SEQ';

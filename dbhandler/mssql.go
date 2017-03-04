@@ -1,7 +1,7 @@
 package dbhandler
 
 import (
-	"github.com/jmoiron/sqlx"
+	"database/sql"
 
 	// to connect to mssql
 	_ "github.com/denisenkom/go-mssqldb"
@@ -17,7 +17,7 @@ type MSSQLDB struct {
 }
 
 // NewDBHandler connect to db and return the connection
-func (MSSQLConf MSSQLDB) NewDBHandler() (*sqlx.DB, error) {
+func (MSSQLConf MSSQLDB) NewDBHandler() (*sql.DB, error) {
 
 	dsn := "server=" + MSSQLConf.Host +
 		";port=" + MSSQLConf.Port +
@@ -25,7 +25,5 @@ func (MSSQLConf MSSQLDB) NewDBHandler() (*sqlx.DB, error) {
 		";password=" + MSSQLConf.Password +
 		";database=" + MSSQLConf.Dbname
 
-	db := sqlx.MustConnect("mssql", dsn)
-
-	return db, nil
+	return sql.Open("mssql", dsn)
 }

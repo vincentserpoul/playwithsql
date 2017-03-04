@@ -1,16 +1,24 @@
 package sqlite
 
 import (
+	"context"
 	"fmt"
 
-	"github.com/jmoiron/sqlx"
+	"database/sql"
+
 	"github.com/vincentserpoul/playwithsql/status/islatest"
 )
 
 // InsertOne will insert a Entityone into db
-func (link *Link) InsertOne(exec sqlx.Ext) (id int64, err error) {
+func (link *Link) InsertOne(
+	ctx context.Context,
+	db *sql.DB,
+) (id int64, err error) {
 
-	res, err := exec.Exec(`INSERT INTO entityone DEFAULT VALUES`)
+	res, err := db.ExecContext(
+		ctx,
+		`INSERT INTO entityone DEFAULT VALUES`,
+	)
 	if err != nil {
 		return id, fmt.Errorf("entityone Insert(): %v", err)
 	}
@@ -25,26 +33,29 @@ func (link *Link) InsertOne(exec sqlx.Ext) (id int64, err error) {
 
 // SaveStatus will save the status in database for the selected entity
 func (link *Link) SaveStatus(
-	exec *sqlx.Tx,
+	ctx context.Context,
+	tx *sql.Tx,
 	entityID int64,
 	actionID int,
 	statusID int,
 ) error {
-	return islatest.SaveStatus(exec, entityID, actionID, statusID)
+	return islatest.SaveStatus(ctx, tx, entityID, actionID, statusID)
 }
 
-// SelectEntity returns sqlx.Rows
+// SelectEntity returns sql.Rows
 func (link *Link) SelectEntity(
-	q *sqlx.DB,
+	ctx context.Context,
+	db *sql.DB,
 	entityIDs []int64,
 	isStatusIDs []int,
 	notStatusIDs []int,
 	neverStatusIDs []int,
 	hasStatusIDs []int,
 	limit int,
-) (*sqlx.Rows, error) {
+) (*sql.Rows, error) {
 	return islatest.SelectEntity(
-		q,
+		ctx,
+		db,
 		entityIDs,
 		isStatusIDs,
 		notStatusIDs,

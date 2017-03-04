@@ -1,10 +1,12 @@
 package dbhandler
 
-import (
-	"github.com/jmoiron/sqlx"
+import
 
-	// to connect to Oracle
-	_ "gopkg.in/rana/ora.v3"
+// to connect to Oracle
+(
+	"database/sql"
+
+	_ "gopkg.in/rana/ora.v4"
 )
 
 // OracleDB is a conf for the mysql database
@@ -17,7 +19,7 @@ type OracleDB struct {
 }
 
 // NewDBHandler connect to db and return the connection
-func (OracleConf OracleDB) NewDBHandler() (*sqlx.DB, error) {
+func (OracleConf OracleDB) NewDBHandler() (*sql.DB, error) {
 
 	dsn := OracleConf.User + "/" +
 		OracleConf.Password + "@" +
@@ -25,7 +27,5 @@ func (OracleConf OracleDB) NewDBHandler() (*sqlx.DB, error) {
 		OracleConf.Port + "/" +
 		OracleConf.Sid
 
-	db := sqlx.MustConnect("ora", dsn)
-
-	return db, nil
+	return sql.Open("ora", dsn)
 }

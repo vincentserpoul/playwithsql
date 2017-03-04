@@ -3,11 +3,11 @@ package dbhandler
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"database/sql"
 	"fmt"
 	"io/ioutil"
 
 	"github.com/go-sql-driver/mysql"
-	"github.com/jmoiron/sqlx"
 )
 
 // MySQLDB is a conf for the mysql database
@@ -30,7 +30,7 @@ type SSL struct {
 }
 
 // NewDBHandler connect to db and return the connection
-func (mysqlConf *MySQLDB) NewDBHandler() (*sqlx.DB, error) {
+func (mysqlConf *MySQLDB) NewDBHandler() (*sql.DB, error) {
 	dsn := mysqlConf.User + ":" +
 		mysqlConf.Password + "@" +
 		mysqlConf.Protocol + "(" +
@@ -67,7 +67,5 @@ func (mysqlConf *MySQLDB) NewDBHandler() (*sqlx.DB, error) {
 		dsn += "&tls=mysqltls"
 	}
 
-	db := sqlx.MustConnect("mysql", dsn)
-
-	return db, nil
+	return sql.Open("mysql", dsn)
 }

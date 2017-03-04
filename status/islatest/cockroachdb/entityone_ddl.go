@@ -1,30 +1,33 @@
 package cockroachdb
 
-import "github.com/jmoiron/sqlx"
+import (
+	"context"
+	"database/sql"
+)
 
 // Link is used to insert and update in mysql
 type Link struct{}
 
 // InitDB create db if not exists
-func (link *Link) InitDB(exec sqlx.Execer, dbName string) (errExec error) {
-	_, errExec = exec.Exec(`CREATE DATABASE IF NOT EXISTS ` + dbName)
+func (link *Link) InitDB(ctx context.Context, db *sql.DB, dbName string) (errExec error) {
+	_, errExec = db.ExecContext(ctx, `CREATE DATABASE IF NOT EXISTS `+dbName)
 	if errExec != nil {
 		return errExec
 	}
 
-	_, errExec = exec.Exec(`SET DATABASE = ` + dbName)
+	_, errExec = db.ExecContext(ctx, `SET DATABASE = `+dbName)
 	return errExec
 }
 
 // DestroyDB destroy db if exists
-func (link *Link) DestroyDB(exec sqlx.Execer, dbName string) (errExec error) {
-	_, errExec = exec.Exec(`DROP DATABASE IF EXISTS ` + dbName)
+func (link *Link) DestroyDB(ctx context.Context, db *sql.DB, dbName string) (errExec error) {
+	_, errExec = db.ExecContext(ctx, `DROP DATABASE IF EXISTS `+dbName)
 	return errExec
 }
 
 // MigrateUp creates the needed tables
-func (link *Link) MigrateUp(exec sqlx.Execer) (errExec error) {
-	_, errExec = exec.Exec(
+func (link *Link) MigrateUp(ctx context.Context, db *sql.DB) (errExec error) {
+	_, errExec = db.ExecContext(ctx,
 		`
         CREATE TABLE IF NOT EXISTS entityone (
             entityone_id BIGSERIAL NOT NULL,
@@ -36,7 +39,7 @@ func (link *Link) MigrateUp(exec sqlx.Execer) (errExec error) {
 		return errExec
 	}
 
-	_, errExec = exec.Exec(
+	_, errExec = db.ExecContext(ctx,
 		`
         CREATE TABLE IF NOT EXISTS entityone_status (
             entityone_id BIGSERIAL NOT NULL,
@@ -56,12 +59,12 @@ func (link *Link) MigrateUp(exec sqlx.Execer) (errExec error) {
 }
 
 // MigrateDown destroys the needed tables
-func (link *Link) MigrateDown(exec sqlx.Execer) (errExec error) {
-	_, errExec = exec.Exec("DROP TABLE IF EXISTS entityone_status")
+func (link *Link) MigrateDown(ctx context.Context, db *sql.DB) (errExec error) {
+	_, errExec = db.ExecContext(ctx, "DROP TABLE IF EXISTS entityone_status")
 	if errExec != nil {
 		return errExec
 	}
 
-	_, errExec = exec.Exec("DROP TABLE IF EXISTS entityone")
+	_, errExec = db.ExecContext(ctx, "DROP TABLE IF EXISTS entityone")
 	return errExec
 }

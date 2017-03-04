@@ -1,14 +1,14 @@
 package dbhandler
 
-import "github.com/jmoiron/sqlx"
+import "database/sql"
 
 // ConfType contains the creation of the handler
 type ConfType interface {
-	NewDBHandler() (*sqlx.DB, error)
+	NewDBHandler() (*sql.DB, error)
 }
 
 // Get returns the DB connection
-func Get(dbType string, host string, dbName string) (db *sqlx.DB, err error) {
+func Get(dbType string, host string, dbName string) (db *sql.DB, err error) {
 
 	var conf ConfType
 

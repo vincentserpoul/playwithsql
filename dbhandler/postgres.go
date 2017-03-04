@@ -1,8 +1,11 @@
 package dbhandler
 
-import (
-	"github.com/jmoiron/sqlx"
-	// to connect to cockroachdb
+import
+
+// to connect to cockroachdb
+(
+	"database/sql"
+
 	_ "github.com/lib/pq"
 )
 
@@ -17,7 +20,7 @@ type PostgresDB struct {
 }
 
 // NewDBHandler connect to db and return the connection
-func (PostgresConf PostgresDB) NewDBHandler() (*sqlx.DB, error) {
+func (PostgresConf PostgresDB) NewDBHandler() (*sql.DB, error) {
 
 	dsn := "postgres://" +
 		PostgresConf.User + ":" +
@@ -26,7 +29,5 @@ func (PostgresConf PostgresDB) NewDBHandler() (*sqlx.DB, error) {
 		PostgresConf.Port + "/" +
 		PostgresConf.Dbname + "?sslmode=disable"
 
-	db := sqlx.MustConnect("postgres", dsn)
-
-	return db, nil
+	return sql.Open("postgres", dsn)
 }

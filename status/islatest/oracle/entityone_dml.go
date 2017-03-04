@@ -1,17 +1,18 @@
 package oracle
 
 import (
+	"context"
+	"database/sql"
 	"fmt"
 	"strconv"
 
-	"github.com/jmoiron/sqlx"
 	"github.com/vincentserpoul/playwithsql/status/islatest"
 )
 
 // InsertOne will insert a Entityone into db
-func (link *Link) InsertOne(exec sqlx.Ext) (id int64, err error) {
+func (link *Link) InsertOne(ctx context.Context, db *sql.DB) (id int64, err error) {
 
-	res, err := exec.Exec(`
+	res, err := db.ExecContext(ctx, `
 		INSERT INTO entityone(entityone_id) VALUES (default)
 		RETURNING entityone_id /*LastInsertId*/ INTO :id
 	`, nil)
@@ -29,24 +30,26 @@ func (link *Link) InsertOne(exec sqlx.Ext) (id int64, err error) {
 
 // SaveStatus will save the status in database for the selected entity
 func (link *Link) SaveStatus(
-	exec *sqlx.Tx,
+	ctx context.Context,
+	tx *sql.Tx,
 	entityID int64,
 	actionID int,
 	statusID int,
 ) error {
-	return islatest.SaveStatus(exec, entityID, actionID, statusID)
+	return islatest.SaveStatus(ctx, tx, entityID, actionID, statusID)
 }
 
 // SelectEntity retrieves a slice of entityones
 func (link *Link) SelectEntity(
-	q *sqlx.DB,
+	ctx context.Context,
+	db *sql.DB,
 	entityIDs []int64,
 	isStatusIDs []int,
 	notStatusIDs []int,
 	neverStatusIDs []int,
 	hasStatusIDs []int,
 	limit int,
-) (*sqlx.Rows, error) {
+) (*sql.Rows, error) {
 
 	query := `
             SELECT
@@ -59,7 +62,7 @@ func (link *Link) SelectEntity(
             WHERE 0 = 0
         `
 
-	namedParams, queryFilter := islatest.GetFilterSelectEntityOneNamedQuery(entityIDs, isStatusIDs)
+	namedArgs, queryFilter := islatest.GetFilterSelectEntityOneNamedQuery(entityIDs, isStatusIDs)
 
 	query += queryFilter
 
@@ -68,17 +71,6 @@ func (link *Link) SelectEntity(
 		query += limitStr
 	}
 
-	query, injectedNamedParams, err := sqlx.Named(query, namedParams)
-	if err != nil {
-		return nil, fmt.Errorf("SelectEntity error: %v", err)
-	}
-
-	query, injectedNamedParams, err = sqlx.In(query, injectedNamedParams...)
-	if err != nil {
-		return nil, fmt.Errorf("SelectEntity error: %v", err)
-	}
-
-	query = q.Rebind(query)
-	return q.Queryx(query, injectedNamedParams...)
+	return db.QueryContext(ctx, query, namedArgs)
 
 }

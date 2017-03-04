@@ -1,30 +1,33 @@
 package mssql
 
-import "github.com/jmoiron/sqlx"
+import (
+	"context"
+	"database/sql"
+)
 
 // Link is used to insert and update in mysql
 type Link struct{}
 
 // InitDB create db if not exists
-func (link *Link) InitDB(exec sqlx.Execer, dbName string) (errExec error) {
-	_, errExec = exec.Exec(`CREATE DATABASE ` + dbName)
+func (link *Link) InitDB(ctx context.Context, db *sql.DB, dbName string) (errExec error) {
+	_, errExec = db.ExecContext(ctx, `CREATE DATABASE `+dbName)
 	if errExec != nil {
 		return errExec
 	}
 
-	_, errExec = exec.Exec(`SET DATABASE = ` + dbName)
+	_, errExec = db.ExecContext(ctx, `SET DATABASE = `+dbName)
 	return errExec
 }
 
 // DestroyDB destroy db if exists
-func (link *Link) DestroyDB(exec sqlx.Execer, dbName string) (errExec error) {
-	_, errExec = exec.Exec(`DROP DATABASE IF EXISTS ` + dbName)
+func (link *Link) DestroyDB(ctx context.Context, db *sql.DB, dbName string) (errExec error) {
+	_, errExec = db.ExecContext(ctx, `DROP DATABASE IF EXISTS `+dbName)
 	return errExec
 }
 
 // MigrateUp creates the needed tables
-func (link *Link) MigrateUp(exec sqlx.Execer) (errExec error) {
-	_, errExec = exec.Exec(
+func (link *Link) MigrateUp(ctx context.Context, db *sql.DB) (errExec error) {
+	_, errExec = db.ExecContext(ctx,
 		`
         CREATE TABLE entityone (
             entityone_id BIGINT IDENTITY(1, 1) PRIMARY KEY NOT NULL,
@@ -35,7 +38,7 @@ func (link *Link) MigrateUp(exec sqlx.Execer) (errExec error) {
 		return errExec
 	}
 
-	_, errExec = exec.Exec(
+	_, errExec = db.ExecContext(ctx,
 		`
         CREATE TABLE entityone_status (
             entityone_id BIGINT NOT NULL,
@@ -52,7 +55,7 @@ func (link *Link) MigrateUp(exec sqlx.Execer) (errExec error) {
 		return errExec
 	}
 
-	_, errExec = exec.Exec(`
+	_, errExec = db.ExecContext(ctx, `
 		CREATE UNIQUE INDEX es_ux_ilei 
 		ON entityone_status(entityone_id, is_latest)
 		WHERE is_latest IS NOT NULL
@@ -61,26 +64,26 @@ func (link *Link) MigrateUp(exec sqlx.Execer) (errExec error) {
 		return errExec
 	}
 
-	_, errExec = exec.Exec(
+	_, errExec = db.ExecContext(ctx,
 		`CREATE INDEX es_idx1 ON entityone_status(status_id, is_latest)`,
 	)
 	if errExec != nil {
 		return errExec
 	}
 
-	_, errExec = exec.Exec(
+	_, errExec = db.ExecContext(ctx,
 		`CREATE INDEX es_idx2 ON entityone_status(entityone_id)`,
 	)
 	return errExec
 }
 
 // MigrateDown destroys the needed tables
-func (link *Link) MigrateDown(exec sqlx.Execer) (errExec error) {
-	_, errExec = exec.Exec("DROP TABLE IF EXISTS entityone_status")
+func (link *Link) MigrateDown(ctx context.Context, db *sql.DB) (errExec error) {
+	_, errExec = db.ExecContext(ctx, "DROP TABLE IF EXISTS entityone_status")
 	if errExec != nil {
 		return errExec
 	}
 
-	_, errExec = exec.Exec("DROP TABLE IF EXISTS entityone")
+	_, errExec = db.ExecContext(ctx, "DROP TABLE IF EXISTS entityone")
 	return errExec
 }

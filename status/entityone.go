@@ -1,11 +1,12 @@
 package status
 
 import (
+	"context"
+	"database/sql"
 	"fmt"
 	"strconv"
 	"time"
 
-	"github.com/jmoiron/sqlx"
 	ilcockroachdb "github.com/vincentserpoul/playwithsql/status/islatest/cockroachdb"
 	ilmssql "github.com/vincentserpoul/playwithsql/status/islatest/mssql"
 	ilmysql "github.com/vincentserpoul/playwithsql/status/islatest/mysql"
@@ -63,31 +64,36 @@ func (s StatusID) String() string {
 
 // SQLLink is used to define SQL interactions
 type SQLLink interface {
-	InitDB(exec sqlx.Execer, dbName string) (errExec error)
-	DestroyDB(exec sqlx.Execer, dbName string) (errExec error)
-	MigrateUp(exec sqlx.Execer) (errExec error)
-	MigrateDown(exec sqlx.Execer) (errExec error)
-	InsertOne(sqlx.Ext) (int64, error)
+	InitDB(ctx context.Context, db *sql.DB, dbName string) (errExec error)
+	DestroyDB(ctx context.Context, db *sql.DB, dbName string) (errExec error)
+	MigrateUp(ctx context.Context, db *sql.DB) (errExec error)
+	MigrateDown(ctx context.Context, db *sql.DB) (errExec error)
+	InsertOne(ctx context.Context, db *sql.DB) (int64, error)
 	SaveStatus(
-		exec *sqlx.Tx,
+		ctx context.Context,
+		tx *sql.Tx,
 		entityID int64,
 		actionID int,
 		statusID int,
 	) error
 	SelectEntity(
-		q *sqlx.DB,
+		ctx context.Context,
+		db *sql.DB,
 		entityIDs []int64,
 		isStatusIDs []int,
 		notStatusIDs []int,
 		neverStatusIDs []int,
 		hasStatusIDs []int,
 		limit int,
-	) (*sqlx.Rows, error)
+	) (*sql.Rows, error)
 }
 
 // Create will create an entityone
-func (e *Entityone) Create(db *sqlx.DB, link SQLLink) (err error) {
-	tx := db.MustBegin()
+func (e *Entityone) Create(ctx context.Context, db *sql.DB, link SQLLink) (err error) {
+	tx, err := db.Begin()
+	if err != nil {
+		return fmt.Errorf("Entityone Create: %v", err)
+	}
 	defer func() {
 		if err != nil {
 			errRoll := tx.Rollback()
@@ -97,16 +103,16 @@ func (e *Entityone) Create(db *sqlx.DB, link SQLLink) (err error) {
 		}
 	}()
 
-	e.ID, err = link.InsertOne(db)
+	e.ID, err = link.InsertOne(ctx, db)
 	if err != nil {
-		return fmt.Errorf("Entityone createEntityone: %v", err)
+		return fmt.Errorf("Entityone Create: %v", err)
 	}
 
 	e.TimeCreated = time.Now()
 
-	err = link.SaveStatus(tx, e.ID, int(ActionCreate), int(StatusCreated))
+	err = link.SaveStatus(ctx, tx, e.ID, int(ActionCreate), int(StatusCreated))
 	if err != nil {
-		return fmt.Errorf("Entityone createEntityone: %v", err)
+		return fmt.Errorf("Entityone Create: %v", err)
 	}
 
 	e.Status = Status{
@@ -121,12 +127,16 @@ func (e *Entityone) Create(db *sqlx.DB, link SQLLink) (err error) {
 
 // UpdateStatus will update the status of an Entityone into db
 func (e *Entityone) UpdateStatus(
-	db *sqlx.DB,
+	ctx context.Context,
+	db *sql.DB,
 	link SQLLink,
 	actionID ActionID,
 	statusID StatusID,
 ) (err error) {
-	tx := db.MustBegin()
+	tx, err := db.Begin()
+	if err != nil {
+		return fmt.Errorf("Entityone UpdateStatus: %v", err)
+	}
 	defer func() {
 		if err != nil {
 			errRoll := tx.Rollback()
@@ -136,7 +146,7 @@ func (e *Entityone) UpdateStatus(
 		}
 	}()
 
-	err = link.SaveStatus(tx, e.ID, int(actionID), int(statusID))
+	err = link.SaveStatus(ctx, tx, e.ID, int(actionID), int(statusID))
 	if err != nil {
 		return fmt.Errorf("entityone UpdateStatus(): %v", err)
 	}
@@ -150,11 +160,13 @@ func (e *Entityone) UpdateStatus(
 
 // SelectEntityoneByStatus will retrieve one entityone from a selected status
 func SelectEntityoneByStatus(
-	q *sqlx.DB,
+	ctx context.Context,
+	db *sql.DB,
 	link SQLLink,
 	statusID StatusID,
 ) (selectedEntity []*Entityone, err error) {
-	rows, err := link.SelectEntity(q, []int64{}, []int{int(statusID)}, []int{}, []int{}, []int{}, 3)
+	rows, err := link.SelectEntity(
+		ctx, db, []int64{}, []int{int(statusID)}, []int{}, []int{}, []int{}, 3)
 	if err != nil {
 		return nil, err
 	}
@@ -172,11 +184,12 @@ func SelectEntityoneByStatus(
 
 // SelectEntityoneOneByPK will retrieve one entityone from a selected status
 func SelectEntityoneOneByPK(
-	q *sqlx.DB,
+	ctx context.Context,
+	db *sql.DB,
 	link SQLLink,
 	entityID int64,
 ) (selectedEntity *Entityone, err error) {
-	rows, err := link.SelectEntity(q, []int64{entityID}, []int{}, []int{}, []int{}, []int{}, 0)
+	rows, err := link.SelectEntity(ctx, db, []int64{entityID}, []int{}, []int{}, []int{}, []int{}, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -193,11 +206,11 @@ func SelectEntityoneOneByPK(
 	return selectedEntity, err
 }
 
-func extractEntityonesFromRows(rows *sqlx.Rows) (entityOnes []*Entityone, err error) {
+func extractEntityonesFromRows(rows *sql.Rows) (entityOnes []*Entityone, err error) {
 	for rows.Next() {
 
 		eo := Entityone{}
-		err := rows.StructScan(&eo)
+		err := rows.Scan(&eo)
 		if err != nil {
 			return entityOnes, fmt.Errorf("entityone Select: %v", err)
 		}

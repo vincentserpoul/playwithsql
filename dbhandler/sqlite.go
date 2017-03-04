@@ -1,9 +1,9 @@
 package dbhandler
 
 import (
+	"database/sql"
 	"os"
 
-	"github.com/jmoiron/sqlx"
 	// sqlite driver
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -12,7 +12,7 @@ import (
 type SQLiteDB struct{}
 
 // NewDBHandler connect to db and return the connection
-func (sqliteConf *SQLiteDB) NewDBHandler() (*sqlx.DB, error) {
+func (sqliteConf *SQLiteDB) NewDBHandler() (*sql.DB, error) {
 
 	if _, err := os.Stat("./test.db"); os.IsExist(err) {
 		errRem := os.Remove("./test.db")
@@ -21,7 +21,5 @@ func (sqliteConf *SQLiteDB) NewDBHandler() (*sqlx.DB, error) {
 		}
 	}
 
-	db := sqlx.MustConnect("sqlite3", "./test.db")
-
-	return db, nil
+	return sql.Open("sqlite3", "./test.db")
 }

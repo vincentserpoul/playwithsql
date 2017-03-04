@@ -1,15 +1,16 @@
 package cockroachdb
 
 import (
+	"context"
+	"database/sql"
 	"fmt"
 
-	"github.com/jmoiron/sqlx"
 	"github.com/vincentserpoul/playwithsql/status/islatest"
 )
 
 // InsertOne will insert a Entityone into db
-func (link *Link) InsertOne(exec sqlx.Ext) (id int64, err error) {
-	err = exec.QueryRowx(`
+func (link *Link) InsertOne(ctx context.Context, db *sql.DB) (id int64, err error) {
+	err = db.QueryRowContext(ctx, `
 		INSERT INTO entityone(entityone_id, time_created)
 		VALUES(DEFAULT, DEFAULT)
 		RETURNING entityone_id
@@ -23,26 +24,29 @@ func (link *Link) InsertOne(exec sqlx.Ext) (id int64, err error) {
 
 // SaveStatus will save the status in database for the selected entity
 func (link *Link) SaveStatus(
-	exec *sqlx.Tx,
+	ctx context.Context,
+	tx *sql.Tx,
 	entityID int64,
 	actionID int,
 	statusID int,
 ) error {
-	return islatest.SaveStatus(exec, entityID, actionID, statusID)
+	return islatest.SaveStatus(ctx, tx, entityID, actionID, statusID)
 }
 
-// SelectEntity returns sqlx.Rows
+// SelectEntity returns sql.Rows
 func (link *Link) SelectEntity(
-	q *sqlx.DB,
+	ctx context.Context,
+	db *sql.DB,
 	entityIDs []int64,
 	isStatusIDs []int,
 	notStatusIDs []int,
 	neverStatusIDs []int,
 	hasStatusIDs []int,
 	limit int,
-) (*sqlx.Rows, error) {
+) (*sql.Rows, error) {
 	return islatest.SelectEntity(
-		q,
+		ctx,
+		db,
 		entityIDs,
 		isStatusIDs,
 		notStatusIDs,
