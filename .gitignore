@@ -28,9 +28,7 @@ torch.svg
 .DS_Store
 *.mwb.bak
 
-infra/oracle/instantclient-basic-linux.x64-12.1.0.2.0.zip
-infra/oracle/instantclient-basiclite-linux.x64-12.1.0.2.0.zip
-infra/oracle/instantclient-sdk-linux.x64-12.1.0.2.0.zip
+infra/oracle/instantclient*
 
 playwithsql-cmd
 
