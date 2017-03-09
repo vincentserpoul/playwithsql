@@ -2,7 +2,7 @@ version: "3"
 
 services:
   percona:
-    image: percona:5.7.16
+    image: percona:5.7.17
     ports:
       - "3306:3306"
     environment:
