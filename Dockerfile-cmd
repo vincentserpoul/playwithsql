@@ -2,8 +2,8 @@ FROM ubuntu:17.04
 
 MAINTAINER Vincent Serpoul "<vincent@serpoul.com>"
 
-COPY ./infra/oracle/instantclient-basiclite-linux.x64-12.1.0.2.0.zip /root/
-COPY ./infra/oracle/instantclient-sdk-linux.x64-12.1.0.2.0.zip /root/
+COPY ./infra/oracle/instantclient-basiclite-linux.x64-12.2.0.1.0.zip /root/
+COPY ./infra/oracle/instantclient-sdk-linux.x64-12.2.0.1.0.zip /root/
 COPY ./infra/oracle/oci8.pc /root/
 
 ## ORACLE NEEDS
@@ -17,16 +17,16 @@ RUN apt-get clean && apt-get update && apt-get install -y --no-install-recommend
     rm -rf /var/lib/apt/lists/*
 RUN mkdir -p /opt/oracle
 WORKDIR /opt/oracle
-RUN unzip /root/instantclient-basiclite-linux.x64-12.1.0.2.0.zip && \
-    unzip /root/instantclient-sdk-linux.x64-12.1.0.2.0.zip
+RUN unzip /root/instantclient-basiclite-linux.x64-12.2.0.1.0.zip && \
+    unzip /root/instantclient-sdk-linux.x64-12.2.0.1.0.zip
 
-ENV LD_LIBRARY_PATH=/opt/oracle/instantclient_12_1:/opt/oracle/instantclient_12_1/sdk/include
+ENV LD_LIBRARY_PATH=/opt/oracle/instantclient_12_2:/opt/oracle/instantclient_12_2/sdk/include
 ENV PKG_CONFIG_PATH=/opt/oracle
-ENV PATH=/opt/oracle/instantclient_12_1:$PATH
-ENV ORACLE_HOME=/opt/oracle/instantclient_12_1:/opt/oracle/instantclient_12_1/sdk/include
+ENV PATH=/opt/oracle/instantclient_12_2:$PATH
+ENV ORACLE_HOME=/opt/oracle/instantclient_12_2:/opt/oracle/instantclient_12_2/sdk/include
 
-RUN ln -sf /opt/oracle/instantclient_12_1/libclntsh.so.12.1 /opt/oracle/instantclient_12_1/libclntsh.so && \
-    ln -sf /opt/oracle/instantclient_12_1/libocci.so.12.1 /opt/oracle/instantclient_12_1/libocci.so
+RUN ln -sf /opt/oracle/instantclient_12_2/libclntsh.so.12.1 /opt/oracle/instantclient_12_2/libclntsh.so && \
+    ln -sf /opt/oracle/instantclient_12_2/libocci.so.12.1 /opt/oracle/instantclient_12_2/libocci.so
 
 RUN cp -aL /root/oci8.pc $PKG_CONFIG_PATH/oci8.pc
 
