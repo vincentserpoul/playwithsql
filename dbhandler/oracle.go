@@ -4,7 +4,7 @@ import (
 	"github.com/jmoiron/sqlx"
 
 	// to connect to Oracle
-	_ "gopkg.in/rana/ora.v3"
+	_ "gopkg.in/rana/ora.v4"
 )
 
 // OracleDB is a conf for the mysql database
