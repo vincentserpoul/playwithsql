@@ -1,7 +1,9 @@
-version=12.1
+prefix=/opt/oracle/instantclient_12_2
+version=12.2
+build=client64
 
-includedir=/opt/oracle/instantclient_12_1/sdk/include
-libdir=/opt/oracle/instantclient_12_1
+libdir=${prefix}
+includedir=${prefix}/sdk/include
 
 Name: oci8
 Description: Oracle database engine
