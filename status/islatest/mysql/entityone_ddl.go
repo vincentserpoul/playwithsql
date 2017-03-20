@@ -45,7 +45,7 @@ func (link *Link) MigrateUp(exec sqlx.Execer) (errExec error) {
             status_id INT NOT NULL DEFAULT 1,
             time_created DATETIME NOT NULL DEFAULT NOW(),
             is_latest TINYINT(1) NULL DEFAULT 1 COMMENT 'can be null',
-            UNIQUE INDEX es_ux (is_latest ASC, entityone_id ASC),
+            UNIQUE INDEX es_ux (entityone_id ASC, is_latest ASC),
             INDEX es_ix (status_id ASC, is_latest ASC),
                 CONSTRAINT es_fk_e
                 FOREIGN KEY (entityone_id)

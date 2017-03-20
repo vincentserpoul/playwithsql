@@ -3,6 +3,14 @@ version: "3"
 services:
   mysql:
     image: mysql:8.0.0
+    command: 
+      - "mysqld"
+      - "--max-connections=1000"
+      - "--key_buffer_size=384M"
+      - "--table_open_cache=4000"
+      - "--sort_buffer_size=4M"
+      - "--read_buffer_size=1M"
+      - "--net_buffer_length=1M"    
     ports:
       - "3306:3306"
     environment:
