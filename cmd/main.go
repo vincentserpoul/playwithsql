@@ -112,7 +112,7 @@ func main() {
 		log.Fatalf("%v", err)
 	}
 
-	fmt.Printf("%s", jsonResults)
+	fmt.Printf("%s\n", jsonResults)
 }
 
 // BenchmarkCreate will loop a loops number of time and give the resulting time taken
@@ -174,7 +174,7 @@ func BenchmarkCreate(
 			Errors:     errCount,
 			Median:     getMedian(latencies),
 			StandDev:   getStandardDeviation(latencies),
-			Throughput: int(timeTaken.Seconds() / float64(loops)),
+			Throughput: int(float64(loops) / timeTaken.Seconds()),
 		},
 		testEntityoneIDs,
 		nil
@@ -237,7 +237,7 @@ func BenchmarkUpdateStatus(
 			Errors:     errCount,
 			Median:     getMedian(latencies),
 			StandDev:   getStandardDeviation(latencies),
-			Throughput: int(timeTaken.Seconds() / float64(loops)),
+			Throughput: int(float64(loops) / timeTaken.Seconds()),
 		},
 		nil
 
@@ -291,7 +291,7 @@ func BenchmarkSelectEntityoneByStatus(
 			Errors:     errCount,
 			Median:     getMedian(latencies),
 			StandDev:   getStandardDeviation(latencies),
-			Throughput: int(timeTaken.Seconds() / float64(loops)),
+			Throughput: int(float64(loops) / timeTaken.Seconds()),
 		},
 		nil
 }
@@ -345,7 +345,7 @@ func BenchmarkSelectEntityoneOneByPK(
 			Errors:     errCount,
 			Median:     getMedian(latencies),
 			StandDev:   getStandardDeviation(latencies),
-			Throughput: int(timeTaken.Seconds() / float64(loops)),
+			Throughput: int(float64(loops) / timeTaken.Seconds()),
 		},
 		nil
 }
