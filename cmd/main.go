@@ -21,6 +21,7 @@ import (
 type Results struct {
 	DBType       string
 	MaxConns     int
+	Date         time.Time
 	BenchResults []BenchResult
 }
 
@@ -74,6 +75,7 @@ func main() {
 	var results = Results{
 		DBType:   *dbType,
 		MaxConns: *maxConns,
+		Date:     time.Now(),
 	}
 
 	// Create
