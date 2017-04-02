@@ -5,13 +5,18 @@ HOST=$2
 LOOPS=$3
 MAXCONNS=$4
 
-docker service rm pws-cmd-$DB
+docker service rm pws_cmd-$DB
 
 docker service create \
-    --name pws-cmd-$DB  \
+    --name pws_cmd-$DB  \
     --restart-condition none \
     --network pws_default \
     vincentserpoul/playwithsql-cmd \
     -db=$DB -host=$HOST -loops=$LOOPS -maxconns=$MAXCONNS
 
-(docker service logs -f pws-cmd-$DB > results-$DB.csv &) 
+WAITTILFINISH=$(($LOOPS/10));
+sleep $WAITTILFINISH;
+
+docker service logs pws_cmd-$DB >> results.logs;
+docker service rm pws_cmd-$DB;
+docker service rm pws_$DB;
