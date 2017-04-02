@@ -21,7 +21,7 @@ func (sqliteConf *SQLiteDB) NewDBHandler() (*sqlx.DB, error) {
 		}
 	}
 
-	db := sqlx.MustConnect("sqlite3", "./test.db")
+	db := sqlx.MustConnect("sqlite3", "./test.db?cache=shared&mode=rwc")
 
 	return db, nil
 }
