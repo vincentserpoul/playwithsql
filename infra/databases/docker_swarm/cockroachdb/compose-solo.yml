@@ -2,7 +2,7 @@ version: "3"
 
 services:
   cockroachdb:
-    image: cockroachdb/cockroach:beta-20170309
+    image: cockroachdb/cockroach:beta-20170330
     ports:
       - "8080:8080"
       - "26257:26257"
