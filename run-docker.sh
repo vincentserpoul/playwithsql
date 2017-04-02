@@ -17,6 +17,6 @@ docker service create \
 WAITTILFINISH=$(($LOOPS/10));
 sleep $WAITTILFINISH;
 
-docker service logs pws_cmd-$DB >> results.logs;
+docker service logs pws_cmd-$DB | awk '{ print $3."," }' >> results.log;
 docker service rm pws_cmd-$DB;
 docker service rm pws_$DB;
