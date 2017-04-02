@@ -2,7 +2,7 @@ version: "3"
 
 services:
   mariadb:
-    image: mariadb:10.1.21
+    image: mariadb:10.1.22
     command: 
       - "mysqld"
       - "--max-connections=1000"
