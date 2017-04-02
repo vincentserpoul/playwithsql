@@ -17,9 +17,6 @@ import (
 	"github.com/vincentserpoul/playwithsql/status"
 )
 
-// "github.com/montanaflynn/stats"
-// add median and variance time
-
 // Results to be returned
 type Results struct {
 	DBType       string
@@ -231,7 +228,7 @@ func BenchmarkUpdateStatus(
 	timeTaken := time.Now().Sub(before)
 
 	return BenchResult{
-			Action:     "create",
+			Action:     "updateStatus",
 			Loops:      loops,
 			PauseTime:  pauseTime,
 			Errors:     errCount,
@@ -285,7 +282,7 @@ func BenchmarkSelectEntityoneByStatus(
 	timeTaken := time.Now().Sub(before)
 
 	return BenchResult{
-			Action:     "create",
+			Action:     "selectEntityoneByStatus",
 			Loops:      loops,
 			PauseTime:  0,
 			Errors:     errCount,
@@ -339,7 +336,7 @@ func BenchmarkSelectEntityoneOneByPK(
 	timeTaken := time.Now().Sub(before)
 
 	return BenchResult{
-			Action:     "create",
+			Action:     "selectEntityoneOneByPK",
 			Loops:      loops,
 			PauseTime:  0,
 			Errors:     errCount,
