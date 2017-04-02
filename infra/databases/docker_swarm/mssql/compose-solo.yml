@@ -2,7 +2,7 @@ version: "3"
 
 services:
   mssql:
-    image: militellovinx/mssql-server-linux
+    image: microsoft/mssql-server-linux
     ports:
       - "1433:1433"
     environment:
