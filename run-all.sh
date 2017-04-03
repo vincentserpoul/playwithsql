@@ -7,8 +7,8 @@ echo "[" > results.log
 ./infra/databases/docker_swarm/mariadb/launch-solo.sh && ./run-docker.sh mariadb pws_mariadb 100 5ms 100;  
 ./infra/databases/docker_swarm/percona/launch-solo.sh && ./run-docker.sh percona pws_percona 100 5ms 100;  
 ./infra/databases/docker_swarm/oracle/launch-solo.sh && ./run-docker.sh oracle pws_oracle 100 5ms 100;  
-./infra/databases/docker_swarm/postgres/launch-solo.sh && ./run-docker.sh postgres pws_postgres 100 5ms 100  
-./run-docker.sh sqlite pws_sqlite  100 10ms 100;
+./infra/databases/docker_swarm/postgres/launch-solo.sh && ./run-docker.sh postgres pws_postgres 100 5ms 100;
+./run-docker.sh sqlite pws_sqlite 100 10ms 100;
 
 #  remove last comma 
 sed -i '$s/,$//' results.log;
