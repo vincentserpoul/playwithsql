@@ -13,7 +13,7 @@ removeService () {
 
 runService () {
     removeService;
-    docker deploy --compose-file ./infra/databases/docker_swarm/postgres/compose-solo.yml pws;
+    docker deploy --compose-file ./infra/databases/swarm/postgres/compose-solo.yml pws;
     initdb;
 }
 

@@ -9,24 +9,6 @@ import (
 // Link is used to insert and update in mysql
 type Link struct{}
 
-// InitDB create db if not exists
-func (link *Link) InitDB(exec sqlx.Execer, dbName string) (errExec error) {
-	_, errExec = exec.Exec(`CREATE USER ` + dbName + ` IDENTIFIED BY ` + dbName)
-	if errExec != nil {
-		return errExec
-	}
-
-	_, errExec = exec.Exec(`ALTER SESSION SET CURRENT_SCHEMA = ` + dbName)
-
-	return errExec
-}
-
-// DestroyDB destroy db if exists
-func (link *Link) DestroyDB(exec sqlx.Execer, dbName string) (errExec error) {
-	_, errExec = exec.Exec(`DROP USER ` + dbName)
-	return errExec
-}
-
 // MigrateUp creates the needed tables
 func (link *Link) MigrateUp(exec sqlx.Execer) (errExec error) {
 	_, errExec = exec.Exec(`

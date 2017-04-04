@@ -2,20 +2,18 @@
 
 initdb () {
     sleep 60s;
-    CONTAINER_NAME=$(docker ps --format '{{.Names}}' | grep pws_cockroachdb-0);
+    CONTAINER_NAME=$(docker ps --format '{{.Names}}' | grep pws_cockroachdb);
     docker exec -i $CONTAINER_NAME ./cockroach sql --execute="CREATE DATABASE entityone_test;";
     docker exec -i $CONTAINER_NAME ./cockroach sql --execute="CREATE DATABASE playwithsql;";
 }
 
 removeService () {
-    docker service rm pws_cockroachdb-0;
-    docker service rm pws_cockroachdb-1;
-    docker service rm pws_cockroachdb-2;
+    docker service rm pws_cockroachdb
 }
 
 runService () {
     removeService;
-    docker deploy --compose-file ./infra/databases/docker_swarm/cockroachdb/compose-cluster.yml pws;
+    docker deploy --compose-file ./infra/databases/swarm/cockroachdb/compose-solo.yml pws;
     initdb;
 }
 

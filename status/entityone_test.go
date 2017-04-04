@@ -147,7 +147,7 @@ func TestMain(m *testing.M) {
 
 	dbName := "entityone_test"
 	dbType := flag.String("db", "mysql", "type of db to bench: mysql, cockroachdb, postgres")
-	host := flag.String("host", "localhost", "host IP")
+	host := flag.String("host", "127.0.0.1", "host IP")
 	flag.Parse()
 
 	tempDBConn, err := dbhandler.Get(*dbType, *host, dbName)

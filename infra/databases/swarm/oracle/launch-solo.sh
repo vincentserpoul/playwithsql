@@ -19,7 +19,7 @@ removeService () {
 
 runService () {
     removeService;
-    docker deploy --compose-file ./infra/databases/docker_swarm/oracle/compose-solo.yml pws;
+    docker deploy --compose-file ./infra/databases/swarm/oracle/compose-solo.yml pws;
     initdb;
 }
 

@@ -13,12 +13,12 @@ docker service create \
     --name pws_cmd-$DB  \
     --restart-condition none \
     --network pws_default \
-    vincentserpoul/playwithsql-cmd \
+    vincentserpoul/playwithsql-cmd-status \
     -db=$DB -host=$HOST -loops=$LOOPS -pausetime=$PAUSETIME -maxconns=$MAXCONNS 
 
 WAITTILFINISH=$(($LOOPS/10));
 sleep $WAITTILFINISH;
 
-docker service logs pws_cmd-$DB | awk '{ print $3."," }' >> results.log;
+docker service logs pws_cmd-$DB | awk '{ print $3."," }' >> ./bench/status/swarm/results.log;
 docker service rm pws_cmd-$DB;
 docker service rm pws_$DB;

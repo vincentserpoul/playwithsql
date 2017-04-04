@@ -2,15 +2,15 @@
     {
         "DBType": "cockroachdb",
         "MaxConns": 100,
-        "Date": "2017-04-03T15:31:53.885446095Z",
+        "Date": "2017-04-04T17:30:47.503128632Z",
         "BenchResults": [
             {
                 "Action": "create",
                 "Loops": 100,
                 "PauseTime": 5000000,
                 "Errors": 0,
-                "Median": 8975247,
-                "StandDev": 1231212,
+                "Median": 9259541,
+                "StandDev": 1726773,
                 "Throughput": 195
             },
             {
@@ -18,8 +18,8 @@
                 "Loops": 100,
                 "PauseTime": 5000000,
                 "Errors": 0,
-                "Median": 9304848,
-                "StandDev": 1133372,
+                "Median": 9216310,
+                "StandDev": 1132067,
                 "Throughput": 194
             },
             {
@@ -27,33 +27,33 @@
                 "Loops": 100,
                 "PauseTime": 0,
                 "Errors": 0,
-                "Median": 370400731,
-                "StandDev": 103936629,
-                "Throughput": 277
+                "Median": 363214359,
+                "StandDev": 103509130,
+                "Throughput": 285
             },
             {
                 "Action": "selectEntityoneOneByPK",
                 "Loops": 100,
                 "PauseTime": 0,
                 "Errors": 0,
-                "Median": 381762954,
-                "StandDev": 100755548,
-                "Throughput": 288
+                "Median": 335827352,
+                "StandDev": 93861078,
+                "Throughput": 309
             }
         ]
     },
     {
         "DBType": "mssql",
         "MaxConns": 3,
-        "Date": "2017-04-03T15:32:56.900361594Z",
+        "Date": "2017-04-04T17:31:50.84531795Z",
         "BenchResults": [
             {
                 "Action": "create",
                 "Loops": 100,
                 "PauseTime": 5000000,
                 "Errors": 0,
-                "Median": 6383373,
-                "StandDev": 2639836,
+                "Median": 6194988,
+                "StandDev": 3816919,
                 "Throughput": 194
             },
             {
@@ -61,8 +61,8 @@
                 "Loops": 100,
                 "PauseTime": 5000000,
                 "Errors": 0,
-                "Median": 4800212,
-                "StandDev": 642082,
+                "Median": 4649246,
+                "StandDev": 492297,
                 "Throughput": 194
             },
             {
@@ -70,33 +70,119 @@
                 "Loops": 100,
                 "PauseTime": 0,
                 "Errors": 0,
-                "Median": 52573072,
-                "StandDev": 11618659,
-                "Throughput": 2118
+                "Median": 59113713,
+                "StandDev": 13022069,
+                "Throughput": 1939
             },
             {
                 "Action": "selectEntityoneOneByPK",
                 "Loops": 100,
                 "PauseTime": 0,
                 "Errors": 0,
-                "Median": 38440184,
-                "StandDev": 9576496,
-                "Throughput": 2687
+                "Median": 43955115,
+                "StandDev": 10779457,
+                "Throughput": 2390
             }
         ]
     },
     {
         "DBType": "mysql",
         "MaxConns": 100,
-        "Date": "2017-04-03T15:34:14.162427287Z",
+        "Date": "2017-04-04T17:33:08.250020122Z",
         "BenchResults": [
             {
                 "Action": "create",
                 "Loops": 100,
                 "PauseTime": 5000000,
                 "Errors": 0,
-                "Median": 7211139,
-                "StandDev": 1565715,
+                "Median": 6299338,
+                "StandDev": 926192,
+                "Throughput": 195
+            },
+            {
+                "Action": "updateStatus",
+                "Loops": 100,
+                "PauseTime": 5000000,
+                "Errors": 0,
+                "Median": 4793701,
+                "StandDev": 617362,
+                "Throughput": 194
+            },
+            {
+                "Action": "selectEntityoneByStatus",
+                "Loops": 100,
+                "PauseTime": 0,
+                "Errors": 0,
+                "Median": 35016472,
+                "StandDev": 10105650,
+                "Throughput": 2794
+            },
+            {
+                "Action": "selectEntityoneOneByPK",
+                "Loops": 100,
+                "PauseTime": 0,
+                "Errors": 0,
+                "Median": 41046360,
+                "StandDev": 12178938,
+                "Throughput": 2430
+            }
+        ]
+    },
+    {
+        "DBType": "mariadb",
+        "MaxConns": 100,
+        "Date": "2017-04-04T17:34:25.749656618Z",
+        "BenchResults": [
+            {
+                "Action": "create",
+                "Loops": 100,
+                "PauseTime": 5000000,
+                "Errors": 0,
+                "Median": 6340934,
+                "StandDev": 954308,
+                "Throughput": 195
+            },
+            {
+                "Action": "updateStatus",
+                "Loops": 100,
+                "PauseTime": 5000000,
+                "Errors": 3,
+                "Median": 2519682,
+                "StandDev": 38301693,
+                "Throughput": 195
+            },
+            {
+                "Action": "selectEntityoneByStatus",
+                "Loops": 100,
+                "PauseTime": 0,
+                "Errors": 0,
+                "Median": 24134882,
+                "StandDev": 5889778,
+                "Throughput": 4634
+            },
+            {
+                "Action": "selectEntityoneOneByPK",
+                "Loops": 100,
+                "PauseTime": 0,
+                "Errors": 0,
+                "Median": 27630202,
+                "StandDev": 7544937,
+                "Throughput": 3856
+            }
+        ]
+    },
+    {
+        "DBType": "percona",
+        "MaxConns": 100,
+        "Date": "2017-04-04T17:35:43.357044369Z",
+        "BenchResults": [
+            {
+                "Action": "create",
+                "Loops": 100,
+                "PauseTime": 5000000,
+                "Errors": 1,
+                "Median": 3593246,
+                "StandDev": 1593084,
                 "Throughput": 194
             },
             {
@@ -104,8 +190,8 @@
                 "Loops": 100,
                 "PauseTime": 5000000,
                 "Errors": 0,
-                "Median": 4910669,
-                "StandDev": 918922,
+                "Median": 4789357,
+                "StandDev": 726515,
                 "Throughput": 195
             },
             {
@@ -113,128 +199,42 @@
                 "Loops": 100,
                 "PauseTime": 0,
                 "Errors": 0,
-                "Median": 38503817,
-                "StandDev": 11904181,
-                "Throughput": 2423
+                "Median": 38450526,
+                "StandDev": 10853858,
+                "Throughput": 2459
             },
             {
                 "Action": "selectEntityoneOneByPK",
                 "Loops": 100,
                 "PauseTime": 0,
                 "Errors": 0,
-                "Median": 41191548,
-                "StandDev": 11032065,
-                "Throughput": 2591
-            }
-        ]
-    },
-    {
-        "DBType": "mariadb",
-        "MaxConns": 100,
-        "Date": "2017-04-03T15:35:31.534255932Z",
-        "BenchResults": [
-            {
-                "Action": "create",
-                "Loops": 100,
-                "PauseTime": 5000000,
-                "Errors": 0,
-                "Median": 6619006,
-                "StandDev": 745789,
-                "Throughput": 195
-            },
-            {
-                "Action": "updateStatus",
-                "Loops": 100,
-                "PauseTime": 5000000,
-                "Errors": 5,
-                "Median": 2508570,
-                "StandDev": 36798500,
-                "Throughput": 195
-            },
-            {
-                "Action": "selectEntityoneByStatus",
-                "Loops": 100,
-                "PauseTime": 0,
-                "Errors": 0,
-                "Median": 20989718,
-                "StandDev": 5854945,
-                "Throughput": 4745
-            },
-            {
-                "Action": "selectEntityoneOneByPK",
-                "Loops": 100,
-                "PauseTime": 0,
-                "Errors": 0,
-                "Median": 31799987,
-                "StandDev": 7343020,
-                "Throughput": 3758
-            }
-        ]
-    },
-    {
-        "DBType": "percona",
-        "MaxConns": 100,
-        "Date": "2017-04-03T15:36:48.450439802Z",
-        "BenchResults": [
-            {
-                "Action": "create",
-                "Loops": 100,
-                "PauseTime": 5000000,
-                "Errors": 0,
-                "Median": 7403224,
-                "StandDev": 1405418,
-                "Throughput": 195
-            },
-            {
-                "Action": "updateStatus",
-                "Loops": 100,
-                "PauseTime": 5000000,
-                "Errors": 0,
-                "Median": 4993980,
-                "StandDev": 930729,
-                "Throughput": 195
-            },
-            {
-                "Action": "selectEntityoneByStatus",
-                "Loops": 100,
-                "PauseTime": 0,
-                "Errors": 0,
-                "Median": 32431388,
-                "StandDev": 7833682,
-                "Throughput": 3519
-            },
-            {
-                "Action": "selectEntityoneOneByPK",
-                "Loops": 100,
-                "PauseTime": 0,
-                "Errors": 0,
-                "Median": 28137925,
-                "StandDev": 7635680,
-                "Throughput": 3705
+                "Median": 29764355,
+                "StandDev": 6993737,
+                "Throughput": 4050
             }
         ]
     },
     {
         "DBType": "oracle",
         "MaxConns": 100,
-        "Date": "2017-04-03T15:38:05.986990011Z",
+        "Date": "2017-04-04T17:37:01.416995301Z",
         "BenchResults": [
             {
                 "Action": "create",
                 "Loops": 100,
                 "PauseTime": 5000000,
                 "Errors": 0,
-                "Median": 6857096,
-                "StandDev": 20359843,
-                "Throughput": 182
+                "Median": 7172990,
+                "StandDev": 8869798,
+                "Throughput": 189
             },
             {
                 "Action": "updateStatus",
                 "Loops": 100,
                 "PauseTime": 5000000,
                 "Errors": 0,
-                "Median": 4383446,
-                "StandDev": 491018,
+                "Median": 4176615,
+                "StandDev": 396538,
                 "Throughput": 195
             },
             {
@@ -242,33 +242,33 @@
                 "Loops": 100,
                 "PauseTime": 0,
                 "Errors": 0,
-                "Median": 152811335,
-                "StandDev": 13177967,
-                "Throughput": 1033
+                "Median": 160019799,
+                "StandDev": 12333215,
+                "Throughput": 1005
             },
             {
                 "Action": "selectEntityoneOneByPK",
                 "Loops": 100,
                 "PauseTime": 0,
                 "Errors": 0,
-                "Median": 49276025,
-                "StandDev": 12285399,
-                "Throughput": 2277
+                "Median": 43547839,
+                "StandDev": 11569316,
+                "Throughput": 2410
             }
         ]
     },
     {
         "DBType": "postgres",
         "MaxConns": 100,
-        "Date": "2017-04-03T15:39:23.859614576Z",
+        "Date": "2017-04-04T17:38:19.287445473Z",
         "BenchResults": [
             {
                 "Action": "create",
                 "Loops": 100,
                 "PauseTime": 5000000,
                 "Errors": 0,
-                "Median": 5106203,
-                "StandDev": 882045,
+                "Median": 4984362,
+                "StandDev": 722989,
                 "Throughput": 195
             },
             {
@@ -276,8 +276,8 @@
                 "Loops": 100,
                 "PauseTime": 5000000,
                 "Errors": 0,
-                "Median": 4065400,
-                "StandDev": 507795,
+                "Median": 3513661,
+                "StandDev": 577662,
                 "Throughput": 195
             },
             {
@@ -285,33 +285,33 @@
                 "Loops": 100,
                 "PauseTime": 0,
                 "Errors": 0,
-                "Median": 49705818,
-                "StandDev": 14935890,
-                "Throughput": 1979
+                "Median": 39164766,
+                "StandDev": 10285665,
+                "Throughput": 2763
             },
             {
                 "Action": "selectEntityoneOneByPK",
                 "Loops": 100,
                 "PauseTime": 0,
                 "Errors": 0,
-                "Median": 37698702,
-                "StandDev": 9570324,
-                "Throughput": 2898
+                "Median": 34088809,
+                "StandDev": 9721299,
+                "Throughput": 2977
             }
         ]
     },
     {
         "DBType": "sqlite",
         "MaxConns": 100,
-        "Date": "2017-04-03T15:39:37.33426977Z",
+        "Date": "2017-04-04T17:38:33.145048417Z",
         "BenchResults": [
             {
                 "Action": "create",
                 "Loops": 100,
                 "PauseTime": 10000000,
                 "Errors": 0,
-                "Median": 21080179,
-                "StandDev": 58506746,
+                "Median": 20477228,
+                "StandDev": 59348954,
                 "Throughput": 49
             },
             {
@@ -319,27 +319,27 @@
                 "Loops": 100,
                 "PauseTime": 10000000,
                 "Errors": 0,
-                "Median": 10118292,
-                "StandDev": 140119144,
-                "Throughput": 62
+                "Median": 10050155,
+                "StandDev": 99492248,
+                "Throughput": 65
             },
             {
                 "Action": "selectEntityoneByStatus",
                 "Loops": 100,
                 "PauseTime": 0,
                 "Errors": 0,
-                "Median": 10057480,
-                "StandDev": 2633014,
-                "Throughput": 10749
+                "Median": 8559460,
+                "StandDev": 2598286,
+                "Throughput": 10715
             },
             {
                 "Action": "selectEntityoneOneByPK",
                 "Loops": 100,
                 "PauseTime": 0,
                 "Errors": 0,
-                "Median": 7510979,
-                "StandDev": 1957103,
-                "Throughput": 14603
+                "Median": 6312956,
+                "StandDev": 1812306,
+                "Throughput": 15681
             }
         ]
     }

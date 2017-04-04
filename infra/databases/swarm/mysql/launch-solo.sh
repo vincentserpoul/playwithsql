@@ -2,18 +2,18 @@
 
 initdb () {
     sleep 60s;
-    CONTAINER_NAME=$(docker ps --format '{{.Names}}' | grep pws_mariadb);
+    CONTAINER_NAME=$(docker ps --format '{{.Names}}' | grep pws_mysql);
     docker exec -i $CONTAINER_NAME mysql -u root -ptest -e 'CREATE DATABASE entityone_test';
     docker exec -i $CONTAINER_NAME mysql -u root -ptest -e 'CREATE DATABASE playwithsql';
 }
 
 removeService () {
-    docker service rm pws_mariadb
+    docker service rm pws_mysql
 }
 
 runService () {
     removeService;
-    docker deploy --compose-file ./infra/databases/docker_swarm/mariadb/compose-solo.yml pws;
+    docker deploy --compose-file ./infra/databases/swarm/mysql/compose-solo.yml pws;
     initdb;
 }
 

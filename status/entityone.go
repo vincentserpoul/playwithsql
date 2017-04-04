@@ -63,8 +63,6 @@ func (s StatusID) String() string {
 
 // SQLLink is used to define SQL interactions
 type SQLLink interface {
-	InitDB(exec sqlx.Execer, dbName string) (errExec error)
-	DestroyDB(exec sqlx.Execer, dbName string) (errExec error)
 	MigrateUp(exec sqlx.Execer) (errExec error)
 	MigrateDown(exec sqlx.Execer) (errExec error)
 	InsertOne(sqlx.Ext) (int64, error)

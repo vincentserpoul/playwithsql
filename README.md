@@ -28,20 +28,29 @@ Hence, they can't be used to affirm that this or this db is better.
 
 # The setup
 
-* Kubernetes clusters
+- [] swarm cluster - solo db container
+- [] kubernetes cluster - solo db container
+- [] swarm cluster - cluster db containers
+- [] kubernetes cluster - cluster db containers
 
 # Rebuilding the docker image
 
 Download [Oracle instant client](http://www.oracle.com/technetwork/topics/linuxx86-64soft-092277.html) for Oracle (basic and SDK) to the infra/build folder
 
 ```
-./build-docker.sh
+./build-docker-cmd-status.sh
+```
+
+# Launch tests
+
+```
+./status/run-test.sh
 ```
 
 # Launch local status benches
 
 ```
-./status/launch_all.sh
+./bench/status/swarm/run-all.sh
 ```
 
 # Launch remote tests

@@ -30,7 +30,7 @@ torch.svg
 
 infra/oracle/instantclient*
 
-playwithsql-cmd
+playwithsql-cmd-status
 
 bench/dotoken
 bench/sshkey_fingerprint
