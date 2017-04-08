@@ -15,7 +15,11 @@ the benchmark comparison is for very specific use case:
 Hence, they can't be used to affirm that this or this db is better.
 *The context matters!*
 
-# TODO LIST
+## Results
+
+Just check them [here](https://playwithsql-summary.surge.sh)!
+
+# Tested dbs
 
 - [x] MySQL
 - [x] MariaDB
@@ -26,12 +30,13 @@ Hence, they can't be used to affirm that this or this db is better.
 - [x] Microsoft SQL Server
 - [x] Oracle
 
-# The setup
+# Tested setups
 
-- [] swarm cluster - solo db container
-- [] kubernetes cluster - solo db container
-- [] swarm cluster - cluster db containers
-- [] kubernetes cluster - cluster db containers
+- [x] local swarm cluster - local solo db container
+- [] swarm cluster - gcloud solo db container
+- [] kubernetes cluster - gcloud solo db container
+- [] swarm cluster - gcloud cluster db containers
+- [] kubernetes cluster - gcloud cluster db containers
 
 # Rebuilding the docker image
 
