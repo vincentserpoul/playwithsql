@@ -3,8 +3,8 @@
 initdb () {
     sleep 60s;
     CONTAINER_NAME=$(docker ps --format '{{.Names}}' | grep pws_cockroachdb);
-    docker exec -i $CONTAINER_NAME ./cockroach sql --execute="CREATE DATABASE entityone_test;";
-    docker exec -i $CONTAINER_NAME ./cockroach sql --execute="CREATE DATABASE playwithsql;";
+    docker exec -i $CONTAINER_NAME ./cockroach sql --insecure --execute="CREATE DATABASE entityone_test;";
+    docker exec -i $CONTAINER_NAME ./cockroach sql --insecure --execute="CREATE DATABASE playwithsql;";
 }
 
 removeService () {
