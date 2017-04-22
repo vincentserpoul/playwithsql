@@ -29,10 +29,10 @@ func (link *Link) MigrateUp(exec sqlx.Execer) (errExec error) {
             is_latest INT NULL DEFAULT 1,
             UNIQUE (is_latest, entityone_id),
             INDEX (status_id, is_latest),
+            INDEX (entityone_id),
             CONSTRAINT es_fk_e
             FOREIGN KEY (entityone_id)
-            REFERENCES entityone (entityone_id),
-            INDEX (entityone_id)
+            REFERENCES entityone (entityone_id)
         )
     `)
 	return errExec
