@@ -95,7 +95,7 @@ func (e *Entityone) Create(db *sqlx.DB, link SQLLink) (err error) {
 		}
 	}()
 
-	e.ID, err = link.InsertOne(db)
+	e.ID, err = link.InsertOne(tx)
 	if err != nil {
 		return fmt.Errorf("Entityone createEntityone: %v", err)
 	}
