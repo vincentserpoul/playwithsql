@@ -2,7 +2,7 @@ version: "3"
 
 services:
   mssql:
-    image: microsoft/mssql-server-linux:ctp1-4
+    image: microsoft/mssql-server-linux:ctp-2.0
     ports:
       - "1433:1433"
     environment:
