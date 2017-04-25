@@ -25,7 +25,7 @@ type Results struct {
 	BenchResults []BenchResult
 }
 
-// Bench data
+// BenchResult data
 type BenchResult struct {
 	Action     string
 	Loops      int
