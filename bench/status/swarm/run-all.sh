@@ -14,9 +14,5 @@ echo "[" > ./bench/status/swarm/results.log
 sed -i '$s/,$//' ./bench/status/swarm/results.log;
 echo "]" >> ./bench/status/swarm/results.log;
 
-# Generate graph
-
-
-
 # Cluster
  # ./infra/databases/swarm/cockroachdb/launch-cluster.sh && ./bench/status/swarm/run-bench.sh cockroachdb pws_cockroachdb-0 2000 && docker service logs -f pws-cmd
