@@ -144,7 +144,18 @@ func BenchmarkCreate(
 		go func() {
 			var e status.Entityone
 			before := time.Now()
-			errCr := e.Create(dbConn, benchSQLLink)
+			ok := false
+			var errCr error
+			retryCount := 0
+			for retryCount < 3 && !ok {
+				errCr = e.Create(dbConn, benchSQLLink)
+				if errCr != nil {
+					retryCount++
+					time.Sleep(pauseTime * time.Duration(retryCount*10))
+				} else {
+					ok = true
+				}
+			}
 			if errCr != nil {
 				errorC <- errCr
 			} else {
@@ -158,8 +169,9 @@ func BenchmarkCreate(
 		case latencyID := <-latenciesIDsC:
 			latencies = append(latencies, latencyID.dur)
 			testEntityoneIDs = append(testEntityoneIDs, latencyID.id)
-		case errCr := <-errorC:
-			log.Printf("%v", errCr)
+		// case errCr := <-errorC:
+		// 	log.Printf("%v", errCr)
+		case <-errorC:
 			errCount++
 		}
 	}
@@ -202,13 +214,23 @@ func BenchmarkUpdateStatus(
 	before := time.Now()
 
 	for i := 0; i < loops; i++ {
-		time.Sleep(pauseTime)
+		time.Sleep(pauseTime/time.Duration(2))
 		go func() {
 			var e status.Entityone
 			e.ID = testEntityoneIDs[i%len(testEntityoneIDs)]
-
 			before := time.Now()
-			errU := e.UpdateStatus(dbConn, benchSQLLink, status.ActionCancel, status.StatusCancelled)
+			ok := false
+			var errU error
+			retryCount := 0
+			for retryCount < 3 && !ok {
+				errU := e.UpdateStatus(dbConn, benchSQLLink, status.ActionCancel, status.StatusCancelled)
+				if errU != nil {
+					retryCount++
+					time.Sleep(pauseTime * time.Duration(retryCount*10))
+				} else {
+					ok = true
+				}
+			}
 			if errU != nil {
 				errorC <- errU
 			} else {
