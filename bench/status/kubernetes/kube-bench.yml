@@ -1,0 +1,31 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "playwithsql-status-bench-$DB"
+  namespace: default
+spec:
+  template:
+    metadata:
+      labels:
+        app: playwithsql
+    spec:
+      containers:
+      - image: vincentserpoul/playwithsql-cmd-status
+        imagePullPolicy: Always
+        name: playwithsql-status-bench
+        args:
+          - "-db=$DB"
+          - "-host=$HOST"
+          - "-loops=$LOOPS"
+          - "-pausetime=$PAUSETIME"
+          - "-maxconns=$MAXCONNS"
+      restartPolicy: Never
+  # affinity:
+  #   podAntiAffinity:
+  #     requiredDuringSchedulingIgnoredDuringExecution:
+  #     - labelSelector:
+  #         matchExpressions:
+  #         - key: type
+  #           operator: In
+  #           values:
+  #           - db

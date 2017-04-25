@@ -1,0 +1,43 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: cockroachdb
+  namespace: default
+  labels:
+    type: db  
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: cockroachdb
+    spec:
+      containers:
+      - image: cockroachdb/cockroach:beta-20170420
+        imagePullPolicy: Always
+        name: cockroachdb
+        args:
+        - "start"
+        - "--insecure"
+        ports:
+        - containerPort: 26257
+          containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cockroachdb
+  namespace: default
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 8080
+    targetPort: 8080
+    protocol: TCP
+    name: ui
+  - port : 26257
+    targetPort: 26257
+    protocol: TCP
+    name: app
+  selector:
+    app: cockroachdb

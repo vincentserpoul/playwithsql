@@ -1,0 +1,40 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: mssql
+  namespace: default
+  labels:
+    type: db  
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mssql
+    spec:
+      containers:
+      - image: microsoft/mssql-server-linux:ctp-2.0
+        imagePullPolicy: Always
+        name: mssql
+        env:
+        - name: ACCEPT_EULA
+          value: "Y"
+        - name: SA_PASSWORD
+          value: "thank5MsSQLforcingMe"
+        ports:
+        - containerPort: 1433
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mssql
+  namespace: default
+spec:
+  type: LoadBalancer
+  ports:
+  - port : 1433
+    targetPort: 1433
+    protocol: TCP
+    name: app
+  selector:
+    app: mssql
