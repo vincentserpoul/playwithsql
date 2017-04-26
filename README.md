@@ -71,3 +71,4 @@ Download [Oracle instant client](http://www.oracle.com/technetwork/topics/linuxx
 - [] Run bench container on another node than the ones containing the DB containers
 - [] Find a way to dynamically adjust the bench profile
 - [] Leverage new go 1.8 capabilities (remove sqlx?)
+- [] Vendor deps
