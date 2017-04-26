@@ -29,6 +29,7 @@ Just check them [here](https://playwithsql-summary.surge.sh)!
 - [x] SQLite
 - [x] Microsoft SQL Server
 - [x] Oracle
+- [] Vitess
 
 # Tested setups
 
