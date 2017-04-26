@@ -34,7 +34,7 @@ Just check them [here](https://playwithsql-summary.surge.sh)!
 
 - [x] local swarm cluster - local solo db container
 - [] swarm cluster - gcloud solo db container
-- [] kubernetes cluster - gcloud solo db container
+- [x] kubernetes cluster - gcloud solo db container
 - [] swarm cluster - gcloud cluster db containers
 - [] kubernetes cluster - gcloud cluster db containers
 
@@ -58,8 +58,8 @@ Download [Oracle instant client](http://www.oracle.com/technetwork/topics/linuxx
 ./bench/status/swarm/run-all.sh
 ```
 
-# Launch remote tests
+# Launch remote tests on kubernetes
 
 ```
-To be done
+./bench/status/kubernetes/run-all.sh
 ```
