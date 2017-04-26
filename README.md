@@ -63,3 +63,8 @@ Download [Oracle instant client](http://www.oracle.com/technetwork/topics/linuxx
 ```
 ./bench/status/kubernetes/run-all.sh
 ```
+
+# TODO list
+
+- [] Run bench container on another node than the ones containing the DB containers
+- [] Find a way to dynamically adjust the bench profile
