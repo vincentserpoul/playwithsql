@@ -1,4 +1,5 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/vincentserpoul/playwithsql)](https://goreportcard.com/report/github.com/vincentserpoul/playwithsql)
+[![codebeat badge](https://codebeat.co/badges/df4fb8c7-3472-46ff-a9c8-5fa72008269c)](https://codebeat.co/projects/github-com-vincentserpoul-playwithsql-master)
 
 # playwithsql
 
