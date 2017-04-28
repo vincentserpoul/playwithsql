@@ -18,6 +18,6 @@
 
 gcloud container clusters create benchcluster \
     --zone=us-central1-b --num-nodes=4 --preemptible \
-    --cluster-version=1.6.1;
+    --cluster-version=1.6.2;
 
 gcloud container clusters get-credentials benchcluster --zone us-central1-b --project playwithsql;
