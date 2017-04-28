@@ -1,3 +1,12 @@
+# TO DO AFTER VENDORING IS DONE
+# # build stage
+#
+# FROM golang:alpine AS build-env
+# ADD . /src
+# RUN cd /src && \
+#    GOOS=linux GOARCH=amd64 go build -o playwithsql-cmd-status ./cmd/status/main.go
+
+# final stage
 FROM ubuntu:17.04
 
 MAINTAINER Vincent Serpoul "<vincent@serpoul.com>"
@@ -33,7 +42,7 @@ RUN cp -aL /root/oci8.pc $PKG_CONFIG_PATH/oci8.pc
 WORKDIR /app
 
 # copy binary into image
-COPY playwithsql-cmd-status /app/
+COPY --from=build-env /src/playwithsql-cmd-status /app/
 
 # Add influxd to the PATH
 ENV PATH=/app:$PATH
