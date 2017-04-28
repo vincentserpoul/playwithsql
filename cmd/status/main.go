@@ -214,7 +214,7 @@ func BenchmarkUpdateStatus(
 	before := time.Now()
 
 	for i := 0; i < loops; i++ {
-		time.Sleep(pauseTime/time.Duration(2))
+		time.Sleep(pauseTime / time.Duration(2))
 		go func() {
 			var e status.Entityone
 			e.ID = testEntityoneIDs[i%len(testEntityoneIDs)]
