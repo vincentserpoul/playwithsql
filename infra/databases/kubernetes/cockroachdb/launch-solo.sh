@@ -1,7 +1,7 @@
 #!/bin/bash
 
 initdb () {
-    sleep 10s;
+    sleep 15s;
     POD_NAME=$(kubectl get po | grep cockroach | awk '{ print $1 }');
     kubectl exec -i $POD_NAME -- ./cockroach sql --insecure \
         --execute="CREATE DATABASE entityone_test;";
