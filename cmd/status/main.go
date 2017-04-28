@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"sort"
+	"sync"
 
 	"time"
 
@@ -134,14 +135,14 @@ func BenchmarkCreate(
 	defer close(entityIDsC)
 	defer close(errorC)
 
-	var latencies []time.Duration
-	var errCount int
-
 	before := time.Now()
+	var wg sync.WaitGroup
 
 	for i := 0; i < loops; i++ {
 		time.Sleep(pauseTime)
-		go func() {
+		wg.Add(1)
+		go func(wg *sync.WaitGroup) {
+			defer wg.Done()
 			var e status.Entityone
 			before := time.Now()
 			ok := false
@@ -161,21 +162,24 @@ func BenchmarkCreate(
 			} else {
 				latenciesIDsC <- latID{dur: time.Now().Sub(before), id: e.ID}
 			}
-		}()
+		}(&wg)
 	}
 
-	for j := 0; j < loops; j++ {
-		select {
-		case latencyID := <-latenciesIDsC:
-			latencies = append(latencies, latencyID.dur)
-			testEntityoneIDs = append(testEntityoneIDs, latencyID.id)
-		// case errCr := <-errorC:
-		// 	log.Printf("%v", errCr)
-		case <-errorC:
-			errCount++
+	var latencies []time.Duration
+	var errCount int
+	go func() {
+		for {
+			select {
+			case latencyID := <-latenciesIDsC:
+				latencies = append(latencies, latencyID.dur)
+				testEntityoneIDs = append(testEntityoneIDs, latencyID.id)
+			case <-errorC:
+				errCount++
+			}
 		}
-	}
+	}()
 
+	wg.Wait()
 	timeTaken := time.Now().Sub(before)
 
 	return BenchResult{
@@ -208,14 +212,14 @@ func BenchmarkUpdateStatus(
 	defer close(latenciesC)
 	defer close(errorC)
 
-	var latencies []time.Duration
-	var errCount int
-
 	before := time.Now()
+	var wg sync.WaitGroup
 
 	for i := 0; i < loops; i++ {
 		time.Sleep(pauseTime / time.Duration(2))
-		go func() {
+		wg.Add(1)
+		go func(wg *sync.WaitGroup) {
+			defer wg.Done()
 			var e status.Entityone
 			e.ID = testEntityoneIDs[i%len(testEntityoneIDs)]
 			before := time.Now()
@@ -236,19 +240,14 @@ func BenchmarkUpdateStatus(
 			} else {
 				latenciesC <- time.Now().Sub(before)
 			}
-		}()
+		}(&wg)
 	}
 
-	for j := 0; j < loops; j++ {
-		select {
-		case latency := <-latenciesC:
-			latencies = append(latencies, latency)
-		case errU := <-errorC:
-			log.Printf("%v", errU)
-			errCount++
-		}
-	}
+	var latencies []time.Duration
+	var errCount int
+	go receiveResults(&latenciesC, &errorC, latencies, &errCount)
 
+	wg.Wait()
 	timeTaken := time.Now().Sub(before)
 
 	return BenchResult{
@@ -277,32 +276,28 @@ func BenchmarkSelectEntityoneByStatus(
 	defer close(latenciesC)
 	defer close(errorC)
 
-	var latencies []time.Duration
-	var errCount int
+	var wg sync.WaitGroup
 
 	before := time.Now()
 
-	go func() {
-		for i := 0; i < loops; i++ {
+	for i := 0; i < loops; i++ {
+		wg.Add(1)
+		go func(wg *sync.WaitGroup) {
+			defer wg.Done()
 			_, errSel := status.SelectEntityoneByStatus(dbConn, benchSQLLink, status.StatusCancelled)
 			if errSel != nil {
 				errorC <- errSel
 			} else {
 				latenciesC <- time.Now().Sub(before)
 			}
-		}
-	}()
-
-	for j := 0; j < loops; j++ {
-		select {
-		case latency := <-latenciesC:
-			latencies = append(latencies, latency)
-		case errSel := <-errorC:
-			log.Printf("%v", errSel)
-			errCount++
-		}
+		}(&wg)
 	}
 
+	var latencies []time.Duration
+	var errCount int
+	go receiveResults(&latenciesC, &errorC, latencies, &errCount)
+
+	wg.Wait()
 	timeTaken := time.Now().Sub(before)
 
 	return BenchResult{
@@ -330,33 +325,27 @@ func BenchmarkSelectEntityoneOneByPK(
 	defer close(latenciesC)
 	defer close(errorC)
 
-	var latencies []time.Duration
-	var errCount int
-
 	before := time.Now()
+	var wg sync.WaitGroup
 
-	go func() {
-		for i := 0; i < loops; i++ {
+	for i := 0; i < loops; i++ {
+		wg.Add(1)
+		go func(wg *sync.WaitGroup) {
+			defer wg.Done()
 			_, errSel := status.SelectEntityoneOneByPK(dbConn, benchSQLLink, testEntityoneIDs[i%len(testEntityoneIDs)])
 			if errSel != nil {
 				errorC <- errSel
 			} else {
 				latenciesC <- time.Now().Sub(before)
 			}
-
-		}
-	}()
-
-	for j := 0; j < loops; j++ {
-		select {
-		case latency := <-latenciesC:
-			latencies = append(latencies, latency)
-		case errSel := <-errorC:
-			log.Printf("%v", errSel)
-			errCount++
-		}
+		}(&wg)
 	}
 
+	var latencies []time.Duration
+	var errCount int
+	go receiveResults(&latenciesC, &errorC, latencies, &errCount)
+
+	wg.Wait()
 	timeTaken := time.Now().Sub(before)
 
 	return BenchResult{
@@ -371,7 +360,22 @@ func BenchmarkSelectEntityoneOneByPK(
 		nil
 }
 
-// returns the median duration of a list
+// receiveResults take the 2 channels used to receive results and gather the data into accessible variables
+func receiveResults(
+	latenciesC *chan time.Duration, errorC *chan error,
+	lats []time.Duration, errCount *int,
+) {
+	for {
+		select {
+		case latency := <-*latenciesC:
+			lats = append(lats, latency)
+		case <-*errorC:
+			*errCount++
+		}
+	}
+}
+
+// getMedian returns the median duration of a list
 func getMedian(latencies []time.Duration) time.Duration {
 	sort.Slice(latencies, func(i, j int) bool { return latencies[i] < latencies[j] })
 
@@ -387,7 +391,7 @@ func getMedian(latencies []time.Duration) time.Duration {
 	return latencies[len(latencies)/2]
 }
 
-// returns the standard deviation of the list
+// getStandardDeviation returns the standard deviation of the list
 func getStandardDeviation(latencies []time.Duration) time.Duration {
 
 	if len(latencies) == 0 {
@@ -406,6 +410,7 @@ func getStandardDeviation(latencies []time.Duration) time.Duration {
 	return time.Duration(math.Pow(float64(variance.Nanoseconds()/int64(len(latencies))), 0.5))
 }
 
+// getMean returns the mean of the list
 func getMean(latencies []time.Duration) time.Duration {
 	if len(latencies) == 0 {
 		return 0
