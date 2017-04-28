@@ -42,7 +42,8 @@ RUN cp -aL /root/oci8.pc $PKG_CONFIG_PATH/oci8.pc
 WORKDIR /app
 
 # copy binary into image
-COPY --from=build-env /src/playwithsql-cmd-status /app/
+# COPY --from=build-env /src/playwithsql-cmd-status /app/
+COPY playwithsql-cmd-status /app/
 
 # Add influxd to the PATH
 ENV PATH=/app:$PATH
