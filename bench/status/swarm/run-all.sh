@@ -6,7 +6,7 @@ echo "[" > ./bench/status/swarm/results.log
 ./infra/databases/swarm/mysql/launch-solo.sh && ./bench/status/swarm/run-bench.sh mysql pws_mysql 100 5ms 1000;
 ./infra/databases/swarm/mariadb/launch-solo.sh && ./bench/status/swarm/run-bench.sh mariadb pws_mariadb 100 5ms 1000;  
 ./infra/databases/swarm/percona/launch-solo.sh && ./bench/status/swarm/run-bench.sh percona pws_percona 100 5ms 1000;  
-./infra/databases/swarm/oracle/launch-solo.sh && ./bench/status/swarm/run-bench.sh oracle pws_oracle 100 5ms 30;  
+./infra/databases/swarm/oracle/launch-solo.sh && ./bench/status/swarm/run-bench.sh oracle pws_oracle 100 5ms 1;  
 ./infra/databases/swarm/postgres/launch-solo.sh && ./bench/status/swarm/run-bench.sh postgres pws_postgres 100 5ms 100;
 ./bench/status/swarm/run-bench.sh sqlite pws_sqlite 100 10ms 100;
 
