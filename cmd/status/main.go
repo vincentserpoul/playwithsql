@@ -427,13 +427,13 @@ func getStandardDeviation(latencies []time.Duration) time.Duration {
 	// Sum the square of the mean subtracted from each number
 	mean := getMean(latencies)
 
-	var variance time.Duration
+	var variance float64
 
 	for _, latency := range latencies {
-		variance += (latency - mean) * (latency - mean)
+		variance += math.Pow(float64(latency.Nanoseconds()-mean.Nanoseconds()), 2)
 	}
 
-	return time.Duration(math.Pow(float64(variance.Nanoseconds()/int64(len(latencies))), 0.5))
+	return time.Duration(math.Sqrt(variance / float64(len(latencies))))
 }
 
 // getMean returns the mean of the list
