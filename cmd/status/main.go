@@ -74,6 +74,7 @@ func main() {
 	// Number of max connections
 	// TODO set the param in the db config
 	db.SetMaxOpenConns(*maxConns)
+	db.SetMaxIdleConns(*maxConns)
 
 	var results = Results{
 		DBType:   *dbType,
