@@ -123,15 +123,11 @@ func BenchmarkCreate(
 	testEntityoneIDs []int64,
 	err error,
 ) {
-	type latID struct {
-		dur time.Duration
-		id  int64
-	}
-	latenciesIDsC := make(chan latID)
+	latenciesC := make(chan time.Duration)
 	entityIDsC := make(chan int64)
 	errorC := make(chan error)
 
-	defer close(latenciesIDsC)
+	defer close(latenciesC)
 	defer close(entityIDsC)
 	defer close(errorC)
 
@@ -144,7 +140,7 @@ func BenchmarkCreate(
 		go func(wg *sync.WaitGroup) {
 			defer wg.Done()
 			var e status.Entityone
-			before := time.Now()
+			beforeLocal := time.Now()
 			ok := false
 			var errCr error
 			retryCount := 0
@@ -160,27 +156,25 @@ func BenchmarkCreate(
 			if errCr != nil {
 				errorC <- errCr
 			} else {
-				latenciesIDsC <- latID{dur: time.Now().Sub(before), id: e.ID}
+				latenciesC <- time.Since(beforeLocal)
+				entityIDsC <- e.ID
 			}
 		}(&wg)
 	}
 
 	var latencies []time.Duration
 	var errCount int
+	go receiveResults(&latenciesC, &errorC, latencies, &errCount)
+
+	// Receive the entityIDs
 	go func() {
-		for {
-			select {
-			case latencyID := <-latenciesIDsC:
-				latencies = append(latencies, latencyID.dur)
-				testEntityoneIDs = append(testEntityoneIDs, latencyID.id)
-			case <-errorC:
-				errCount++
-			}
+		for entityID := range entityIDsC {
+			testEntityoneIDs = append(testEntityoneIDs, entityID)
 		}
 	}()
 
 	wg.Wait()
-	timeTaken := time.Now().Sub(before)
+	timeTaken := time.Since(before)
 
 	return BenchResult{
 			Action:     "create",
@@ -222,12 +216,12 @@ func BenchmarkUpdateStatus(
 			defer wg.Done()
 			var e status.Entityone
 			e.ID = testEntityoneIDs[i%len(testEntityoneIDs)]
-			before := time.Now()
+			beforeLocal := time.Now()
 			ok := false
 			var errU error
 			retryCount := 0
 			for retryCount < 3 && !ok {
-				errU := e.UpdateStatus(dbConn, benchSQLLink, status.ActionCancel, status.StatusCancelled)
+				errU = e.UpdateStatus(dbConn, benchSQLLink, status.ActionCancel, status.StatusCancelled)
 				if errU != nil {
 					retryCount++
 					time.Sleep(pauseTime * time.Duration(retryCount*10))
@@ -238,7 +232,7 @@ func BenchmarkUpdateStatus(
 			if errU != nil {
 				errorC <- errU
 			} else {
-				latenciesC <- time.Now().Sub(before)
+				latenciesC <- time.Since(beforeLocal)
 			}
 		}(&wg)
 	}
@@ -248,7 +242,7 @@ func BenchmarkUpdateStatus(
 	go receiveResults(&latenciesC, &errorC, latencies, &errCount)
 
 	wg.Wait()
-	timeTaken := time.Now().Sub(before)
+	timeTaken := time.Since(before)
 
 	return BenchResult{
 			Action:     "updateStatus",
@@ -284,11 +278,12 @@ func BenchmarkSelectEntityoneByStatus(
 		wg.Add(1)
 		go func(wg *sync.WaitGroup) {
 			defer wg.Done()
+			beforeLocal := time.Now()
 			_, errSel := status.SelectEntityoneByStatus(dbConn, benchSQLLink, status.StatusCancelled)
 			if errSel != nil {
 				errorC <- errSel
 			} else {
-				latenciesC <- time.Now().Sub(before)
+				latenciesC <- time.Since(beforeLocal)
 			}
 		}(&wg)
 	}
@@ -298,7 +293,7 @@ func BenchmarkSelectEntityoneByStatus(
 	go receiveResults(&latenciesC, &errorC, latencies, &errCount)
 
 	wg.Wait()
-	timeTaken := time.Now().Sub(before)
+	timeTaken := time.Since(before)
 
 	return BenchResult{
 			Action:     "selectEntityoneByStatus",
@@ -332,11 +327,12 @@ func BenchmarkSelectEntityoneOneByPK(
 		wg.Add(1)
 		go func(wg *sync.WaitGroup) {
 			defer wg.Done()
+			beforeLocal := time.Now()
 			_, errSel := status.SelectEntityoneOneByPK(dbConn, benchSQLLink, testEntityoneIDs[i%len(testEntityoneIDs)])
 			if errSel != nil {
 				errorC <- errSel
 			} else {
-				latenciesC <- time.Now().Sub(before)
+				latenciesC <- time.Since(beforeLocal)
 			}
 		}(&wg)
 	}
@@ -346,7 +342,7 @@ func BenchmarkSelectEntityoneOneByPK(
 	go receiveResults(&latenciesC, &errorC, latencies, &errCount)
 
 	wg.Wait()
-	timeTaken := time.Now().Sub(before)
+	timeTaken := time.Since(before)
 
 	return BenchResult{
 			Action:     "selectEntityoneOneByPK",
