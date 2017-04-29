@@ -32,6 +32,8 @@ type BenchResult struct {
 	Loops      int
 	PauseTime  time.Duration
 	Errors     int
+	Min        time.Duration
+	Max        time.Duration
 	Median     time.Duration
 	StandDev   time.Duration
 	Throughput int
@@ -164,7 +166,7 @@ func BenchmarkCreate(
 
 	var latencies []time.Duration
 	var errCount int
-	go receiveResults(&latenciesC, &errorC, latencies, &errCount)
+	go receiveResults(&latenciesC, &errorC, &latencies, &errCount)
 
 	// Receive the entityIDs
 	go func() {
@@ -181,6 +183,8 @@ func BenchmarkCreate(
 			Loops:      loops,
 			PauseTime:  pauseTime,
 			Errors:     errCount,
+			Min:        getMin(latencies),
+			Max:        getMax(latencies),
 			Median:     getMedian(latencies),
 			StandDev:   getStandardDeviation(latencies),
 			Throughput: int(float64(loops) / timeTaken.Seconds()),
@@ -239,7 +243,7 @@ func BenchmarkUpdateStatus(
 
 	var latencies []time.Duration
 	var errCount int
-	go receiveResults(&latenciesC, &errorC, latencies, &errCount)
+	go receiveResults(&latenciesC, &errorC, &latencies, &errCount)
 
 	wg.Wait()
 	timeTaken := time.Since(before)
@@ -249,6 +253,8 @@ func BenchmarkUpdateStatus(
 			Loops:      loops,
 			PauseTime:  pauseTime,
 			Errors:     errCount,
+			Min:        getMin(latencies),
+			Max:        getMax(latencies),
 			Median:     getMedian(latencies),
 			StandDev:   getStandardDeviation(latencies),
 			Throughput: int(float64(loops) / timeTaken.Seconds()),
@@ -290,7 +296,7 @@ func BenchmarkSelectEntityoneByStatus(
 
 	var latencies []time.Duration
 	var errCount int
-	go receiveResults(&latenciesC, &errorC, latencies, &errCount)
+	go receiveResults(&latenciesC, &errorC, &latencies, &errCount)
 
 	wg.Wait()
 	timeTaken := time.Since(before)
@@ -300,6 +306,8 @@ func BenchmarkSelectEntityoneByStatus(
 			Loops:      loops,
 			PauseTime:  0,
 			Errors:     errCount,
+			Min:        getMin(latencies),
+			Max:        getMax(latencies),
 			Median:     getMedian(latencies),
 			StandDev:   getStandardDeviation(latencies),
 			Throughput: int(float64(loops) / timeTaken.Seconds()),
@@ -339,7 +347,7 @@ func BenchmarkSelectEntityoneOneByPK(
 
 	var latencies []time.Duration
 	var errCount int
-	go receiveResults(&latenciesC, &errorC, latencies, &errCount)
+	go receiveResults(&latenciesC, &errorC, &latencies, &errCount)
 
 	wg.Wait()
 	timeTaken := time.Since(before)
@@ -349,6 +357,8 @@ func BenchmarkSelectEntityoneOneByPK(
 			Loops:      loops,
 			PauseTime:  0,
 			Errors:     errCount,
+			Min:        getMin(latencies),
+			Max:        getMax(latencies),
 			Median:     getMedian(latencies),
 			StandDev:   getStandardDeviation(latencies),
 			Throughput: int(float64(loops) / timeTaken.Seconds()),
@@ -359,16 +369,36 @@ func BenchmarkSelectEntityoneOneByPK(
 // receiveResults take the 2 channels used to receive results and gather the data into accessible variables
 func receiveResults(
 	latenciesC *chan time.Duration, errorC *chan error,
-	lats []time.Duration, errCount *int,
+	lats *[]time.Duration, errCount *int,
 ) {
 	for {
 		select {
 		case latency := <-*latenciesC:
-			lats = append(lats, latency)
+			*lats = append(*lats, latency)
 		case <-*errorC:
 			*errCount++
 		}
 	}
+}
+
+// getMin retrieves the min latency
+func getMin(latencies []time.Duration) time.Duration {
+	if len(latencies) == 0 {
+		return 0
+	}
+
+	sort.Slice(latencies, func(i, j int) bool { return latencies[i] < latencies[j] })
+	return latencies[0]
+}
+
+// getMax retrieves the max latency
+func getMax(latencies []time.Duration) time.Duration {
+	if len(latencies) == 0 {
+		return 0
+	}
+
+	sort.Slice(latencies, func(i, j int) bool { return latencies[i] < latencies[j] })
+	return latencies[len(latencies)-1]
 }
 
 // getMedian returns the median duration of a list
