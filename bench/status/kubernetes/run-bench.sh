@@ -3,8 +3,7 @@
 export DB=$1;
 export HOST=$2;
 export LOOPS=$3;
-export PAUSETIME=$4;
-export MAXCONNS=$5;
+export MAXCONNS=$4;
 
 envsubst < ./bench/status/kubernetes/kube-bench.yml | kubectl delete -f -;
 envsubst < ./bench/status/kubernetes/kube-bench.yml | kubectl create -f -;

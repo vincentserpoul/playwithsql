@@ -17,7 +17,6 @@ spec:
           - "-db=$DB"
           - "-host=$HOST"
           - "-loops=$LOOPS"
-          - "-pausetime=$PAUSETIME"
           - "-maxconns=$MAXCONNS"
       restartPolicy: Never
   # affinity:

@@ -3,8 +3,7 @@
 DB=$1
 HOST=$2
 LOOPS=$3
-PAUSETIME=$4
-MAXCONNS=$5
+MAXCONNS=$4
 
 docker service rm pws_cmd-$DB
 
@@ -13,7 +12,7 @@ docker service create \
     --restart-condition none \
     --network pws_default \
     vincentserpoul/playwithsql-cmd-status \
-    -db=$DB -host=$HOST -loops=$LOOPS -pausetime=$PAUSETIME -maxconns=$MAXCONNS 
+    -db=$DB -host=$HOST -loops=$LOOPS -maxconns=$MAXCONNS 
 
 sleep 2s;
 
