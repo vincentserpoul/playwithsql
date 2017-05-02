@@ -18,6 +18,9 @@ import (
 	"github.com/vincentserpoul/playwithsql/status"
 )
 
+// Number of retries after query returns an error
+const maxRetryCount = 5
+
 // Results to be returned
 type Results struct {
 	DBType       string
@@ -144,7 +147,7 @@ func BenchmarkCreate(
 			ok := false
 			var errCr error
 			retryCount := 0
-			for retryCount < 3 && !ok {
+			for retryCount < maxRetryCount && !ok {
 				// For each error, we add some pause time
 				errCr = e.Create(dbConn, benchSQLLink)
 				if errCr != nil {
@@ -225,7 +228,7 @@ func BenchmarkUpdateStatus(
 			ok := false
 			var errU error
 			retryCount := 0
-			for retryCount < 3 && !ok {
+			for retryCount < maxRetryCount && !ok {
 				errU = e.UpdateStatus(dbConn, benchSQLLink, status.ActionCancel, status.StatusCancelled)
 				if errU != nil {
 					retryCount++
