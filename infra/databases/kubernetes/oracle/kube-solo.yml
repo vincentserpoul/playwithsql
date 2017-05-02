@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - image: wnameless/oracle-xe-11g
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         name: oracle
         env:
         - name: ORACLE_ALLOW_REMOTE

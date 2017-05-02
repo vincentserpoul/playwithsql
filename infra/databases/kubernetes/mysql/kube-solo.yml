@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - image: mysql:8.0.1
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         name: mysql
         args:
         - "mysqld"

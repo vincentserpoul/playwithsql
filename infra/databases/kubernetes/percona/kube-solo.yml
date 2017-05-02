@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - image: percona:5.7.17
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         name: percona
         args:
           - "mysqld"

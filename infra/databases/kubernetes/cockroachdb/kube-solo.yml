@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - image: cockroachdb/cockroach:beta-20170420
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         name: cockroachdb
         args:
         - "start"

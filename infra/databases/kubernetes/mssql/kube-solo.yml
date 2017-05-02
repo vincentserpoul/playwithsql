@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - image: microsoft/mssql-server-linux:ctp-2.0
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         name: mssql
         env:
         - name: ACCEPT_EULA
