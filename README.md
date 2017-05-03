@@ -70,6 +70,6 @@ Download [Oracle instant client](http://www.oracle.com/technetwork/topics/linuxx
 
 # TODO list
 
-- [ ] Leverage new go 1.8 capabilities (context, timeouts, named queries, remove sqlx?)
+- [ ] Leverage new go 1.8 capabilities (context, timeouts done, left with named queries, remove sqlx?)
 - [ ] Vendor deps (github.com/kardianos/govendor)
 

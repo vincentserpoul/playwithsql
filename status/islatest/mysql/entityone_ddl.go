@@ -1,13 +1,19 @@
 package mysql
 
-import "github.com/jmoiron/sqlx"
+import (
+	"context"
+
+	"github.com/jmoiron/sqlx"
+)
 
 // Link is used to insert and update in mysql
 type Link struct{}
 
 // MigrateUp creates the needed tables
-func (link *Link) MigrateUp(exec sqlx.Execer) (errExec error) {
-	_, errExec = exec.Exec(`
+func (link *Link) MigrateUp(ctx context.Context, exec sqlx.ExecerContext) (errExec error) {
+	_, errExec = exec.ExecContext(
+		ctx,
+		`
         CREATE TABLE IF NOT EXISTS entityone (
             entityone_id BIGINT NOT NULL AUTO_INCREMENT,
             time_created DATETIME NOT NULL DEFAULT NOW(),
@@ -21,7 +27,9 @@ func (link *Link) MigrateUp(exec sqlx.Execer) (errExec error) {
 		return errExec
 	}
 
-	_, errExec = exec.Exec(`
+	_, errExec = exec.ExecContext(
+		ctx,
+		`
         CREATE TABLE IF NOT EXISTS entityone_status (
             entityone_id BIGINT NOT NULL,
             action_id BIGINT NOT NULL DEFAULT 1,
@@ -43,12 +51,12 @@ func (link *Link) MigrateUp(exec sqlx.Execer) (errExec error) {
 }
 
 // MigrateDown destroys the needed tables
-func (link *Link) MigrateDown(exec sqlx.Execer) (errExec error) {
-	_, errExec = exec.Exec(`DROP TABLE IF EXISTS entityone_status`)
+func (link *Link) MigrateDown(ctx context.Context, exec sqlx.ExecerContext) (errExec error) {
+	_, errExec = exec.ExecContext(ctx, `DROP TABLE IF EXISTS entityone_status`)
 	if errExec != nil {
 		return errExec
 	}
 
-	_, errExec = exec.Exec(`DROP TABLE IF EXISTS entityone`)
+	_, errExec = exec.ExecContext(ctx, `DROP TABLE IF EXISTS entityone`)
 	return errExec
 }

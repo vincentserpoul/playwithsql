@@ -1,6 +1,7 @@
 package islatest
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 
@@ -9,6 +10,7 @@ import (
 
 // SelectEntity retrieves a slice of entityones
 func SelectEntity(
+	ctx context.Context,
 	q *sqlx.DB,
 	entityIDs []int64,
 	isStatusIDs []int,
@@ -47,7 +49,7 @@ func SelectEntity(
 	}
 
 	query = q.Rebind(query)
-	return q.Queryx(query, injectedNamedParams...)
+	return q.QueryxContext(ctx, query, injectedNamedParams...)
 
 }
 
@@ -75,6 +77,7 @@ func GetFilterSelectEntityOneNamedQuery(
 
 // SaveStatus will save the status in database for the selected entity
 func SaveStatus(
+	ctx context.Context,
 	exec *sqlx.Tx,
 	entityID int64,
 	actionID int,
@@ -82,7 +85,7 @@ func SaveStatus(
 ) (err error) {
 	typeEntity := "entityone"
 
-	err = resetAllPreviousStatuses(exec, typeEntity, entityID)
+	err = resetAllPreviousStatuses(ctx, exec, typeEntity, entityID)
 	if err != nil {
 		return fmt.Errorf("islatest %s SaveStatus(%v, %d, %d): err %v",
 			typeEntity,
@@ -93,7 +96,7 @@ func SaveStatus(
 		)
 	}
 
-	err = insertNewStatus(exec, typeEntity, entityID, actionID, statusID)
+	err = insertNewStatus(ctx, exec, typeEntity, entityID, actionID, statusID)
 	if err != nil {
 		return fmt.Errorf("islatest %s SaveStatus(%v, %d, %d): err %v",
 			typeEntity,
@@ -108,6 +111,7 @@ func SaveStatus(
 }
 
 func resetAllPreviousStatuses(
+	ctx context.Context,
 	exec *sqlx.Tx,
 	typeEntity string,
 	entityID int64,
@@ -121,7 +125,7 @@ func resetAllPreviousStatuses(
 		typeEntity,
 	)
 
-	_, err := exec.NamedExec(queryUpd, map[string]interface{}{"entityID": entityID})
+	_, err := exec.NamedExecContext(ctx, queryUpd, map[string]interface{}{"entityID": entityID})
 	if err != nil {
 		return fmt.Errorf("islatest resetAllPreviousStatuses(%s, %d): err %v",
 			typeEntity,
@@ -134,6 +138,7 @@ func resetAllPreviousStatuses(
 }
 
 func insertNewStatus(
+	ctx context.Context,
 	exec *sqlx.Tx,
 	typeEntity string,
 	entityID int64,
@@ -147,7 +152,9 @@ func insertNewStatus(
 		typeEntity,
 	)
 
-	res, err := exec.NamedExec(queryIns,
+	res, err := exec.NamedExecContext(
+		ctx,
+		queryIns,
 		map[string]interface{}{
 			"entityID": entityID,
 			"actionID": actionID,

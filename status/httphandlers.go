@@ -1,10 +1,12 @@
 package status
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/julienschmidt/httprouter"
@@ -14,8 +16,11 @@ import (
 func EntityoneCreateHandler(db *sqlx.DB, link *SQLIntImpl) httprouter.Handle {
 	return httprouter.Handle(func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
+		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+		defer cancel()
+
 		var e Entityone
-		err := e.Create(db, link)
+		err := e.Create(ctx, db, link)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
@@ -39,7 +44,10 @@ func EntityoneCreateHandler(db *sqlx.DB, link *SQLIntImpl) httprouter.Handle {
 func EntityoneSelectHandler(db *sqlx.DB, link *SQLIntImpl) httprouter.Handle {
 	return httprouter.Handle(func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
-		es, err := SelectEntityoneByStatus(db, link, StatusCreated)
+		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+		defer cancel()
+
+		es, err := SelectEntityoneByStatus(ctx, db, link, StatusCreated)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
@@ -68,13 +76,16 @@ func EntityoneSelectHandler(db *sqlx.DB, link *SQLIntImpl) httprouter.Handle {
 func EntityoneSelectByPKHandler(db *sqlx.DB, link *SQLIntImpl) httprouter.Handle {
 	return httprouter.Handle(func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
+		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+		defer cancel()
+
 		entityoneID, err := strconv.ParseInt(ps.ByName("entityoneID"), 10, 64)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
-		e, err := SelectEntityoneOneByPK(db, link, entityoneID)
+		e, err := SelectEntityoneOneByPK(ctx, db, link, entityoneID)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
@@ -103,13 +114,16 @@ func EntityoneSelectByPKHandler(db *sqlx.DB, link *SQLIntImpl) httprouter.Handle
 func EntityoneDeleteByPKHandler(db *sqlx.DB, link *SQLIntImpl) httprouter.Handle {
 	return httprouter.Handle(func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
+		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+		defer cancel()
+
 		entityoneID, err := strconv.ParseInt(ps.ByName("entityoneID"), 10, 64)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
-		e, err := SelectEntityoneOneByPK(db, link, entityoneID)
+		e, err := SelectEntityoneOneByPK(ctx, db, link, entityoneID)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
@@ -120,7 +134,7 @@ func EntityoneDeleteByPKHandler(db *sqlx.DB, link *SQLIntImpl) httprouter.Handle
 			return
 		}
 
-		err = e.UpdateStatus(db, link, ActionCancel, StatusCancelled)
+		err = e.UpdateStatus(ctx, db, link, ActionCancel, StatusCancelled)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return

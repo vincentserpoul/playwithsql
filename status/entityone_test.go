@@ -1,6 +1,7 @@
 package status
 
 import (
+	"context"
 	"flag"
 	"log"
 	"os"
@@ -13,7 +14,9 @@ import (
 
 func TestCreate(t *testing.T) {
 	var e Entityone
-	err := e.Create(testDBConn, testSQLLink)
+	ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
+	defer cancel()
+	err := e.Create(ctx, testDBConn, testSQLLink)
 	if err != nil {
 		t.Errorf("create entityone: %v", err)
 	}
@@ -22,7 +25,9 @@ func TestCreate(t *testing.T) {
 func BenchmarkCreate(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		var e Entityone
-		_ = e.Create(testDBConn, testSQLLink)
+		ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
+		defer cancel()
+		_ = e.Create(ctx, testDBConn, testSQLLink)
 
 		// limit the number of tests
 		if len(testEntityoneIDs) < 500 {
@@ -34,11 +39,14 @@ func BenchmarkCreate(b *testing.B) {
 func TestUpdateStatus(t *testing.T) {
 	var e Entityone
 
-	err := e.Create(testDBConn, testSQLLink)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+
+	err := e.Create(ctx, testDBConn, testSQLLink)
 	if err != nil {
 		t.Errorf("UpdateStatus entityone: %v", err)
 	}
-	err = e.UpdateStatus(testDBConn, testSQLLink, ActionCancel, StatusCancelled)
+	err = e.UpdateStatus(ctx, testDBConn, testSQLLink, ActionCancel, StatusCancelled)
 	if err != nil {
 		t.Errorf("UpdateStatus entityone: %v", err)
 	}
@@ -47,7 +55,7 @@ func TestUpdateStatus(t *testing.T) {
 		t.Errorf("UpdateStatus entityone: status and action not updated")
 	}
 
-	err = e.UpdateStatus(testDBConn, testSQLLink, ActionCancel, StatusCreated)
+	err = e.UpdateStatus(ctx, testDBConn, testSQLLink, ActionCancel, StatusCreated)
 	if err != nil {
 		t.Errorf("UpdateStatus entityone: %v", err)
 	}
@@ -60,20 +68,23 @@ func TestUpdateStatus(t *testing.T) {
 func BenchmarkUpdateStatus(b *testing.B) {
 	var e Entityone
 	for i := 0; i < b.N; i++ {
+		ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
+		defer cancel()
 		e.ID = testEntityoneIDs[b.N%len(testEntityoneIDs)]
-		_ = e.UpdateStatus(testDBConn, testSQLLink, ActionCancel, StatusCancelled)
+		_ = e.UpdateStatus(ctx, testDBConn, testSQLLink, ActionCancel, StatusCancelled)
 	}
 }
 
 func TestSelectEntityoneByStatus(t *testing.T) {
 	var e Entityone
-
-	err := e.Create(testDBConn, testSQLLink)
+	ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
+	defer cancel()
+	err := e.Create(ctx, testDBConn, testSQLLink)
 	if err != nil {
 		t.Errorf("Select entityone by status: %v", err)
 	}
 
-	_, err = SelectEntityoneByStatus(testDBConn, testSQLLink, StatusCreated)
+	_, err = SelectEntityoneByStatus(ctx, testDBConn, testSQLLink, StatusCreated)
 	if err != nil {
 		t.Errorf("Select entityone by status: %v", err)
 	}
@@ -81,7 +92,9 @@ func TestSelectEntityoneByStatus(t *testing.T) {
 
 func BenchmarkSelectEntityoneByStatus(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_, err := SelectEntityoneByStatus(testDBConn, testSQLLink, StatusCreated)
+		ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
+		defer cancel()
+		_, err := SelectEntityoneByStatus(ctx, testDBConn, testSQLLink, StatusCreated)
 		if err != nil {
 			b.Errorf("Select entityone by status: %v", err)
 			return
@@ -91,14 +104,15 @@ func BenchmarkSelectEntityoneByStatus(b *testing.B) {
 
 func TestSelectEntityoneOneByPK(t *testing.T) {
 	var e Entityone
-
-	err := e.Create(testDBConn, testSQLLink)
+	ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
+	defer cancel()
+	err := e.Create(ctx, testDBConn, testSQLLink)
 	if err != nil {
 		t.Errorf("Select entityone by pk: %v", err)
 		return
 	}
 
-	entityOne, err := SelectEntityoneOneByPK(testDBConn, testSQLLink, e.ID)
+	entityOne, err := SelectEntityoneOneByPK(ctx, testDBConn, testSQLLink, e.ID)
 	if err != nil {
 		t.Errorf("Select entityone by pk: %v", err)
 		return
@@ -129,7 +143,9 @@ func TestSelectEntityoneOneByPK(t *testing.T) {
 
 func BenchmarkSelectEntityoneOneByPK(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_, err := SelectEntityoneOneByPK(testDBConn, testSQLLink, testEntityoneIDs[b.N%len(testEntityoneIDs)])
+		ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
+		defer cancel()
+		_, err := SelectEntityoneOneByPK(ctx, testDBConn, testSQLLink, testEntityoneIDs[b.N%len(testEntityoneIDs)])
 		if err != nil {
 			b.Errorf("Select entityone by status: %v", err)
 			return
@@ -162,21 +178,24 @@ func TestMain(m *testing.M) {
 	}
 	testDBConn = tempDBConn
 
+	// create context to cancel working if 10 seconds passed
+	ctx := context.Background()
+
 	tempSQLLink := GetSQLIntImpl(*dbType)
 	testSQLLink = tempSQLLink
 
-	err = testSQLLink.MigrateDown(testDBConn)
+	err = testSQLLink.MigrateDown(ctx, testDBConn)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
-	err = testSQLLink.MigrateUp(testDBConn)
+	err = testSQLLink.MigrateUp(ctx, testDBConn)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
 
 	retCode := m.Run()
 
-	err = testSQLLink.MigrateDown(testDBConn)
+	err = testSQLLink.MigrateDown(ctx, testDBConn)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}

@@ -1,6 +1,7 @@
 package status
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 	"time"
@@ -63,16 +64,18 @@ func (s StatusID) String() string {
 
 // SQLLink is used to define SQL interactions
 type SQLLink interface {
-	MigrateUp(exec sqlx.Execer) (errExec error)
-	MigrateDown(exec sqlx.Execer) (errExec error)
-	InsertOne(sqlx.Ext) (int64, error)
+	MigrateUp(ctx context.Context, exec sqlx.ExecerContext) (errExec error)
+	MigrateDown(ctx context.Context, exec sqlx.ExecerContext) (errExec error)
+	InsertOne(ctx context.Context, exec sqlx.ExtContext) (int64, error)
 	SaveStatus(
+		ctx context.Context,
 		exec *sqlx.Tx,
 		entityID int64,
 		actionID int,
 		statusID int,
 	) error
 	SelectEntity(
+		ctx context.Context,
 		q *sqlx.DB,
 		entityIDs []int64,
 		isStatusIDs []int,
@@ -84,7 +87,7 @@ type SQLLink interface {
 }
 
 // Create will create an entityone
-func (e *Entityone) Create(db *sqlx.DB, link SQLLink) (err error) {
+func (e *Entityone) Create(ctx context.Context, db *sqlx.DB, link SQLLink) (err error) {
 	tx := db.MustBegin()
 	defer func() {
 		if err != nil {
@@ -95,14 +98,14 @@ func (e *Entityone) Create(db *sqlx.DB, link SQLLink) (err error) {
 		}
 	}()
 
-	e.ID, err = link.InsertOne(tx)
+	e.ID, err = link.InsertOne(ctx, tx)
 	if err != nil {
 		return fmt.Errorf("Entityone createEntityone: %v", err)
 	}
 
 	e.TimeCreated = time.Now()
 
-	err = link.SaveStatus(tx, e.ID, int(ActionCreate), int(StatusCreated))
+	err = link.SaveStatus(ctx, tx, e.ID, int(ActionCreate), int(StatusCreated))
 	if err != nil {
 		return fmt.Errorf("Entityone createEntityone: %v", err)
 	}
@@ -119,6 +122,7 @@ func (e *Entityone) Create(db *sqlx.DB, link SQLLink) (err error) {
 
 // UpdateStatus will update the status of an Entityone into db
 func (e *Entityone) UpdateStatus(
+	ctx context.Context,
 	db *sqlx.DB,
 	link SQLLink,
 	actionID ActionID,
@@ -134,7 +138,7 @@ func (e *Entityone) UpdateStatus(
 		}
 	}()
 
-	err = link.SaveStatus(tx, e.ID, int(actionID), int(statusID))
+	err = link.SaveStatus(ctx, tx, e.ID, int(actionID), int(statusID))
 	if err != nil {
 		return fmt.Errorf("entityone UpdateStatus(): %v", err)
 	}
@@ -148,11 +152,12 @@ func (e *Entityone) UpdateStatus(
 
 // SelectEntityoneByStatus will retrieve one entityone from a selected status
 func SelectEntityoneByStatus(
+	ctx context.Context,
 	q *sqlx.DB,
 	link SQLLink,
 	statusID StatusID,
 ) (selectedEntity []*Entityone, err error) {
-	rows, err := link.SelectEntity(q, []int64{}, []int{int(statusID)}, []int{}, []int{}, []int{}, 3)
+	rows, err := link.SelectEntity(ctx, q, []int64{}, []int{int(statusID)}, []int{}, []int{}, []int{}, 3)
 	if err != nil {
 		return nil, err
 	}
@@ -170,11 +175,12 @@ func SelectEntityoneByStatus(
 
 // SelectEntityoneOneByPK will retrieve one entityone from a selected status
 func SelectEntityoneOneByPK(
+	ctx context.Context,
 	q *sqlx.DB,
 	link SQLLink,
 	entityID int64,
 ) (selectedEntity *Entityone, err error) {
-	rows, err := link.SelectEntity(q, []int64{entityID}, []int{}, []int{}, []int{}, []int{}, 0)
+	rows, err := link.SelectEntity(ctx, q, []int64{entityID}, []int{}, []int{}, []int{}, []int{}, 0)
 	if err != nil {
 		return nil, err
 	}

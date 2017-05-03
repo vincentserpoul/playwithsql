@@ -1,6 +1,7 @@
 package mssql
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 
@@ -9,9 +10,9 @@ import (
 )
 
 // InsertOne will insert a Entityone into db
-func (link *Link) InsertOne(exec sqlx.Ext) (id int64, err error) {
+func (link *Link) InsertOne(ctx context.Context, exec sqlx.ExtContext) (id int64, err error) {
 
-	res, err := exec.Exec(`INSERT INTO entityone DEFAULT VALUES`)
+	res, err := exec.ExecContext(ctx, `INSERT INTO entityone DEFAULT VALUES`)
 	if err != nil {
 		return id, fmt.Errorf("entityone Insert(): %v", err)
 	}
@@ -26,16 +27,18 @@ func (link *Link) InsertOne(exec sqlx.Ext) (id int64, err error) {
 
 // SaveStatus will save the status in database for the selected entity
 func (link *Link) SaveStatus(
+	ctx context.Context,
 	exec *sqlx.Tx,
 	entityID int64,
 	actionID int,
 	statusID int,
 ) error {
-	return islatest.SaveStatus(exec, entityID, actionID, statusID)
+	return islatest.SaveStatus(ctx, exec, entityID, actionID, statusID)
 }
 
 // SelectEntity retrieves a slice of entityones
 func (link *Link) SelectEntity(
+	ctx context.Context,
 	q *sqlx.DB,
 	entityIDs []int64,
 	isStatusIDs []int,
@@ -76,6 +79,6 @@ func (link *Link) SelectEntity(
 	}
 
 	query = q.Rebind(query)
-	return q.Queryx(query, injectedNamedParams...)
+	return q.QueryxContext(ctx, query, injectedNamedParams...)
 
 }
