@@ -1,19 +1,18 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
-	"sort"
 	"sync"
 
 	"time"
 
-	"math"
-
 	"encoding/json"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/vincentserpoul/playwithsql/bench"
 	"github.com/vincentserpoul/playwithsql/dbhandler"
 	"github.com/vincentserpoul/playwithsql/status"
 )
@@ -59,11 +58,13 @@ func main() {
 
 	// Connection
 	islatestSQLLink := status.GetSQLIntImpl(*dbType)
-	err = islatestSQLLink.MigrateDown(db)
+
+	ctx := context.Background()
+	err = islatestSQLLink.MigrateDown(ctx, db)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
-	err = islatestSQLLink.MigrateUp(db)
+	err = islatestSQLLink.MigrateUp(ctx, db)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
@@ -80,28 +81,28 @@ func main() {
 	}
 
 	// Create
-	createResults, testEntityoneIDs, err := BenchmarkCreate(*loops, db, islatestSQLLink)
+	createResults, testEntityoneIDs, err := BenchmarkCreate(ctx, *loops, db, islatestSQLLink)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
 	results.BenchResults = append(results.BenchResults, createResults)
 
 	// Update
-	updateResults, err := BenchmarkUpdateStatus(*loops, db, islatestSQLLink, testEntityoneIDs)
+	updateResults, err := BenchmarkUpdateStatus(ctx, *loops, db, islatestSQLLink, testEntityoneIDs)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
 	results.BenchResults = append(results.BenchResults, updateResults)
 
 	// Select by status
-	selectByStatusResults, err := BenchmarkSelectEntityoneByStatus(*loops, db, islatestSQLLink)
+	selectByStatusResults, err := BenchmarkSelectEntityoneByStatus(ctx, *loops, db, islatestSQLLink)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
 	results.BenchResults = append(results.BenchResults, selectByStatusResults)
 
 	// Select by PK
-	selectByPKResults, err := BenchmarkSelectEntityoneOneByPK(*loops, db, islatestSQLLink, testEntityoneIDs)
+	selectByPKResults, err := BenchmarkSelectEntityoneOneByPK(ctx, *loops, db, islatestSQLLink, testEntityoneIDs)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
@@ -117,7 +118,10 @@ func main() {
 
 // BenchmarkCreate will loop a loops number of time and give the resulting time taken
 func BenchmarkCreate(
-	loops int, dbConn *sqlx.DB, benchSQLLink *status.SQLIntImpl,
+	ctx context.Context,
+	loops int,
+	dbConn *sqlx.DB,
+	benchSQLLink *status.SQLIntImpl,
 ) (
 	results BenchResult,
 	testEntityoneIDs []int64,
@@ -140,7 +144,7 @@ func BenchmarkCreate(
 	for i := 0; i < loops; i++ {
 		time.Sleep(dynPauseTime)
 		wg.Add(1)
-		go func(wg *sync.WaitGroup) {
+		go func(ctx context.Context, wg *sync.WaitGroup) {
 			defer wg.Done()
 			var e status.Entityone
 			beforeLocal := time.Now()
@@ -149,7 +153,7 @@ func BenchmarkCreate(
 			retryCount := 0
 			for retryCount < maxRetryCount && !ok {
 				// For each error, we add some pause time
-				errCr = e.Create(dbConn, benchSQLLink)
+				errCr = e.Create(ctx, dbConn, benchSQLLink)
 				if errCr != nil {
 					retryCount++
 					time.Sleep(dynPauseTime)
@@ -166,7 +170,7 @@ func BenchmarkCreate(
 				// If no error, we increment down a little bit
 				dynPauseTimeC <- time.Duration(-1 * time.Millisecond)
 			}
-		}(&wg)
+		}(ctx, &wg)
 	}
 
 	// Receive the entityIDs
@@ -184,10 +188,10 @@ func BenchmarkCreate(
 			Loops:      loops,
 			PauseTime:  dynPauseTime,
 			Errors:     errCount,
-			Min:        getMin(latencies),
-			Max:        getMax(latencies),
-			Median:     getMedian(latencies),
-			StandDev:   getStandardDeviation(latencies),
+			Min:        bench.GetMin(latencies),
+			Max:        bench.GetMax(latencies),
+			Median:     bench.GetMedian(latencies),
+			StandDev:   bench.GetStandardDeviation(latencies),
 			Throughput: int(float64(loops) / timeTaken.Seconds()),
 		},
 		testEntityoneIDs,
@@ -196,7 +200,11 @@ func BenchmarkCreate(
 
 // BenchmarkUpdateStatus benchmark for status updates (include deletes)
 func BenchmarkUpdateStatus(
-	loops int, dbConn *sqlx.DB, benchSQLLink *status.SQLIntImpl, testEntityoneIDs []int64,
+	ctx context.Context,
+	loops int,
+	dbConn *sqlx.DB,
+	benchSQLLink *status.SQLIntImpl,
+	testEntityoneIDs []int64,
 ) (
 	results BenchResult,
 	err error,
@@ -220,7 +228,7 @@ func BenchmarkUpdateStatus(
 	for i := 0; i < loops; i++ {
 		time.Sleep(dynPauseTime)
 		wg.Add(1)
-		go func(wg *sync.WaitGroup) {
+		go func(ctx context.Context, wg *sync.WaitGroup) {
 			defer wg.Done()
 			var e status.Entityone
 			e.ID = testEntityoneIDs[i%len(testEntityoneIDs)]
@@ -229,7 +237,7 @@ func BenchmarkUpdateStatus(
 			var errU error
 			retryCount := 0
 			for retryCount < maxRetryCount && !ok {
-				errU = e.UpdateStatus(dbConn, benchSQLLink, status.ActionCancel, status.StatusCancelled)
+				errU = e.UpdateStatus(ctx, dbConn, benchSQLLink, status.ActionCancel, status.StatusCancelled)
 				if errU != nil {
 					retryCount++
 					time.Sleep(dynPauseTime)
@@ -245,7 +253,7 @@ func BenchmarkUpdateStatus(
 				dynPauseTimeC <- time.Duration(-1 * time.Millisecond)
 				latenciesC <- time.Since(beforeLocal)
 			}
-		}(&wg)
+		}(ctx, &wg)
 	}
 
 	wg.Wait()
@@ -256,10 +264,10 @@ func BenchmarkUpdateStatus(
 			Loops:      loops,
 			PauseTime:  dynPauseTime,
 			Errors:     errCount,
-			Min:        getMin(latencies),
-			Max:        getMax(latencies),
-			Median:     getMedian(latencies),
-			StandDev:   getStandardDeviation(latencies),
+			Min:        bench.GetMin(latencies),
+			Max:        bench.GetMax(latencies),
+			Median:     bench.GetMedian(latencies),
+			StandDev:   bench.GetStandardDeviation(latencies),
 			Throughput: int(float64(loops) / timeTaken.Seconds()),
 		},
 		nil
@@ -268,7 +276,10 @@ func BenchmarkUpdateStatus(
 
 // BenchmarkSelectEntityoneByStatus benchmark with select by status
 func BenchmarkSelectEntityoneByStatus(
-	loops int, dbConn *sqlx.DB, benchSQLLink *status.SQLIntImpl,
+	ctx context.Context,
+	loops int,
+	dbConn *sqlx.DB,
+	benchSQLLink *status.SQLIntImpl,
 ) (
 	results BenchResult,
 	err error,
@@ -282,16 +293,16 @@ func BenchmarkSelectEntityoneByStatus(
 
 	for i := 0; i < loops; i++ {
 		wg.Add(1)
-		go func(wg *sync.WaitGroup) {
+		go func(ctx context.Context, wg *sync.WaitGroup) {
 			defer wg.Done()
 			beforeLocal := time.Now()
-			_, errSel := status.SelectEntityoneByStatus(dbConn, benchSQLLink, status.StatusCancelled)
+			_, errSel := status.SelectEntityoneByStatus(ctx, dbConn, benchSQLLink, status.StatusCancelled)
 			if errSel != nil {
 				errorC <- errSel
 			} else {
 				latenciesC <- time.Since(beforeLocal)
 			}
-		}(&wg)
+		}(ctx, &wg)
 	}
 
 	wg.Wait()
@@ -302,10 +313,10 @@ func BenchmarkSelectEntityoneByStatus(
 			Loops:      loops,
 			PauseTime:  0,
 			Errors:     errCount,
-			Min:        getMin(latencies),
-			Max:        getMax(latencies),
-			Median:     getMedian(latencies),
-			StandDev:   getStandardDeviation(latencies),
+			Min:        bench.GetMin(latencies),
+			Max:        bench.GetMax(latencies),
+			Median:     bench.GetMedian(latencies),
+			StandDev:   bench.GetStandardDeviation(latencies),
 			Throughput: int(float64(loops) / timeTaken.Seconds()),
 		},
 		nil
@@ -313,7 +324,11 @@ func BenchmarkSelectEntityoneByStatus(
 
 // BenchmarkSelectEntityoneOneByPK benchmark with select by primary key
 func BenchmarkSelectEntityoneOneByPK(
-	loops int, dbConn *sqlx.DB, benchSQLLink *status.SQLIntImpl, testEntityoneIDs []int64,
+	ctx context.Context,
+	loops int,
+	dbConn *sqlx.DB,
+	benchSQLLink *status.SQLIntImpl,
+	testEntityoneIDs []int64,
 ) (
 	results BenchResult,
 	err error,
@@ -327,16 +342,16 @@ func BenchmarkSelectEntityoneOneByPK(
 
 	for i := 0; i < loops; i++ {
 		wg.Add(1)
-		go func(wg *sync.WaitGroup) {
+		go func(ctx context.Context, wg *sync.WaitGroup) {
 			defer wg.Done()
 			beforeLocal := time.Now()
-			_, errSel := status.SelectEntityoneOneByPK(dbConn, benchSQLLink, testEntityoneIDs[i%len(testEntityoneIDs)])
+			_, errSel := status.SelectEntityoneOneByPK(ctx, dbConn, benchSQLLink, testEntityoneIDs[i%len(testEntityoneIDs)])
 			if errSel != nil {
 				errorC <- errSel
 			} else {
 				latenciesC <- time.Since(beforeLocal)
 			}
-		}(&wg)
+		}(ctx, &wg)
 	}
 
 	wg.Wait()
@@ -347,10 +362,10 @@ func BenchmarkSelectEntityoneOneByPK(
 			Loops:      loops,
 			PauseTime:  0,
 			Errors:     errCount,
-			Min:        getMin(latencies),
-			Max:        getMax(latencies),
-			Median:     getMedian(latencies),
-			StandDev:   getStandardDeviation(latencies),
+			Min:        bench.GetMin(latencies),
+			Max:        bench.GetMax(latencies),
+			Median:     bench.GetMedian(latencies),
+			StandDev:   bench.GetStandardDeviation(latencies),
 			Throughput: int(float64(loops) / timeTaken.Seconds()),
 		},
 		nil
@@ -387,73 +402,4 @@ func dynPauseTimeInit(dynPauseTime *time.Duration) chan time.Duration {
 		}
 	}()
 	return dynPauseTimeC
-}
-
-// getMin retrieves the min latency
-func getMin(latencies []time.Duration) time.Duration {
-	if len(latencies) == 0 {
-		return 0
-	}
-
-	sort.Slice(latencies, func(i, j int) bool { return latencies[i] < latencies[j] })
-	return latencies[0]
-}
-
-// getMax retrieves the max latency
-func getMax(latencies []time.Duration) time.Duration {
-	if len(latencies) == 0 {
-		return 0
-	}
-
-	sort.Slice(latencies, func(i, j int) bool { return latencies[i] < latencies[j] })
-	return latencies[len(latencies)-1]
-}
-
-// getMedian returns the median duration of a list
-func getMedian(latencies []time.Duration) time.Duration {
-	sort.Slice(latencies, func(i, j int) bool { return latencies[i] < latencies[j] })
-
-	if len(latencies) == 0 {
-		return 0
-	}
-	if len(latencies) == 1 {
-		return latencies[0]
-	}
-	if len(latencies)%2 == 0 {
-		return latencies[(len(latencies)/2-1)] + latencies[(len(latencies)/2+1)]
-	}
-	return latencies[len(latencies)/2]
-}
-
-// getStandardDeviation returns the standard deviation of the list
-func getStandardDeviation(latencies []time.Duration) time.Duration {
-
-	if len(latencies) == 0 {
-		return 0
-	}
-
-	// Sum the square of the mean subtracted from each number
-	mean := getMean(latencies)
-
-	var variance float64
-
-	for _, latency := range latencies {
-		variance += math.Pow(float64(latency.Nanoseconds()-mean.Nanoseconds()), 2)
-	}
-
-	return time.Duration(math.Sqrt(variance / float64(len(latencies))))
-}
-
-// getMean returns the mean of the list
-func getMean(latencies []time.Duration) time.Duration {
-	if len(latencies) == 0 {
-		return 0
-	}
-
-	var total time.Duration
-	for _, latency := range latencies {
-		total += latency
-	}
-
-	return time.Duration(total.Nanoseconds() / int64(len(latencies)))
 }
