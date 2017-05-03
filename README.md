@@ -30,15 +30,17 @@ Just check them [here](https://playwithsql-summary.surge.sh)!
 - [x] SQLite
 - [x] Microsoft SQL Server
 - [x] Oracle
-- [] Vitess
+- [ ] Vitess
+- [ ] Reference hosted MySQL
+- [ ] Cloud Spanner
 
 # Tested setups
 
 - [x] local swarm cluster - local solo db container
-- [] swarm cluster - gcloud solo db container
+- [ ] swarm cluster - gcloud solo db container
 - [x] kubernetes cluster - gcloud solo db container
-- [] swarm cluster - gcloud cluster db containers
-- [] kubernetes cluster - gcloud cluster db containers
+- [ ] swarm cluster - gcloud cluster db containers
+- [ ] kubernetes cluster - gcloud cluster db containers
 
 # Rebuilding the docker image
 
@@ -68,7 +70,6 @@ Download [Oracle instant client](http://www.oracle.com/technetwork/topics/linuxx
 
 # TODO list
 
-- [] Run bench container on another node than the ones containing the DB containers
-- [] Find a way to dynamically adjust the bench profile
-- [] Leverage new go 1.8 capabilities (remove sqlx?)
-- [] Vendor deps
+- [ ] Leverage new go 1.8 capabilities (context, timeouts, named queries, remove sqlx?)
+- [ ] Vendor deps (github.com/kardianos/govendor)
+
