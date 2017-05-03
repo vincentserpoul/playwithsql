@@ -366,7 +366,8 @@ func handleResults(latencies *[]time.Duration, errCount *int) (chan time.Duratio
 			select {
 			case latency := <-latenciesC:
 				*latencies = append(*latencies, latency)
-			case <-errorC:
+			case erRrrR := <-errorC:
+				fmt.Println(erRrrR)
 				*errCount++
 			}
 		}
