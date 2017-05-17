@@ -2,7 +2,7 @@ version: "3"
 
 services:
   cockroachdb-0:
-    image: cockroachdb/cockroach:v1.0-rc.1
+    image: cockroachdb/cockroach:v1.0
     ports:
       - "8080:8080"
       - "26257:26257"
@@ -48,7 +48,7 @@ services:
       - "--join=pws_cockroachdb-0:26257"
       - "--insecure"
     depends_on:
-      - "pws_cockroachdb-0"      
+      - "pws_cockroachdb-0"
     deploy:
       mode: replicated
       replicas: 1
