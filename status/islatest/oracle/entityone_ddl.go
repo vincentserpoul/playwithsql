@@ -98,7 +98,7 @@ func (link *Link) MigrateDown(ctx context.Context, exec sqlx.ExecerContext) (err
 			IF cnt <> 0 THEN
 				EXECUTE IMMEDIATE 'DROP TABLE ENTITYONE_STATUS';
 			END IF;
-		END;	
+		END;
 	`)
 	if errExec != nil {
 		return errExec
@@ -113,7 +113,7 @@ func (link *Link) MigrateDown(ctx context.Context, exec sqlx.ExecerContext) (err
 			IF cnt <> 0 THEN
 				EXECUTE IMMEDIATE 'DROP TABLE ENTITYONE';
 			END IF;
-		END;	
+		END;
 	`)
 	if errExec != nil {
 		return errExec
@@ -128,7 +128,7 @@ func (link *Link) MigrateDown(ctx context.Context, exec sqlx.ExecerContext) (err
 			IF cnt <> 0 THEN
 				EXECUTE IMMEDIATE 'DROP SEQUENCE entityone_seq';
 			END IF;
-		END;	
+		END;
 	`)
 
 	return errExec
