@@ -14,4 +14,10 @@
 # https://beta.docker.com/docs/gcp/
 
 # Create docker deployment
-gcloud deployment-manager deployments create docker --config https://download.docker.com/gcp/edge/Docker.jinja --properties managerCount:3,workerCount:1,zone:asia-east1-c
+gcloud deployment-manager deployments create docker \
+    --config https://download.docker.com/gcp/edge/Docker.jinja \
+    --properties managerCount:3,workerCount:1
+
+# ssh tunneling enable
+# gcloud compute ssh --project playwithsql --zone us-central1-f docker-manager-1 -- -NL localhost:2374:/var/run/docker.sock &
+# export DOCKER_HOST=localhost:2374
