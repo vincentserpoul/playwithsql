@@ -8,10 +8,11 @@ implementing as immutable as possible data modelization and benchmarking it on d
 ## Disclaimer
 
 the benchmark comparison is for very specific use case:
-* Golang 1.8
+* Golang 1.8.1
 * Containerized DBs
 * Specific schemas
 * Used configurations
+* GCP as cloud provider
 
 Hence, they can't be used to affirm that this or this db is better.
 *The context matters!*
@@ -31,7 +32,7 @@ Just check them [here](https://playwithsql-summary.surge.sh)!
 - [x] Microsoft SQL Server
 - [x] Oracle
 - [ ] Vitess
-- [ ] Reference hosted MySQL
+- [ ] Reference hosted MySQL on GCP
 - [ ] Cloud Spanner
 
 # Tested setups
@@ -70,6 +71,7 @@ Download [Oracle instant client](http://www.oracle.com/technetwork/topics/linuxx
 
 # TODO list
 
-- [ ] Leverage new go 1.8 capabilities (context, timeouts done, left with named queries, remove sqlx?)
+- [ ] Leverage new go 1.8.1 capabilities (context, timeouts done, left with named queries, remove sqlx?)
 - [ ] Vendor deps (github.com/kardianos/govendor)
-
+- [ ] Test different storage
+- [ ] Test High Availability
