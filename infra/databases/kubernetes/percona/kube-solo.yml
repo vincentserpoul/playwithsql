@@ -13,7 +13,7 @@ spec:
         app: percona
     spec:
       containers:
-      - image: percona:5.7.17
+      - image: percona:5.7.18
         imagePullPolicy: IfNotPresent
         name: percona
         args:

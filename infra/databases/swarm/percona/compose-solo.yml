@@ -2,7 +2,7 @@ version: "3"
 
 services:
   percona:
-    image: percona:5.7.17
+    image: percona:5.7.18
     command: 
       - "mysqld"
       - "--max-connections=1000"

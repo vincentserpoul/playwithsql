@@ -13,7 +13,7 @@ spec:
         app: mariadb
     spec:
       containers:
-      - image: mariadb:10.1.22
+      - image: mariadb:10.3.0
         imagePullPolicy: IfNotPresent
         name: mariadb
         args:
