@@ -9,10 +9,11 @@ implementing as immutable as possible data modelization and benchmarking it on d
 
 the benchmark comparison is for very specific use case:
 * Golang 1.8.1
-* Containerized DBs
+* Containerized DBs, latest versions
 * Specific schemas
 * Used configurations
 * GCP as cloud provider
+* n1-standard-1 as machine type
 
 Hence, they can't be used to affirm that this or this db is better.
 *The context matters!*
