@@ -144,7 +144,7 @@ func BenchmarkCreate(
 	for i := 0; i < loops; i++ {
 		time.Sleep(dynPauseTime)
 		wg.Add(1)
-		go func(ctx context.Context, wg *sync.WaitGroup) {
+		go func(routineNum int, ctx context.Context, wg *sync.WaitGroup) {
 			defer wg.Done()
 			var e status.Entityone
 			beforeLocal := time.Now()
@@ -152,6 +152,7 @@ func BenchmarkCreate(
 			var errCr error
 			retryCount := 0
 			for retryCount < maxRetryCount && !ok {
+				fmt.Println("launching ", routineNum)
 				// Timeout
 				sqlCtx, sqlCncl := context.WithTimeout(ctx, 250*time.Millisecond)
 				defer sqlCncl()
@@ -160,6 +161,7 @@ func BenchmarkCreate(
 				errCr = e.Create(sqlCtx, dbConn, benchSQLLink)
 				if errCr != nil {
 					retryCount++
+					fmt.Println("retry ", routineNum, " for the ", retryCount, " time")
 					time.Sleep(dynPauseTime)
 					dynPauseTimeC <- time.Duration(1 * time.Millisecond)
 				} else {
@@ -174,7 +176,7 @@ func BenchmarkCreate(
 				// If no error, we increment down a little bit
 				dynPauseTimeC <- time.Duration(-1 * time.Millisecond)
 			}
-		}(ctx, &wg)
+		}(i, ctx, &wg)
 	}
 
 	// Receive the entityIDs
