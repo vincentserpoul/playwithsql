@@ -152,8 +152,12 @@ func BenchmarkCreate(
 			var errCr error
 			retryCount := 0
 			for retryCount < maxRetryCount && !ok {
+				// Timeout
+				sqlCtx, sqlCncl := context.WithTimeout(ctx, 250*time.Millisecond)
+				defer sqlCncl()
+
 				// For each error, we add some pause time
-				errCr = e.Create(ctx, dbConn, benchSQLLink)
+				errCr = e.Create(sqlCtx, dbConn, benchSQLLink)
 				if errCr != nil {
 					retryCount++
 					time.Sleep(dynPauseTime)
@@ -237,7 +241,10 @@ func BenchmarkUpdateStatus(
 			var errU error
 			retryCount := 0
 			for retryCount < maxRetryCount && !ok {
-				errU = e.UpdateStatus(ctx, dbConn, benchSQLLink, status.ActionCancel, status.StatusCancelled)
+				// Timeout
+				sqlCtx, sqlCncl := context.WithTimeout(ctx, 250*time.Millisecond)
+				defer sqlCncl()
+				errU = e.UpdateStatus(sqlCtx, dbConn, benchSQLLink, status.ActionCancel, status.StatusCancelled)
 				if errU != nil {
 					retryCount++
 					time.Sleep(dynPauseTime)
@@ -296,7 +303,9 @@ func BenchmarkSelectEntityoneByStatus(
 		go func(ctx context.Context, wg *sync.WaitGroup) {
 			defer wg.Done()
 			beforeLocal := time.Now()
-			_, errSel := status.SelectEntityoneByStatus(ctx, dbConn, benchSQLLink, status.StatusCancelled)
+			sqlCtx, sqlCncl := context.WithTimeout(ctx, 50*time.Millisecond)
+			defer sqlCncl()
+			_, errSel := status.SelectEntityoneByStatus(sqlCtx, dbConn, benchSQLLink, status.StatusCancelled)
 			if errSel != nil {
 				errorC <- errSel
 			} else {
@@ -345,7 +354,9 @@ func BenchmarkSelectEntityoneOneByPK(
 		go func(ctx context.Context, wg *sync.WaitGroup) {
 			defer wg.Done()
 			beforeLocal := time.Now()
-			_, errSel := status.SelectEntityoneOneByPK(ctx, dbConn, benchSQLLink, testEntityoneIDs[i%len(testEntityoneIDs)])
+			sqlCtx, sqlCncl := context.WithTimeout(ctx, 50*time.Millisecond)
+			defer sqlCncl()
+			_, errSel := status.SelectEntityoneOneByPK(sqlCtx, dbConn, benchSQLLink, testEntityoneIDs[i%len(testEntityoneIDs)])
 			if errSel != nil {
 				errorC <- errSel
 			} else {
@@ -391,12 +402,17 @@ func handleResults(latencies *[]time.Duration, errCount *int) (chan time.Duratio
 	return latenciesC, errorC
 }
 
+const (
+	maxPauseTime = 200 * time.Millisecond
+	minPauseTime = 1 * time.Millisecond
+)
+
 // dynPauseTimeInit generates a channel that will be used to dynamically update the pause time between transactions
 func dynPauseTimeInit(dynPauseTime *time.Duration) chan time.Duration {
 	dynPauseTimeC := make(chan time.Duration)
 	go func() {
 		for additionalPauseTime := range dynPauseTimeC {
-			if (*dynPauseTime+additionalPauseTime) > 1*time.Millisecond && (*dynPauseTime+additionalPauseTime) < 200*time.Millisecond {
+			if (*dynPauseTime+additionalPauseTime) > minPauseTime && (*dynPauseTime+additionalPauseTime) < maxPauseTime {
 				*dynPauseTime += additionalPauseTime
 			}
 		}
