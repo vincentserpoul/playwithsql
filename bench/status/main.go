@@ -18,7 +18,7 @@ import (
 )
 
 // Number of retries after query returns an error
-const maxRetryCount = 5
+const maxRetryCount = 3
 
 // Results to be returned
 type Results struct {
@@ -30,15 +30,16 @@ type Results struct {
 
 // BenchResult data
 type BenchResult struct {
-	Action     string
-	Loops      int
-	PauseTime  time.Duration
-	Errors     int
-	Min        time.Duration
-	Max        time.Duration
-	Median     time.Duration
-	StandDev   time.Duration
-	Throughput int
+	Action      string
+	Loops       int
+	Concurrency int
+	PauseTime   time.Duration
+	Errors      int
+	Min         time.Duration
+	Max         time.Duration
+	Median      time.Duration
+	StandDev    time.Duration
+	Throughput  int
 }
 
 func main() {
@@ -49,7 +50,13 @@ func main() {
 	dbHost := flag.String("host", "127.0.0.1", "host IP")
 	loops := flag.Int("loops", 100, "number of loops")
 	maxConns := flag.Int("maxconns", 10, "number of max connections")
+	concurrency := flag.Int("concurrency", 100, "number of go routines created")
+
 	flag.Parse()
+
+	if *concurrency > *loops {
+		*concurrency = *loops
+	}
 
 	db, err := dbhandler.Get(*dbType, *dbHost, dbName)
 	if err != nil {
@@ -81,28 +88,28 @@ func main() {
 	}
 
 	// Create
-	createResults, testEntityoneIDs, err := BenchmarkCreate(ctx, *loops, db, islatestSQLLink)
+	createResults, testEntityoneIDs, err := BenchmarkCreate(ctx, *loops, *concurrency, db, islatestSQLLink)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
 	results.BenchResults = append(results.BenchResults, createResults)
 
 	// Update
-	updateResults, err := BenchmarkUpdateStatus(ctx, *loops, db, islatestSQLLink, testEntityoneIDs)
+	updateResults, err := BenchmarkUpdateStatus(ctx, *loops, *concurrency, db, islatestSQLLink, testEntityoneIDs)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
 	results.BenchResults = append(results.BenchResults, updateResults)
 
 	// Select by status
-	selectByStatusResults, err := BenchmarkSelectEntityoneByStatus(ctx, *loops, db, islatestSQLLink)
+	selectByStatusResults, err := BenchmarkSelectEntityoneByStatus(ctx, *loops, *concurrency, db, islatestSQLLink)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
 	results.BenchResults = append(results.BenchResults, selectByStatusResults)
 
 	// Select by PK
-	selectByPKResults, err := BenchmarkSelectEntityoneOneByPK(ctx, *loops, db, islatestSQLLink, testEntityoneIDs)
+	selectByPKResults, err := BenchmarkSelectEntityoneOneByPK(ctx, *loops, *concurrency, db, islatestSQLLink, testEntityoneIDs)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
@@ -120,6 +127,7 @@ func main() {
 func BenchmarkCreate(
 	ctx context.Context,
 	loops int,
+	concurrency int,
 	dbConn *sqlx.DB,
 	benchSQLLink *status.SQLIntImpl,
 ) (
@@ -128,10 +136,7 @@ func BenchmarkCreate(
 	err error,
 ) {
 	entityIDsC := make(chan int64)
-
-	var latencies []time.Duration
-	var errCount int
-	latenciesC, errorC := handleResults(&latencies, &errCount)
+	latenciesC, errorC, doneC, resultsC := handleResults()
 
 	before := time.Now()
 	var wg sync.WaitGroup
@@ -141,41 +146,42 @@ func BenchmarkCreate(
 	dynPauseTimeC := dynPauseTimeInit(&dynPauseTime)
 	defer close(dynPauseTimeC)
 
-	for i := 0; i < loops; i++ {
-		time.Sleep(dynPauseTime)
+	// Launch as many concurrent connections as asked
+	for i := 0; i < concurrency; i++ {
 		wg.Add(1)
 		go func(routineNum int, ctx context.Context, wg *sync.WaitGroup) {
-			defer wg.Done()
-			var e status.Entityone
-			beforeLocal := time.Now()
-			ok := false
-			var errCr error
-			retryCount := 0
-			for retryCount < maxRetryCount && !ok {
-				fmt.Println("launching ", routineNum)
-				// Timeout
-				sqlCtx, sqlCncl := context.WithTimeout(ctx, 250*time.Millisecond)
-				defer sqlCncl()
+			for j := 0; j < loops/concurrency; j++ {
+				time.Sleep(dynPauseTime)
+				var e status.Entityone
+				beforeLocal := time.Now()
+				ok := false
+				var errCr error
+				retryCount := 0
+				for retryCount < maxRetryCount && !ok {
+					// Timeout
+					sqlCtx, sqlCncl := context.WithTimeout(ctx, 250*time.Millisecond)
+					defer sqlCncl()
 
-				// For each error, we add some pause time
-				errCr = e.Create(sqlCtx, dbConn, benchSQLLink)
+					// For each error, we add some pause time
+					errCr = e.Create(sqlCtx, dbConn, benchSQLLink)
+					if errCr != nil {
+						retryCount++
+						time.Sleep(dynPauseTime)
+						dynPauseTimeC <- time.Duration(1 * time.Millisecond)
+					} else {
+						ok = true
+					}
+				}
 				if errCr != nil {
-					retryCount++
-					fmt.Println("retry ", routineNum, " for the ", retryCount, " time")
-					time.Sleep(dynPauseTime)
-					dynPauseTimeC <- time.Duration(1 * time.Millisecond)
+					errorC <- errCr
 				} else {
-					ok = true
+					latenciesC <- time.Since(beforeLocal)
+					entityIDsC <- e.ID
+					// If no error, we increment down a little bit
+					dynPauseTimeC <- time.Duration(-1 * time.Millisecond)
 				}
 			}
-			if errCr != nil {
-				errorC <- errCr
-			} else {
-				latenciesC <- time.Since(beforeLocal)
-				entityIDsC <- e.ID
-				// If no error, we increment down a little bit
-				dynPauseTimeC <- time.Duration(-1 * time.Millisecond)
-			}
+			wg.Done()
 		}(i, ctx, &wg)
 	}
 
@@ -187,18 +193,20 @@ func BenchmarkCreate(
 	}()
 
 	wg.Wait()
+	doneC <- true
+	rawRes := <-resultsC
 	timeTaken := time.Since(before)
-
 	return BenchResult{
-			Action:     "create",
-			Loops:      loops,
-			PauseTime:  dynPauseTime,
-			Errors:     errCount,
-			Min:        bench.GetMin(latencies),
-			Max:        bench.GetMax(latencies),
-			Median:     bench.GetMedian(latencies),
-			StandDev:   bench.GetStandardDeviation(latencies),
-			Throughput: int(float64(loops) / timeTaken.Seconds()),
+			Action:      "create",
+			Loops:       loops,
+			Concurrency: concurrency,
+			PauseTime:   dynPauseTime,
+			Errors:      rawRes.errCount,
+			Min:         bench.GetMin(rawRes.latencies),
+			Max:         bench.GetMax(rawRes.latencies),
+			Median:      bench.GetMedian(rawRes.latencies),
+			StandDev:    bench.GetStandardDeviation(rawRes.latencies),
+			Throughput:  int(float64(loops) / timeTaken.Seconds()),
 		},
 		testEntityoneIDs,
 		nil
@@ -208,6 +216,7 @@ func BenchmarkCreate(
 func BenchmarkUpdateStatus(
 	ctx context.Context,
 	loops int,
+	concurrency int,
 	dbConn *sqlx.DB,
 	benchSQLLink *status.SQLIntImpl,
 	testEntityoneIDs []int64,
@@ -219,9 +228,7 @@ func BenchmarkUpdateStatus(
 		return results, fmt.Errorf("BenchmarkUpdateStatus: no entity created, nothing to update")
 	}
 
-	var latencies []time.Duration
-	var errCount int
-	latenciesC, errorC := handleResults(&latencies, &errCount)
+	latenciesC, errorC, doneC, resultsC := handleResults()
 
 	before := time.Now()
 	var wg sync.WaitGroup
@@ -231,53 +238,59 @@ func BenchmarkUpdateStatus(
 	dynPauseTimeC := dynPauseTimeInit(&dynPauseTime)
 	defer close(dynPauseTimeC)
 
-	for i := 0; i < loops; i++ {
-		time.Sleep(dynPauseTime)
+	for i := 0; i < concurrency; i++ {
 		wg.Add(1)
+
 		go func(ctx context.Context, wg *sync.WaitGroup) {
-			defer wg.Done()
-			var e status.Entityone
-			e.ID = testEntityoneIDs[i%len(testEntityoneIDs)]
-			beforeLocal := time.Now()
-			ok := false
-			var errU error
-			retryCount := 0
-			for retryCount < maxRetryCount && !ok {
-				// Timeout
-				sqlCtx, sqlCncl := context.WithTimeout(ctx, 250*time.Millisecond)
-				defer sqlCncl()
-				errU = e.UpdateStatus(sqlCtx, dbConn, benchSQLLink, status.ActionCancel, status.StatusCancelled)
+			for j := 0; j < loops/concurrency; j++ {
+				time.Sleep(dynPauseTime)
+				var e status.Entityone
+				e.ID = testEntityoneIDs[i%len(testEntityoneIDs)]
+				beforeLocal := time.Now()
+				ok := false
+				var errU error
+				retryCount := 0
+				for retryCount < maxRetryCount && !ok {
+					// Timeout
+					sqlCtx, sqlCncl := context.WithTimeout(ctx, 250*time.Millisecond)
+					defer sqlCncl()
+					errU = e.UpdateStatus(sqlCtx, dbConn, benchSQLLink, status.ActionCancel, status.StatusCancelled)
+					if errU != nil {
+						retryCount++
+						time.Sleep(dynPauseTime)
+						dynPauseTimeC <- time.Duration(1 * time.Millisecond)
+					} else {
+						ok = true
+					}
+				}
 				if errU != nil {
-					retryCount++
-					time.Sleep(dynPauseTime)
-					dynPauseTimeC <- time.Duration(1 * time.Millisecond)
+					errorC <- errU
 				} else {
-					ok = true
+					latenciesC <- time.Since(beforeLocal)
+					// If no error, we increment down a little bit
+					dynPauseTimeC <- time.Duration(-1 * time.Millisecond)
 				}
 			}
-			if errU != nil {
-				errorC <- errU
-			} else {
-				// If no error, we increment down a little bit
-				dynPauseTimeC <- time.Duration(-1 * time.Millisecond)
-				latenciesC <- time.Since(beforeLocal)
-			}
+			wg.Done()
 		}(ctx, &wg)
 	}
 
 	wg.Wait()
+	doneC <- true
+	rawRes := <-resultsC
 	timeTaken := time.Since(before)
 
 	return BenchResult{
-			Action:     "updateStatus",
-			Loops:      loops,
-			PauseTime:  dynPauseTime,
-			Errors:     errCount,
-			Min:        bench.GetMin(latencies),
-			Max:        bench.GetMax(latencies),
-			Median:     bench.GetMedian(latencies),
-			StandDev:   bench.GetStandardDeviation(latencies),
-			Throughput: int(float64(loops) / timeTaken.Seconds()),
+			Action:      "updateStatus",
+			Loops:       loops,
+			Concurrency: concurrency,
+			PauseTime:   dynPauseTime,
+			Errors:      rawRes.errCount,
+			Min:         bench.GetMin(rawRes.latencies),
+			Max:         bench.GetMax(rawRes.latencies),
+			Median:      bench.GetMedian(rawRes.latencies),
+			StandDev:    bench.GetStandardDeviation(rawRes.latencies),
+			Throughput:  int(float64(loops) / timeTaken.Seconds()),
 		},
 		nil
 
@@ -287,48 +300,52 @@ func BenchmarkUpdateStatus(
 func BenchmarkSelectEntityoneByStatus(
 	ctx context.Context,
 	loops int,
+	concurrency int,
 	dbConn *sqlx.DB,
 	benchSQLLink *status.SQLIntImpl,
 ) (
 	results BenchResult,
 	err error,
 ) {
-	var latencies []time.Duration
-	var errCount int
-	latenciesC, errorC := handleResults(&latencies, &errCount)
+	latenciesC, errorC, doneC, resultsC := handleResults()
 
 	var wg sync.WaitGroup
 	before := time.Now()
 
-	for i := 0; i < loops; i++ {
+	for i := 0; i < concurrency; i++ {
 		wg.Add(1)
 		go func(ctx context.Context, wg *sync.WaitGroup) {
-			defer wg.Done()
-			beforeLocal := time.Now()
-			sqlCtx, sqlCncl := context.WithTimeout(ctx, 50*time.Millisecond)
-			defer sqlCncl()
-			_, errSel := status.SelectEntityoneByStatus(sqlCtx, dbConn, benchSQLLink, status.StatusCancelled)
-			if errSel != nil {
-				errorC <- errSel
-			} else {
-				latenciesC <- time.Since(beforeLocal)
+			for j := 0; j < loops/concurrency; j++ {
+				beforeLocal := time.Now()
+				sqlCtx, sqlCncl := context.WithTimeout(ctx, 100*time.Millisecond)
+				defer sqlCncl()
+				_, errSel := status.SelectEntityoneByStatus(sqlCtx, dbConn, benchSQLLink, status.StatusCancelled)
+				if errSel != nil {
+					errorC <- errSel
+				} else {
+					latenciesC <- time.Since(beforeLocal)
+				}
 			}
+			wg.Done()
 		}(ctx, &wg)
 	}
 
 	wg.Wait()
+	doneC <- true
+	rawRes := <-resultsC
 	timeTaken := time.Since(before)
 
 	return BenchResult{
-			Action:     "selectEntityoneByStatus",
-			Loops:      loops,
-			PauseTime:  0,
-			Errors:     errCount,
-			Min:        bench.GetMin(latencies),
-			Max:        bench.GetMax(latencies),
-			Median:     bench.GetMedian(latencies),
-			StandDev:   bench.GetStandardDeviation(latencies),
-			Throughput: int(float64(loops) / timeTaken.Seconds()),
+			Action:      "selectEntityoneByStatus",
+			Loops:       loops,
+			Concurrency: concurrency,
+			PauseTime:   0,
+			Errors:      rawRes.errCount,
+			Min:         bench.GetMin(rawRes.latencies),
+			Max:         bench.GetMax(rawRes.latencies),
+			Median:      bench.GetMedian(rawRes.latencies),
+			StandDev:    bench.GetStandardDeviation(rawRes.latencies),
+			Throughput:  int(float64(loops) / timeTaken.Seconds()),
 		},
 		nil
 }
@@ -337,6 +354,7 @@ func BenchmarkSelectEntityoneByStatus(
 func BenchmarkSelectEntityoneOneByPK(
 	ctx context.Context,
 	loops int,
+	concurrency int,
 	dbConn *sqlx.DB,
 	benchSQLLink *status.SQLIntImpl,
 	testEntityoneIDs []int64,
@@ -344,9 +362,7 @@ func BenchmarkSelectEntityoneOneByPK(
 	results BenchResult,
 	err error,
 ) {
-	var latencies []time.Duration
-	var errCount int
-	latenciesC, errorC := handleResults(&latencies, &errCount)
+	latenciesC, errorC, doneC, resultsC := handleResults()
 
 	before := time.Now()
 	var wg sync.WaitGroup
@@ -354,54 +370,74 @@ func BenchmarkSelectEntityoneOneByPK(
 	for i := 0; i < loops; i++ {
 		wg.Add(1)
 		go func(ctx context.Context, wg *sync.WaitGroup) {
-			defer wg.Done()
-			beforeLocal := time.Now()
-			sqlCtx, sqlCncl := context.WithTimeout(ctx, 50*time.Millisecond)
-			defer sqlCncl()
-			_, errSel := status.SelectEntityoneOneByPK(sqlCtx, dbConn, benchSQLLink, testEntityoneIDs[i%len(testEntityoneIDs)])
-			if errSel != nil {
-				errorC <- errSel
-			} else {
-				latenciesC <- time.Since(beforeLocal)
+			for j := 0; j < loops/concurrency; j++ {
+				beforeLocal := time.Now()
+				sqlCtx, sqlCncl := context.WithTimeout(ctx, 100*time.Millisecond)
+				defer sqlCncl()
+				_, errSel := status.SelectEntityoneOneByPK(sqlCtx, dbConn, benchSQLLink, testEntityoneIDs[i%len(testEntityoneIDs)])
+				if errSel != nil {
+					errorC <- errSel
+				} else {
+					latenciesC <- time.Since(beforeLocal)
+				}
 			}
+			wg.Done()
 		}(ctx, &wg)
 	}
 
 	wg.Wait()
+	doneC <- true
+	rawRes := <-resultsC
 	timeTaken := time.Since(before)
 
 	return BenchResult{
-			Action:     "selectEntityoneOneByPK",
-			Loops:      loops,
-			PauseTime:  0,
-			Errors:     errCount,
-			Min:        bench.GetMin(latencies),
-			Max:        bench.GetMax(latencies),
-			Median:     bench.GetMedian(latencies),
-			StandDev:   bench.GetStandardDeviation(latencies),
-			Throughput: int(float64(loops) / timeTaken.Seconds()),
+			Action:      "selectEntityoneOneByPK",
+			Loops:       loops,
+			Concurrency: concurrency,
+			PauseTime:   0,
+			Errors:      rawRes.errCount,
+			Min:         bench.GetMin(rawRes.latencies),
+			Max:         bench.GetMax(rawRes.latencies),
+			Median:      bench.GetMedian(rawRes.latencies),
+			StandDev:    bench.GetStandardDeviation(rawRes.latencies),
+			Throughput:  int(float64(loops) / timeTaken.Seconds()),
 		},
 		nil
 }
 
+type rawResults struct {
+	latencies []time.Duration
+	errCount  int
+}
+
 // handleResults will generate two channels that will receive latencies and errors
-func handleResults(latencies *[]time.Duration, errCount *int) (chan time.Duration, chan error) {
+func handleResults() (chan time.Duration, chan error, chan bool, chan rawResults) {
 	latenciesC := make(chan time.Duration)
 	errorC := make(chan error)
+	resultsC := make(chan rawResults)
+	doneC := make(chan bool)
+
+	var latencies []time.Duration
+	var errCount int
+	var mux sync.Mutex
 
 	go func() {
 		for {
 			select {
 			case latency := <-latenciesC:
-				*latencies = append(*latencies, latency)
+				latencies = append(latencies, latency)
 			case erRrrR := <-errorC:
 				fmt.Println(erRrrR)
-				*errCount++
+				mux.Lock()
+				errCount++
+				mux.Unlock()
+			case <-doneC:
+				resultsC <- rawResults{latencies: latencies, errCount: errCount}
 			}
 		}
 	}()
 
-	return latenciesC, errorC
+	return latenciesC, errorC, doneC, resultsC
 }
 
 const (
