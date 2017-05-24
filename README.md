@@ -32,8 +32,8 @@ Just check them [here](https://playwithsql-summary.surge.sh)!
 - [x] SQLite
 - [x] Microsoft SQL Server
 - [x] Oracle
-- [ ] Vitess
 - [ ] Reference hosted MySQL on GCP
+- [ ] Vitess
 - [ ] Cloud Spanner
 
 # Tested setups
@@ -74,5 +74,5 @@ Download [Oracle instant client](http://www.oracle.com/technetwork/topics/linuxx
 
 - [ ] Leverage new go 1.8.1 capabilities (context, timeouts done, left with named queries, remove sqlx?)
 - [ ] Vendor deps (github.com/kardianos/govendor)
-- [ ] Test different storage
+- [ ] Test different storage (mounted standard disk, mounted ssd, local ssd)
 - [ ] Test High Availability
