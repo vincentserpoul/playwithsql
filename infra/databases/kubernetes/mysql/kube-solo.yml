@@ -34,11 +34,8 @@ metadata:
   name: mysql
   namespace: default
 spec:
-  type: LoadBalancer
+  type: NodePort
   ports:
   - port : 3306
-    targetPort: 3306
-    protocol: TCP
-    name: app
   selector:
     app: mysql

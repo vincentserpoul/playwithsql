@@ -28,7 +28,7 @@ metadata:
   name: oracle
   namespace: default
 spec:
-  type: LoadBalancer
+  type: NodePort
   ports:
   - port : 1521
     targetPort: 1521

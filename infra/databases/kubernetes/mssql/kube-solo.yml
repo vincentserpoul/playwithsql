@@ -37,7 +37,7 @@ metadata:
   name: mssql
   namespace: default
 spec:
-  type: LoadBalancer
+  type: NodePort
   ports:
   - port : 1433
     targetPort: 1433
