@@ -13,6 +13,8 @@ echo "[" > ./bench/status/kubernetes/results.log
 ./infra/databases/kubernetes/oracle/launch-solo.sh && ./bench/status/kubernetes/run-bench.sh oracle oracle 1000 1;
 ./infra/databases/kubernetes/postgres/launch-solo.sh && ./bench/status/kubernetes/run-bench.sh postgres postgres 1000 100;
 ./bench/status/kubernetes/run-bench.sh sqlite pws_sqlite 1000 1;
+./infra/databases/kubernetes/gcpmysql/launch-solo.sh && ./bench/status/kubernetes/run-bench.sh gcpmysql gcpmysql 1000 100;
+./infra/databases/kubernetes/gcppostgres/launch-solo.sh && ./bench/status/kubernetes/run-bench.sh gcppostgres gcppostgres 1000 100;
 
 #  remove last comma 
 sed -i '$s/,$//' ./bench/status/kubernetes/results.log;
