@@ -1,0 +1,51 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: gcpmysql
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: gcpmysql
+    spec:
+      containers:
+        - image: gcr.io/cloudsql-docker/gce-proxy:1.09
+          name: cloudsql-proxy
+          command: ["/cloud_sql_proxy", "--dir=/cloudsql",
+                    "-instances=playwithsql:us-central1:gcpmysqlbench=tcp:0.0.0.0:3306",
+                    "-credential_file=/secrets/cloudsql/credentials.json"]
+          volumeMounts:
+            - name: cloudsql-instance-credentials
+              mountPath: /secrets/cloudsql
+              readOnly: true
+            - name: ssl-certs
+              mountPath: /etc/ssl/certs
+            - name: cloudsql
+              mountPath: /cloudsql
+          ports:
+          - containerPort: 3306
+        # [END proxy_container]
+      # [START volumes]
+      volumes:
+        - name: cloudsql-instance-credentials
+          secret:
+            secretName: cloudsql-instance-credentials
+        - name: ssl-certs
+          hostPath:
+            path: /etc/ssl/certs
+        - name: cloudsql
+          emptyDir:
+      # [END volumes]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gcpmysql
+  namespace: default
+spec:
+  type: NodePort
+  ports:
+  - port : 3306
+  selector:
+    app: gcpmysql
