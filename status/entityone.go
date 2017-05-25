@@ -220,11 +220,11 @@ type SQLIntImpl struct {
 // GetSQLIntImpl returns the type of link according to the dbtype
 func GetSQLIntImpl(dbType string) *SQLIntImpl {
 	switch dbType {
-	case "mysql", "percona", "mariadb":
+	case "mysql", "percona", "mariadb", "gcpmysql":
 		return &SQLIntImpl{&ilmysql.Link{}}
 	case "sqlite":
 		return &SQLIntImpl{&ilsqlite.Link{}}
-	case "postgres":
+	case "postgres", "gcppostgres":
 		return &SQLIntImpl{&ilpostgres.Link{}}
 	case "cockroachdb":
 		return &SQLIntImpl{&ilcockroachdb.Link{}}
