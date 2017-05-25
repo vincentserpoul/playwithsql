@@ -1,3 +1,4 @@
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/a79310b8da354991a0b2b657a73f195f)](https://www.codacy.com/app/vincent_11/playwithsql?utm_source=github.com&utm_medium=referral&utm_content=vincentserpoul/playwithsql&utm_campaign=badger)
 [![Go Report Card](https://goreportcard.com/badge/github.com/vincentserpoul/playwithsql)](https://goreportcard.com/report/github.com/vincentserpoul/playwithsql)
 [![codebeat badge](https://codebeat.co/badges/df4fb8c7-3472-46ff-a9c8-5fa72008269c)](https://codebeat.co/projects/github-com-vincentserpoul-playwithsql-master)
 
