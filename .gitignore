@@ -34,3 +34,5 @@ playwithsql-cmd-status
 
 bench/dotoken
 bench/sshkey_fingerprint
+
+credentials.json
