@@ -22,10 +22,7 @@ initdb () {
 createService() {
     gcloud beta sql instances create gcpmysqlbench --tier=db-n1-standard-1 --region=us-central1 --database-version MYSQL_5_7;
     gcloud beta sql users set-password root % --instance gcpmysqlbench --password test;
-    kubectl create secret generic cloudsql-instance-credentials --from-file=credentials.json=./infra/databases/kubernetes/gcpmysql/credentials.json;
-    kubectl create secret generic cloudsql-db-credentials --from-literal=username=root --from-literal=password=test;
     initdb;
 }
-
 
 createService;

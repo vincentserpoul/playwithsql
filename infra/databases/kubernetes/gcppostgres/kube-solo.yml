@@ -13,7 +13,7 @@ spec:
         - image: gcr.io/cloudsql-docker/gce-proxy:1.09
           name: cloudsql-proxy
           command: ["/cloud_sql_proxy", "--dir=/cloudsql",
-                    "-instances=playwithsql:us-central1:gcppostgresbench=tcp:0.0.0.0:3306",
+                    "-instances=playwithsql:us-central1:gcppostgresbench=tcp:0.0.0.0:5432",
                     "-credential_file=/secrets/cloudsql/credentials.json"]
           volumeMounts:
             - name: cloudsql-instance-credentials
@@ -24,7 +24,7 @@ spec:
             - name: cloudsql
               mountPath: /cloudsql
           ports:
-          - containerPort: 3306
+          - containerPort: 5432
         # [END proxy_container]
       # [START volumes]
       volumes:
@@ -46,6 +46,6 @@ metadata:
 spec:
   type: NodePort
   ports:
-  - port : 3306
+  - port : 5432
   selector:
     app: gcppostgres
