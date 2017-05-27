@@ -27,11 +27,11 @@ initdb () {
 }
 
 removeService () {
-    gcloud sql instances patch gcpmysqlbench --activation-policy NEVER
+    gcloud sql instances patch gcpmysqlbench --activation-policy NEVER -q
 }
 
 runService () {
-    gcloud sql instances patch gcpmysqlbench --activation-policy ALWAYS;
+    gcloud sql instances patch gcpmysqlbench --activation-policy ALWAYS -q;
 }
 
 runService;
