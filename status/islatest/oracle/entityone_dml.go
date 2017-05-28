@@ -60,7 +60,7 @@ func (link *Link) SaveStatus(
 	return islatest.SaveStatus(ctx, exec, entityID, actionID, statusID)
 }
 
-// SelectEntity retrieves a slice of entityones
+// SelectEntityone retrieves a slice of entityones
 func (link *Link) SelectEntityone(
 	ctx context.Context,
 	q *sqlx.DB,
@@ -94,12 +94,12 @@ func (link *Link) SelectEntityone(
 
 	query, injectedNamedParams, err := sqlx.Named(query, namedParams)
 	if err != nil {
-		return nil, fmt.Errorf("SelectEntity error: %v", err)
+		return nil, fmt.Errorf("SelectEntityone error: %v", err)
 	}
 
 	query, injectedNamedParams, err = sqlx.In(query, injectedNamedParams...)
 	if err != nil {
-		return nil, fmt.Errorf("SelectEntity error: %v", err)
+		return nil, fmt.Errorf("SelectEntityone error: %v", err)
 	}
 
 	query = q.Rebind(query)

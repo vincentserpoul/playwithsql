@@ -16,7 +16,7 @@ func (link *Link) MigrateUp(ctx context.Context, exec sqlx.ExecerContext) (errEx
 		`
         CREATE TABLE IF NOT EXISTS entityone (
             entityone_id INTEGER PRIMARY KEY ASC,
-            time_created DATETIME DEFAULT (datetime('now','localtime'))
+            time_created DATETIME NOT NULL DEFAULT (datetime('now','localtime'))
         )
     `)
 	if errExec != nil {
@@ -29,7 +29,7 @@ func (link *Link) MigrateUp(ctx context.Context, exec sqlx.ExecerContext) (errEx
             entityone_id INT NOT NULL,
             action_id INT NOT NULL DEFAULT 1,
             status_id INT NOT NULL DEFAULT 1,
-            time_created DATETIME DEFAULT (datetime('now','localtime')),
+            time_created DATETIME NOT NULL DEFAULT (datetime('now','localtime')),
             is_latest INT(1) NULL DEFAULT 1,
             UNIQUE (is_latest, entityone_id),
             CONSTRAINT es_fk_e

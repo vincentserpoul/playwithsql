@@ -8,6 +8,7 @@ import (
 	"github.com/vincentserpoul/playwithsql/status/islatest"
 )
 
+// Create will insert a new entity in the DB along with the status
 func (link *Link) Create(
 	ctx context.Context,
 	tx *sqlx.Tx,
@@ -54,7 +55,7 @@ func (link *Link) SaveStatus(
 	return islatest.SaveStatus(ctx, tx, entityID, actionID, statusID)
 }
 
-// SelectEntity returns sqlx.Rows
+// SelectEntityone returns sqlx.Rows
 func (link *Link) SelectEntityone(
 	ctx context.Context,
 	q *sqlx.DB,

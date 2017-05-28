@@ -55,7 +55,7 @@ func (link *Link) SaveStatus(
 	return islatest.SaveStatus(ctx, exec, entityID, actionID, statusID)
 }
 
-// SelectEntity returns sqlx.Rows
+// SelectEntityone returns sqlx.Rows
 func (link *Link) SelectEntityone(
 	ctx context.Context,
 	q *sqlx.DB,

@@ -8,7 +8,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-// SelectEntity retrieves a slice of entityones
+// SelectEntityone retrieves a slice of entityones
 func SelectEntityone(
 	ctx context.Context,
 	q *sqlx.DB,
@@ -40,12 +40,12 @@ func SelectEntityone(
 
 	query, injectedNamedParams, err := sqlx.Named(query, namedParams)
 	if err != nil {
-		return nil, fmt.Errorf("SelectEntity error: %v", err)
+		return nil, fmt.Errorf("SelectEntityone error: %v", err)
 	}
 
 	query, injectedNamedParams, err = sqlx.In(query, injectedNamedParams...)
 	if err != nil {
-		return nil, fmt.Errorf("SelectEntity error: %v", err)
+		return nil, fmt.Errorf("SelectEntityone error: %v", err)
 	}
 
 	query = q.Rebind(query)
