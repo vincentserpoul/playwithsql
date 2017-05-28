@@ -1,3 +1,3 @@
 # The db schema
 
-![schema](status_islatest.svg)
+![schema](https://cdn.rawgit.com/vincentserpoul/playwithsql/6b40f003/status/islatest/status_islatest.svg)
