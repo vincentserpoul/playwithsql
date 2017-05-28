@@ -73,7 +73,7 @@ type SQLLink interface {
 		actionID int,
 		statusID int,
 	) error
-	SelectEntity(
+	SelectEntityone(
 		ctx context.Context,
 		q *sqlx.DB,
 		entityIDs []int64,
@@ -149,7 +149,7 @@ func SelectEntityoneByStatus(
 	link SQLLink,
 	statusID StatusID,
 ) (selectedEntity []*Entityone, err error) {
-	rows, err := link.SelectEntity(ctx, q, []int64{}, []int{int(statusID)}, []int{}, []int{}, []int{}, 3)
+	rows, err := link.SelectEntityone(ctx, q, []int64{}, []int{int(statusID)}, []int{}, []int{}, []int{}, 3)
 	if err != nil {
 		return nil, err
 	}
@@ -172,7 +172,7 @@ func SelectEntityoneOneByPK(
 	link SQLLink,
 	entityID int64,
 ) (selectedEntity *Entityone, err error) {
-	rows, err := link.SelectEntity(ctx, q, []int64{entityID}, []int{}, []int{}, []int{}, []int{}, 0)
+	rows, err := link.SelectEntityone(ctx, q, []int64{entityID}, []int{}, []int{}, []int{}, []int{}, 0)
 	if err != nil {
 		return nil, err
 	}
