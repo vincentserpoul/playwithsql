@@ -46,7 +46,8 @@ func main() {
 
 	// Flags
 	dbName := "playwithsql"
-	dbType := flag.String("db", "mysql", "type of db to bench: mysql, cockroachdb, postgres")
+	dbType := flag.String("db", "mysql", "type of db to bench: mysql, cockroachdb, postgres...")
+	schemaType := flag.String("sch", "islatest", "type of schema to use, is latest, latest status...")
 	dbHost := flag.String("host", "127.0.0.1", "host IP")
 	loops := flag.Int("loops", 100, "number of loops")
 	maxConns := flag.Int("maxconns", 10, "number of max connections")
@@ -64,7 +65,7 @@ func main() {
 	}
 
 	// Connection
-	islatestSQLLink := status.GetSQLIntImpl(*dbType)
+	islatestSQLLink := status.GetSQLIntImpl(*dbType, *schemaType)
 
 	ctx := context.Background()
 	err = islatestSQLLink.MigrateDown(ctx, db)
@@ -142,7 +143,7 @@ func BenchmarkCreate(
 	var wg sync.WaitGroup
 
 	// Pause time
-	dynPauseTime := time.Duration(1 * time.Millisecond)
+	dynPauseTime := 1 * time.Millisecond
 	dynPauseTimeC := dynPauseTimeInit(&dynPauseTime)
 	defer close(dynPauseTimeC)
 
@@ -167,7 +168,7 @@ func BenchmarkCreate(
 					if errCr != nil {
 						retryCount++
 						time.Sleep(dynPauseTime)
-						dynPauseTimeC <- time.Duration(1 * time.Millisecond)
+						dynPauseTimeC <- 1 * time.Millisecond
 					} else {
 						ok = true
 					}
@@ -178,7 +179,7 @@ func BenchmarkCreate(
 					latenciesC <- time.Since(beforeLocal)
 					entityIDsC <- e.ID
 					// If no error, we increment down a little bit
-					dynPauseTimeC <- time.Duration(-1 * time.Millisecond)
+					dynPauseTimeC <- -1 * time.Millisecond
 				}
 			}
 			wg.Done()
@@ -234,7 +235,7 @@ func BenchmarkUpdateStatus(
 	var wg sync.WaitGroup
 
 	// Pause time
-	dynPauseTime := time.Duration(1 * time.Millisecond)
+	dynPauseTime := 1 * time.Millisecond
 	dynPauseTimeC := dynPauseTimeInit(&dynPauseTime)
 	defer close(dynPauseTimeC)
 
@@ -258,7 +259,7 @@ func BenchmarkUpdateStatus(
 					if errU != nil {
 						retryCount++
 						time.Sleep(dynPauseTime)
-						dynPauseTimeC <- time.Duration(1 * time.Millisecond)
+						dynPauseTimeC <- 1 * time.Millisecond
 					} else {
 						ok = true
 					}
@@ -268,7 +269,7 @@ func BenchmarkUpdateStatus(
 				} else {
 					latenciesC <- time.Since(beforeLocal)
 					// If no error, we increment down a little bit
-					dynPauseTimeC <- time.Duration(-1 * time.Millisecond)
+					dynPauseTimeC <- -1 * time.Millisecond
 				}
 			}
 			wg.Done()

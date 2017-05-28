@@ -162,7 +162,8 @@ func TestMain(m *testing.M) {
 	var err error
 
 	dbName := "entityone_test"
-	dbType := flag.String("db", "mysql", "type of db to bench: mysql, cockroachdb, postgres")
+	dbType := flag.String("db", "mysql", "type of db to bench: mysql, cockroachdb, postgres...")
+	schemaType := flag.String("sch", "islatest", "type of schema to use, is latest, latest status...")
 	host := flag.String("host", "127.0.0.1", "host IP")
 	flag.Parse()
 
@@ -181,7 +182,7 @@ func TestMain(m *testing.M) {
 	// create context to cancel working if 10 seconds passed
 	ctx := context.Background()
 
-	tempSQLLink := GetSQLIntImpl(*dbType)
+	tempSQLLink := GetSQLIntImpl(*dbType, *schemaType)
 	testSQLLink = tempSQLLink
 
 	err = testSQLLink.MigrateDown(ctx, testDBConn)

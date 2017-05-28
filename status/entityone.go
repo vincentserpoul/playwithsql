@@ -7,12 +7,16 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	ilcockroachdb "github.com/vincentserpoul/playwithsql/status/islatest/cockroachdb"
 	ilmssql "github.com/vincentserpoul/playwithsql/status/islatest/mssql"
 	ilmysql "github.com/vincentserpoul/playwithsql/status/islatest/mysql"
 	iloracle "github.com/vincentserpoul/playwithsql/status/islatest/oracle"
 	ilpostgres "github.com/vincentserpoul/playwithsql/status/islatest/postgres"
 	ilsqlite "github.com/vincentserpoul/playwithsql/status/islatest/sqlite"
+	lsmssql "github.com/vincentserpoul/playwithsql/status/lateststatus/mssql"
+	lsmysql "github.com/vincentserpoul/playwithsql/status/lateststatus/mysql"
+	lsoracle "github.com/vincentserpoul/playwithsql/status/lateststatus/oracle"
+	lspostgres "github.com/vincentserpoul/playwithsql/status/lateststatus/postgres"
+	lssqlite "github.com/vincentserpoul/playwithsql/status/lateststatus/sqlite"
 )
 
 // Entityone represents an event
@@ -210,21 +214,34 @@ type SQLIntImpl struct {
 }
 
 // GetSQLIntImpl returns the type of link according to the dbtype
-func GetSQLIntImpl(dbType string) *SQLIntImpl {
-	switch dbType {
-	case "mysql", "percona", "mariadb", "gcpmysql":
-		return &SQLIntImpl{&ilmysql.Link{}}
-	case "sqlite":
-		return &SQLIntImpl{&ilsqlite.Link{}}
-	case "postgres", "gcppostgres":
-		return &SQLIntImpl{&ilpostgres.Link{}}
-	case "cockroachdb":
-		return &SQLIntImpl{&ilcockroachdb.Link{}}
-	case "mssql":
-		return &SQLIntImpl{&ilmssql.Link{}}
-	case "oracle":
-		return &SQLIntImpl{&iloracle.Link{}}
+func GetSQLIntImpl(dbType string, schemaType string) *SQLIntImpl {
+	switch schemaType {
+	case "lateststatus":
+		switch dbType {
+		case "mysql", "percona", "mariadb", "gcpmysql":
+			return &SQLIntImpl{&lsmysql.Link{}}
+		case "sqlite":
+			return &SQLIntImpl{&lssqlite.Link{}}
+		case "postgres", "gcppostgres", "cockroachdb":
+			return &SQLIntImpl{&lspostgres.Link{}}
+		case "mssql":
+			return &SQLIntImpl{&lsmssql.Link{}}
+		case "oracle":
+			return &SQLIntImpl{&lsoracle.Link{}}
+		}
+	case "islatest":
+		switch dbType {
+		case "mysql", "percona", "mariadb", "gcpmysql":
+			return &SQLIntImpl{&ilmysql.Link{}}
+		case "sqlite":
+			return &SQLIntImpl{&ilsqlite.Link{}}
+		case "postgres", "gcppostgres", "cockroachdb":
+			return &SQLIntImpl{&ilpostgres.Link{}}
+		case "mssql":
+			return &SQLIntImpl{&ilmssql.Link{}}
+		case "oracle":
+			return &SQLIntImpl{&iloracle.Link{}}
+		}
 	}
-
 	return nil
 }
