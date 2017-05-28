@@ -8,10 +8,29 @@ import (
 	"github.com/vincentserpoul/playwithsql/status/islatest"
 )
 
-// InsertOne will insert a Entityone into db
-func (link *Link) InsertOne(ctx context.Context, exec sqlx.ExtContext) (id int64, err error) {
+func (link *Link) Create(
+	ctx context.Context,
+	tx *sqlx.Tx,
+	actionID int,
+	statusID int,
+) (int64, error) {
+	id, err := link.insertOne(ctx, tx)
+	if err != nil {
+		return id, fmt.Errorf("entityone Create(): %v", err)
+	}
 
-	res, err := exec.ExecContext(ctx, `INSERT INTO entityone DEFAULT VALUES`)
+	err = link.SaveStatus(ctx, tx, id, actionID, statusID)
+	if err != nil {
+		return id, fmt.Errorf("entityone Create(): %v", err)
+	}
+
+	return id, nil
+}
+
+// insertOne will insert a Entityone into db
+func (link *Link) insertOne(ctx context.Context, tx *sqlx.Tx) (id int64, err error) {
+
+	res, err := tx.ExecContext(ctx, `INSERT INTO entityone DEFAULT VALUES`)
 	if err != nil {
 		return id, fmt.Errorf("entityone Insert(): %v", err)
 	}
@@ -27,12 +46,12 @@ func (link *Link) InsertOne(ctx context.Context, exec sqlx.ExtContext) (id int64
 // SaveStatus will save the status in database for the selected entity
 func (link *Link) SaveStatus(
 	ctx context.Context,
-	exec *sqlx.Tx,
+	tx *sqlx.Tx,
 	entityID int64,
 	actionID int,
 	statusID int,
 ) error {
-	return islatest.SaveStatus(ctx, exec, entityID, actionID, statusID)
+	return islatest.SaveStatus(ctx, tx, entityID, actionID, statusID)
 }
 
 // SelectEntity returns sqlx.Rows

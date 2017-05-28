@@ -9,8 +9,28 @@ import (
 	"github.com/vincentserpoul/playwithsql/status/islatest"
 )
 
-// InsertOne will insert a Entityone into db
-func (link *Link) InsertOne(ctx context.Context, exec sqlx.ExtContext) (id int64, err error) {
+// Create will insert a new entity in the DB along with the status
+func (link *Link) Create(
+	ctx context.Context,
+	tx *sqlx.Tx,
+	actionID int,
+	statusID int,
+) (int64, error) {
+	id, err := link.insertOne(ctx, tx)
+	if err != nil {
+		return id, fmt.Errorf("entityone Create(): %v", err)
+	}
+
+	err = link.SaveStatus(ctx, tx, id, actionID, statusID)
+	if err != nil {
+		return id, fmt.Errorf("entityone Create(): %v", err)
+	}
+
+	return id, nil
+}
+
+// insertOne will insert a Entityone into db
+func (link *Link) insertOne(ctx context.Context, exec *sqlx.Tx) (id int64, err error) {
 
 	res, err := exec.ExecContext(ctx,
 		`
@@ -55,8 +75,8 @@ func (link *Link) SelectEntity(
 	query := `
             SELECT
                 e.entityone_id as "entityone_id", e.time_created as "time_created",
-                es.entityone_id as "status_entityone_id", es.action_id as "action_id",
-				es.status_id as "status_id", es.time_created as "status_time_created"
+                es.action_id as "action_id", es.status_id as "status_id",
+				es.time_created as "status_time_created"
             FROM entityone e
             INNER JOIN entityone_status es ON es.entityone_id = e.entityone_id
                 AND es.is_latest = 1

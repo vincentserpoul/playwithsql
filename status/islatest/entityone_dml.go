@@ -23,7 +23,7 @@ func SelectEntity(
 	query := `
             SELECT
                 e.entityone_id, e.time_created,
-                es.entityone_id as status_entityone_id, es.action_id, es.status_id, es.time_created as status_time_created
+               	es.action_id, es.status_id, es.time_created as status_time_created
             FROM entityone e
             INNER JOIN entityone_status es ON es.entityone_id = e.entityone_id
             WHERE es.is_latest = 1

@@ -24,7 +24,6 @@ type Entityone struct {
 
 // Status of the entity
 type Status struct {
-	EntityID    int64     `db:"status_entityone_id" json:"entityone_id"`
 	ActionID    ActionID  `db:"action_id" json:"action_id"`
 	StatusID    StatusID  `db:"status_id" json:"status_id"`
 	TimeCreated time.Time `db:"status_time_created" json:"time_created"`
@@ -66,7 +65,7 @@ func (s StatusID) String() string {
 type SQLLink interface {
 	MigrateUp(ctx context.Context, exec sqlx.ExecerContext) (errExec error)
 	MigrateDown(ctx context.Context, exec sqlx.ExecerContext) (errExec error)
-	InsertOne(ctx context.Context, exec sqlx.ExtContext) (int64, error)
+	Create(ctx context.Context, exec *sqlx.Tx, actionID, statusID int) (int64, error)
 	SaveStatus(
 		ctx context.Context,
 		exec *sqlx.Tx,
@@ -88,6 +87,7 @@ type SQLLink interface {
 
 // Create will create an entityone
 func (e *Entityone) Create(ctx context.Context, db *sqlx.DB, link SQLLink) (err error) {
+
 	tx := db.MustBegin()
 	defer func() {
 		if err != nil {
@@ -98,26 +98,18 @@ func (e *Entityone) Create(ctx context.Context, db *sqlx.DB, link SQLLink) (err 
 		}
 	}()
 
-	e.ID, err = link.InsertOne(ctx, tx)
+	e.ID, err = link.Create(ctx, tx, int(ActionCreate), int(StatusCreated))
 	if err != nil {
-		return fmt.Errorf("Entityone createEntityone: %v", err)
+		return fmt.Errorf("entityone Create(): %v", err)
 	}
 
 	e.TimeCreated = time.Now()
+	// Update status
+	e.Status.TimeCreated = time.Now()
+	e.ActionID = ActionCreate
+	e.StatusID = StatusCreated
 
-	err = link.SaveStatus(ctx, tx, e.ID, int(ActionCreate), int(StatusCreated))
-	if err != nil {
-		return fmt.Errorf("Entityone createEntityone: %v", err)
-	}
-
-	e.Status = Status{
-		EntityID:    e.ID,
-		ActionID:    ActionCreate,
-		StatusID:    StatusCreated,
-		TimeCreated: time.Now(),
-	}
-
-	return err
+	return nil
 }
 
 // UpdateStatus will update the status of an Entityone into db

@@ -1,3 +1,3 @@
 # The db schema
 
-![schema](status_islatest.png)
+![schema](status_islatest.svg)

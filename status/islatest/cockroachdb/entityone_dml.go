@@ -8,8 +8,28 @@ import (
 	"github.com/vincentserpoul/playwithsql/status/islatest"
 )
 
-// InsertOne will insert a Entityone into db
-func (link *Link) InsertOne(ctx context.Context, exec sqlx.ExtContext) (id int64, err error) {
+// Create will insert a new entity in the DB along with the status
+func (link *Link) Create(
+	ctx context.Context,
+	tx *sqlx.Tx,
+	actionID int,
+	statusID int,
+) (int64, error) {
+	id, err := link.insertOne(ctx, tx)
+	if err != nil {
+		return id, fmt.Errorf("entityone Create(): %v", err)
+	}
+
+	err = link.SaveStatus(ctx, tx, id, actionID, statusID)
+	if err != nil {
+		return id, fmt.Errorf("entityone Create(): %v", err)
+	}
+
+	return id, nil
+}
+
+// insertOne will insert a Entityone into db
+func (link *Link) insertOne(ctx context.Context, exec *sqlx.Tx) (id int64, err error) {
 	err = exec.QueryRowxContext(
 		ctx,
 		`
