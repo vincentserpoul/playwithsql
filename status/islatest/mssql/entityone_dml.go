@@ -57,7 +57,7 @@ func (link *Link) SaveStatus(
 }
 
 // SelectEntity retrieves a slice of entityones
-func (link *Link) SelectEntity(
+func (link *Link) SelectEntityone(
 	ctx context.Context,
 	q *sqlx.DB,
 	entityIDs []int64,

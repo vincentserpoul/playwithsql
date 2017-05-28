@@ -56,7 +56,7 @@ func (link *Link) SaveStatus(
 }
 
 // SelectEntity returns sqlx.Rows
-func (link *Link) SelectEntity(
+func (link *Link) SelectEntityone(
 	ctx context.Context,
 	q *sqlx.DB,
 	entityIDs []int64,
@@ -66,7 +66,7 @@ func (link *Link) SelectEntity(
 	hasStatusIDs []int,
 	limit int,
 ) (*sqlx.Rows, error) {
-	return islatest.SelectEntity(
+	return islatest.SelectEntityone(
 		ctx,
 		q,
 		entityIDs,

@@ -9,7 +9,7 @@ import (
 )
 
 // SelectEntity retrieves a slice of entityones
-func SelectEntity(
+func SelectEntityone(
 	ctx context.Context,
 	q *sqlx.DB,
 	entityIDs []int64,
