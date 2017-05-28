@@ -13,7 +13,7 @@ spec:
         app: mssql
     spec:
       containers:
-      - image: microsoft/mssql-server-linux:ctp-2.0
+      - image: microsoft/mssql-server-linux:ctp2-1
         imagePullPolicy: IfNotPresent
         name: mssql
         env:
