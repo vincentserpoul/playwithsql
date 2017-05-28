@@ -5,7 +5,7 @@ on Intel(R) Core(TM) i7-5500U CPU @ 2.40GHz, 16GB ram
 ```
 $ ./status/run-test.sh                                                                              
 
-pws_cockroachdb
+cockroachdb
 
 islatest
 BenchmarkCreate-4                    	     500	  12137799 ns/op
@@ -24,7 +24,7 @@ PASS
 ok  	github.com/vincentserpoul/playwithsql/status	29.171s
 
 
-pws_mssql
+mssql
 
 islatest
 BenchmarkCreate-4                    	    2000	   2194208 ns/op
