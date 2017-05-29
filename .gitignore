@@ -36,3 +36,4 @@ bench/dotoken
 bench/sshkey_fingerprint
 
 credentials.json
+vendor
