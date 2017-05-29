@@ -16,6 +16,7 @@ spec:
         args:
           - "-db=$DB"
           - "-host=$HOST"
+          - "-sch=$SCH"
           - "-loops=$LOOPS"
           - "-maxconns=$MAXCONNS"
         resources:
