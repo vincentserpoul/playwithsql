@@ -427,8 +427,9 @@ func handleResults() (chan time.Duration, chan error, chan bool, chan rawResults
 			select {
 			case latency := <-latenciesC:
 				latencies = append(latencies, latency)
-			case erRrrR := <-errorC:
-				fmt.Println(erRrrR)
+			// case erRrrR := <-errorC:
+			// 	fmt.Println(erRrrR)
+			case <-errorC:
 				mux.Lock()
 				errCount++
 				mux.Unlock()
