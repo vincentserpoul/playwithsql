@@ -1,7 +1,7 @@
 #!/bin/bash
 
 initdb () {
-    sleep 45s;
+    sleep 60s;
     POD_NAME=$(kubectl get po | grep oracle | awk '{ print $1 }');
     kubectl exec -i $POD_NAME -- /bin/bash -c 'ORACLE_HOME="/u01/app/oracle/product/11.2.0/xe" ORACLE_SID="XE" u01/app/oracle/product/11.2.0/xe/bin/sqlplus -s /nolog <<EOF
 connect system/oracle

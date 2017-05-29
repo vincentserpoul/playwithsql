@@ -1,7 +1,7 @@
 #!/bin/bash
 
 initdb () {
-    sleep 40s;
+    sleep 60s;
     POD_NAME=$(kubectl get po | grep percona | awk '{ print $1 }');
     kubectl exec -i $POD_NAME -- mysql -u root -ptest -e 'CREATE DATABASE entityone_test';
     kubectl exec -i $POD_NAME -- mysql -u root -ptest -e 'CREATE DATABASE playwithsql';

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 initdb () {
-    sleep 25s;
+    sleep 60s;
     POD_NAME=$(kubectl get po | grep mssql | awk '{ print $1 }');
     kubectl exec -i $POD_NAME -- /bin/bash -c 'echo "create database entityone_test;" > createdb.sql && /opt/mssql-tools/bin/sqlcmd -U sa -P thank5MsSQLforcingMe -i ./createdb.sql;';
     kubectl exec -i $POD_NAME -- /bin/bash -c 'echo "create database playwithsql;" > createdb.sql && /opt/mssql-tools/bin/sqlcmd -U sa -P thank5MsSQLforcingMe -i ./createdb.sql;';

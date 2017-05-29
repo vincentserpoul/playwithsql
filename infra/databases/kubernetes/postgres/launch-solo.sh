@@ -1,7 +1,7 @@
 #!/bin/bash
 
 initdb () {
-    sleep 10s;
+    sleep 60s;
     POD_NAME=$(kubectl get po | grep postgres | awk '{ print $1 }');
     kubectl exec -i $POD_NAME -- psql -c 'CREATE DATABASE entityone_test';
     kubectl exec -i $POD_NAME -- psql -c 'CREATE DATABASE playwithsql';
