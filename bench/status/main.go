@@ -368,7 +368,7 @@ func BenchmarkSelectEntityoneOneByPK(
 	before := time.Now()
 	var wg sync.WaitGroup
 
-	for i := 0; i < loops; i++ {
+	for i := 0; i < concurrency; i++ {
 		wg.Add(1)
 		go func(ctx context.Context, wg *sync.WaitGroup) {
 			for j := 0; j < loops/concurrency; j++ {
