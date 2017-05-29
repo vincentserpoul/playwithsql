@@ -16,7 +16,7 @@ echo "[" > ./bench/status/kubernetes/$SCH/results.log
 ./infra/databases/kubernetes/percona/launch-solo.sh && ./bench/status/kubernetes/run-bench.sh percona percona $SCH 1000 100;
 ./infra/databases/kubernetes/oracle/launch-solo.sh && ./bench/status/kubernetes/run-bench.sh oracle oracle $SCH 1000 1;
 ./infra/databases/kubernetes/postgres/launch-solo.sh && ./bench/status/kubernetes/run-bench.sh postgres postgres $SCH 1000 100;
-./infra/databases/kubernetes/gcpmysql/launch-solo.sh && ./bench/status/kubernetes/run-bench.sh gcpmysql gcpmysql $SCH 1000 100;
+./infra/databases/kubernetes/gcpmysql/launch-solo.sh && ./bench/status/kubernetes/run-bench.sh gcpmysql gcpmysql $SCH 1000 50;
 ./infra/databases/kubernetes/gcppostgres/launch-solo.sh && ./bench/status/kubernetes/run-bench.sh gcppostgres gcppostgres $SCH 1000 50;
 ./bench/status/kubernetes/run-bench.sh sqlite pws_sqlite $SCH 1000 1;
 
