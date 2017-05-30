@@ -3,7 +3,7 @@ version: "3"
 services:
   mariadb:
     image: mariadb:10.3.0
-    command: 
+    command:
       - "mysqld"
       - "--max-connections=1000"
       - "--innodb_buffer_pool_size=2G"

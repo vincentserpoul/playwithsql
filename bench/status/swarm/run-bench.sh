@@ -12,15 +12,16 @@ docker service create \
     --name pws_cmd-$DB  \
     --restart-condition none \
     --network pws_default \
+    --detach=true \
     vincentserpoul/playwithsql-cmd-status \
-    -db=$DB -host=$HOST -sch=$SCH -loops=$LOOPS -maxconns=$MAXCONNS 
+    -db=$DB -host=$HOST -sch=$SCH -loops=$LOOPS -maxconns=$MAXCONNS
 
 sleep 2s;
 
-while [ $(docker service ls | grep $DB | awk '{print $4}' | grep "0/" | wc -l) != 1 ] ;do 
+while [ $(docker service ls | grep $DB | awk '{print $4}' | grep "0/" | wc -l) != 1 ] ;do
     sleep 1s;
 done;
 
-docker service logs pws_cmd-$DB | awk '{ print $3."," }' >> ./bench/status/swarm/results.log;
+docker service logs pws_cmd-$DB | awk '{ print $3."," }' >> ./bench/status/swarm/$SCH/results.log;
 docker service rm pws_cmd-$DB;
 docker service rm pws_$DB;

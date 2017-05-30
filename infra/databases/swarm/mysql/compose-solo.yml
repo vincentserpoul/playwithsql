@@ -3,7 +3,7 @@ version: "3"
 services:
   mysql:
     image: mysql:8.0.1
-    command: 
+    command:
       - "mysqld"
       - "--max-connections=1000"
       - "--innodb_buffer_pool_size=2G"

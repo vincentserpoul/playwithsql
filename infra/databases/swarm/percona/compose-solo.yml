@@ -3,12 +3,12 @@ version: "3"
 services:
   percona:
     image: percona:5.7.18
-    command: 
+    command:
       - "mysqld"
       - "--max-connections=1000"
       - "--innodb_buffer_pool_size=2G"
       - "--innodb_log_file_size=1G"
-      - "--innodb_flush_method=O_DIRECT" 
+      - "--innodb_flush_method=O_DIRECT"
     ports:
       - "3306:3306"
     environment:

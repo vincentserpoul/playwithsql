@@ -1,18 +1,22 @@
 #!/bin/bash
 
-echo "[" > ./bench/status/swarm/results.log
-./infra/databases/swarm/cockroachdb/launch-solo.sh && ./bench/status/swarm/run-bench.sh cockroachdb pws_cockroachdb 100 9;
-./infra/databases/swarm/mssql/launch-solo.sh && ./bench/status/swarm/run-bench.sh mssql pws_mssql 100 32767;
-./infra/databases/swarm/mysql/launch-solo.sh && ./bench/status/swarm/run-bench.sh mysql pws_mysql 100 1000;
-./infra/databases/swarm/mariadb/launch-solo.sh && ./bench/status/swarm/run-bench.sh mariadb pws_mariadb 100 1000;  
-./infra/databases/swarm/percona/launch-solo.sh && ./bench/status/swarm/run-bench.sh percona pws_percona 100 1000;  
-./infra/databases/swarm/oracle/launch-solo.sh && ./bench/status/swarm/run-bench.sh oracle pws_oracle 100 1;  
-./infra/databases/swarm/postgres/launch-solo.sh && ./bench/status/swarm/run-bench.sh postgres pws_postgres 100 100;
-./bench/status/swarm/run-bench.sh sqlite pws_sqlite 100 100;
+ export SCH=$1;
 
-#  remove last comma 
-sed -i '$s/,$//' ./bench/status/swarm/results.log;
-echo "]" >> ./bench/status/swarm/results.log;
+# Number of connections is based on n1-standard-1 (1 vCPU, 3.75 GB memory) Machine type on gcloud
 
-# Cluster
- # ./infra/databases/swarm/cockroachdb/launch-cluster.sh && ./bench/status/swarm/run-bench.sh cockroachdb pws_cockroachdb-0 2000 && docker service logs -f pws-cmd
+echo "[" > ./bench/status/swarm/$SCH/results.log
+# until we find out what's wrong with cockroachdb'
+# ./infra/databases/swarm/cockroachdb/launch-solo.sh && ./bench/status/swarm/run-bench.sh cockroachdb cockroachdb $SCH 1000 1;
+./infra/databases/swarm/mssql/launch-solo.sh && ./bench/status/swarm/run-bench.sh mssql mssql $SCH 1000 10;
+./infra/databases/swarm/mysql/launch-solo.sh && ./bench/status/swarm/run-bench.sh mysql mysql $SCH 1000 100;
+./infra/databases/swarm/mariadb/launch-solo.sh && ./bench/status/swarm/run-bench.sh mariadb mariadb $SCH 1000 100;
+./infra/databases/swarm/percona/launch-solo.sh && ./bench/status/swarm/run-bench.sh percona percona $SCH 1000 100;
+./infra/databases/swarm/oracle/launch-solo.sh && ./bench/status/swarm/run-bench.sh oracle oracle $SCH 1000 1;
+./infra/databases/swarm/postgres/launch-solo.sh && ./bench/status/swarm/run-bench.sh postgres postgres $SCH 1000 100;
+# ./infra/databases/swarm/gcpmysql/launch-solo.sh && ./bench/status/swarm/run-bench.sh gcpmysql gcpmysql $SCH 1000 50;
+# ./infra/databases/swarm/gcppostgres/launch-solo.sh && ./bench/status/swarm/run-bench.sh gcppostgres gcppostgres $SCH 1000 50;
+./bench/status/swarm/run-bench.sh sqlite pws_sqlite $SCH 1000 1;
+
+#  remove last comma
+sed -i '$s/,$//' ./bench/status/swarm/$SCH/results.log;
+echo "]" >> ./bench/status/swarm/$SCH/results.log;
