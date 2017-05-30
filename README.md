@@ -30,7 +30,7 @@ Just check them [here](https://playwithsql-summary.surge.sh)!
 - [x] Microsoft SQL Server
 - [x] Oracle
 - [x] Reference hosted MySQL on GCP
-- [ ] Reference hosted Postgres on GCP
+- [x] Reference hosted Postgres on GCP
 - [ ] Vitess
 - [ ] Cloud Spanner
 
