@@ -13,8 +13,8 @@ echo "[" > ./bench/status/swarm/$SCH/results.log
 ./infra/databases/swarm/percona/launch-solo.sh && ./bench/status/swarm/run-bench.sh percona percona $SCH 100000 10;
 ./infra/databases/swarm/oracle/launch-solo.sh && ./bench/status/swarm/run-bench.sh oracle oracle $SCH 100000 1;
 ./infra/databases/swarm/postgres/launch-solo.sh && ./bench/status/swarm/run-bench.sh postgres postgres $SCH 1000000 10;
-./infra/databases/swarm/gcpmysql/launch-solo.sh && ./bench/status/swarm/run-bench.sh gcpmysql gcpmysql $SCH 1000 10;
-./infra/databases/swarm/gcppostgres/launch-solo.sh && ./bench/status/swarm/run-bench.sh gcppostgres gcppostgres $SCH 1000 10;
+./infra/databases/swarm/gcpmysql/launch-solo.sh && ./bench/status/swarm/run-bench.sh gcpmysql gcpmysql $SCH 1000000 10;
+./infra/databases/swarm/gcppostgres/launch-solo.sh && ./bench/status/swarm/run-bench.sh gcppostgres gcppostgres $SCH 1000000 10;
 ./bench/status/swarm/run-bench.sh sqlite pws_sqlite $SCH 1000000 1;
 
 #  remove last comma
