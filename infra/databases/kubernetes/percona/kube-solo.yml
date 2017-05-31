@@ -4,7 +4,7 @@ metadata:
   name: percona
   namespace: default
   labels:
-    type: db  
+    type: db
 spec:
   replicas: 1
   template:
@@ -18,18 +18,18 @@ spec:
         name: percona
         args:
           - "mysqld"
-          - "--max-connections=1000"
+          - "--max-connections=100"
           - "--key_buffer_size=384M"
           - "--table_open_cache=4000"
           - "--sort_buffer_size=4M"
           - "--read_buffer_size=1M"
-          - "--net_buffer_length=1M"  
+          - "--net_buffer_length=1M"
           - "--innodb_buffer_pool_size=2G"
           - "--innodb_log_file_size=1G"
           - "--innodb_flush_method=O_DIRECT"
         env:
         - name: MYSQL_ROOT_PASSWORD
-          value: "test"   
+          value: "test"
         ports:
         - containerPort: 3306
 ---

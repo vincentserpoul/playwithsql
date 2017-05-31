@@ -4,7 +4,7 @@ metadata:
   name: mysql
   namespace: default
   labels:
-    type: db  
+    type: db
 spec:
   replicas: 1
   template:
@@ -18,10 +18,10 @@ spec:
         name: mysql
         args:
         - "mysqld"
-        - "--max-connections=1000"
+        - "--max-connections=100"
         - "--innodb_buffer_pool_size=2G"
         - "--innodb_log_file_size=1G"
-        - "--innodb_flush_method=O_DIRECT"     
+        - "--innodb_flush_method=O_DIRECT"
         env:
         - name: MYSQL_ROOT_PASSWORD
           value: "test"

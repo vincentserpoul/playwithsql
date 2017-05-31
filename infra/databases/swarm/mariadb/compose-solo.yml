@@ -5,7 +5,7 @@ services:
     image: mariadb:10.3.0
     command:
       - "mysqld"
-      - "--max-connections=1000"
+      - "--max-connections=100"
       - "--innodb_buffer_pool_size=2G"
       - "--innodb_log_file_size=1G"
       - "--innodb_flush_method=O_DIRECT"
