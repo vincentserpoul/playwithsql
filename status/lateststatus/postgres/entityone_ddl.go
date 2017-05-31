@@ -34,6 +34,7 @@ func (link *Link) MigrateUp(ctx context.Context, exec sqlx.ExecerContext) (errEx
 				time_created DATE NOT NULL DEFAULT CURRENT_DATE,
 				entityone_status_id BIGINT NOT NULL,
 				PRIMARY KEY (entityone_id),
+				UNIQUE (entityone_status_id),
 				CONSTRAINT e_fk_esi
 					FOREIGN KEY (entityone_status_id)
 					REFERENCES entityone_status (entityone_status_id)
