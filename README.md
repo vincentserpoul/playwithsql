@@ -5,11 +5,11 @@ implementing as immutable as possible data modelization and benchmarking it on d
 ## Disclaimer
 
 the benchmark comparison is for very specific use case:
-* Golang 1.8.1
+* Golang 1.8.3
 * Containerized DBs, latest versions
 * Specific schemas
 * Used configurations
-* GCP as cloud provider
+* GCP as cloud provider (or local, until docker for GCP is allowing experimental)
 * n1-standard-1 as machine type
 
 Hence, they can't be used to affirm that this or this db is better.
@@ -59,18 +59,19 @@ Download [Oracle instant client](http://www.oracle.com/technetwork/topics/linuxx
 # Launch local status benches
 
 ```
-./bench/status/swarm/run-all.sh
+./bench/status/swarm/run-all.sh schematype (islatest or lateststatus)
 ```
 
 # Launch remote tests on kubernetes
 
 ```
-./bench/status/kubernetes/run-all.sh
+./bench/status/kubernetes/run-all.sh (islatest or lateststatus)
 ```
 
 # TODO list
 
-- [ ] Leverage new go 1.8.1 capabilities (named queries, remove sqlx?)
-- [ ] Vendor deps (github.com/kardianos/govendor)
+- [ ] Bench 1000000 loops and get the best of 5 runs for each db
 - [ ] Test different storage (mounted standard disk, mounted ssd, local ssd)
 - [ ] Test High Availability
+- [ ] Leverage new go 1.8 capabilities (named queries, remove sqlx?)
+- [ ] Vendor deps (github.com/kardianos/govendor)
