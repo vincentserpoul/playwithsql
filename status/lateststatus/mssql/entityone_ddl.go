@@ -49,7 +49,7 @@ func (link *Link) MigrateUp(ctx context.Context, exec sqlx.ExecerContext) (errEx
 
 	_, errExec = exec.ExecContext(
 		ctx,
-		`CREATE INDEX es_idx_esi ON entityone(entityone_status_id)`,
+		`CREATE UNIQUE INDEX es_idx_esi ON entityone(entityone_status_id)`,
 	)
 	return errExec
 }
