@@ -34,3 +34,7 @@ transactions					 0		 0	  189				     UNLIMITED
 max_connections = 100			# (change requires restart)
 ```
 
+```
+SHOW max_connections;
+```
+
