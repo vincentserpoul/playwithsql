@@ -19,7 +19,6 @@ func (link *Link) MigrateUp(ctx context.Context, exec sqlx.ExecerContext) (errEx
             entityone_id NUMBER(10,0) NOT NULL,
 			time_created DATE DEFAULT SYSDATE NOT NULL,
 			CONSTRAINT e_pk PRIMARY KEY (entityone_id)
-				USING INDEX (CREATE UNIQUE INDEX e_idx_pk ON entityone(entityone_id))
         )
     `)
 	if errExec != nil {
@@ -57,8 +56,7 @@ func (link *Link) MigrateUp(ctx context.Context, exec sqlx.ExecerContext) (errEx
             action_id NUMBER(3, 0) NOT NULL,
             status_id NUMBER(3, 0) NOT NULL ,
             time_created DATE DEFAULT SYSDATE NOT NULL,
-			CONSTRAINT es_pk PRIMARY KEY (entityone_status_id)
-				USING INDEX (CREATE UNIQUE INDEX es_idx_pk ON entityone_status(entityone_status_id)),
+			CONSTRAINT es_pk PRIMARY KEY (entityone_status_id),
             CONSTRAINT es_fk_e
 				FOREIGN KEY (entityone_id)
 				REFERENCES entityone(entityone_id)
@@ -112,12 +110,9 @@ func (link *Link) MigrateUp(ctx context.Context, exec sqlx.ExecerContext) (errEx
             CREATE TABLE entityone_lateststatus (
                 entityone_id NUMBER(10,0) NOT NULL,
                 entityone_status_id NUMBER(10,0) NOT NULL,
-                CONSTRAINT el_pk PRIMARY KEY (entityone_id, entityone_status_id)
-					USING INDEX (CREATE UNIQUE INDEX el_pk_ee ON entityone_lateststatus(entityone_id, entityone_status_id)),
-				CONSTRAINT el_fk_es_esi_idx UNIQUE (entityone_status_id)
-					USING INDEX (CREATE UNIQUE INDEX el_idx_esi ON entityone_lateststatus(entityone_status_id)),
-                CONSTRAINT el_fk_e_ei_idx UNIQUE (entityone_id)
-					USING INDEX (CREATE UNIQUE INDEX el_idx_ei ON entityone_lateststatus(entityone_id)),
+                CONSTRAINT el_pk PRIMARY KEY (entityone_id, entityone_status_id),
+				CONSTRAINT el_fk_es_esi_idx UNIQUE (entityone_status_id),
+                CONSTRAINT el_fk_e_ei_idx UNIQUE (entityone_id),
                 CONSTRAINT el_fk_e_ei
                     FOREIGN KEY (entityone_id)
                     REFERENCES entityone (entityone_id),

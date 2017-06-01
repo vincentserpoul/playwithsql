@@ -28,7 +28,8 @@ func (link *Link) MigrateUp(ctx context.Context, exec sqlx.ExecerContext) (errEx
 
 	_, errExec = exec.ExecContext(
 		ctx,
-		`CREATE SEQUENCE entityone_seq START WITH 1`)
+		`CREATE SEQUENCE entityone_seq START WITH 1`
+	)
 	if errExec != nil {
 		return fmt.Errorf("MigrateUp: create sequence %v", errExec)
 	}
