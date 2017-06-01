@@ -340,10 +340,10 @@
                 "Concurrency": 50,
                 "PauseTime": 2000000,
                 "Errors": 2,
-                "Min": 1755960,
-                "Max": 1535462283,
-                "Median": 113291207,
-                "StandDev": 237311747,
+                "Min": 1354960,
+                "Max": 1533465283,
+                "Median": 113256777,
+                "StandDev": 233314727,
                 "Throughput": 195
             },
             {
@@ -352,10 +352,10 @@
                 "Concurrency": 50,
                 "PauseTime": 2000000,
                 "Errors": 1,
-                "Min": 2113600,
-                "Max": 1663386839,
-                "Median": 53377657,
-                "StandDev": 246968882,
+                "Min": 2113300,
+                "Max": 1663336839,
+                "Median": 53337657,
+                "StandDev": 246363882,
                 "Throughput": 193
             },
             {
@@ -364,10 +364,10 @@
                 "Concurrency": 50,
                 "PauseTime": 0,
                 "Errors": 0,
-                "Min": 122796,
-                "Max": 69947351,
-                "Median": 6353752,
-                "StandDev": 10635805,
+                "Min": 122396,
+                "Max": 69932351,
+                "Median": 6354752,
+                "StandDev": 10635675,
                 "Throughput": 1104
             },
             {
@@ -376,10 +376,10 @@
                 "Concurrency": 50,
                 "PauseTime": 0,
                 "Errors": 0,
-                "Min": 104780,
-                "Max": 71452374,
-                "Median": 4442695,
-                "StandDev": 10419568,
+                "Min": 104380,
+                "Max": 71453374,
+                "Median": 4443645,
+                "StandDev": 10414568,
                 "Throughput": 2063
             }
         ]
