@@ -179,7 +179,7 @@
                 "Max": 821990099,
                 "Median": 88753086,
                 "StandDev": 211569582,
-                "Throughput": 96
+                "Throughput": 470
             },
             {
                 "Action": "updateStatus",
@@ -191,7 +191,7 @@
                 "Max": 675409945,
                 "Median": 16846966,
                 "StandDev": 141904706,
-                "Throughput": 121
+                "Throughput": 453
             },
             {
                 "Action": "selectEntityoneByStatus",
