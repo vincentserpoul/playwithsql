@@ -382,6 +382,7 @@
                 "StandDev": 10419568,
                 "Throughput": 2063
             }
+        ]
     },
     {
         "DBType": "sqlite",
