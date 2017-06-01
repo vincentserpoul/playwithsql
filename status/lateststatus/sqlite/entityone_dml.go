@@ -8,68 +8,6 @@ import (
 	"github.com/vincentserpoul/playwithsql/status/lateststatus"
 )
 
-// Create will insert a new entity in the DB
-func (link *Link) Create(
-	ctx context.Context,
-	tx *sqlx.Tx,
-	actionID int,
-	statusID int,
-) (int64, error) {
-	entityoneStatusID, errS := link.insertNewStatus(ctx, tx, actionID, statusID)
-	if errS != nil {
-		return 0, fmt.Errorf("entityone Create(): %v", errS)
-	}
-
-	entityID, errE := link.insertOne(ctx, tx, entityoneStatusID)
-	if errE != nil {
-		return 0, fmt.Errorf("entityone Create(): %v", errE)
-	}
-
-	return entityID, nil
-}
-
-// insertOne will insert a Entityone into db
-func (link *Link) insertOne(
-	ctx context.Context,
-	tx *sqlx.Tx,
-	entityoneStatusID int64,
-) (int64, error) {
-
-	res, err := tx.NamedExecContext(
-		ctx,
-		`INSERT INTO entityone (entityone_status_id) VALUES (:entityoneStatusID)`,
-		map[string]interface{}{
-			"entityoneStatusID": entityoneStatusID,
-		},
-	)
-	if err != nil {
-		return 0, fmt.Errorf("entityone Insert(): %v", err)
-	}
-
-	id, errL := res.LastInsertId()
-	if err != nil {
-		return 0, fmt.Errorf("entityone Insert(): %v", errL)
-	}
-
-	return id, nil
-}
-
-// SaveStatus will save the status in database for the selected entity
-func (link *Link) SaveStatus(
-	ctx context.Context,
-	tx *sqlx.Tx,
-	entityID int64,
-	actionID int,
-	statusID int,
-) error {
-	entityStatusID, err := link.insertNewStatus(ctx, tx, actionID, statusID)
-	if err != nil {
-		return fmt.Errorf("entityone SaveStatus(%d, %d, %d): %v", entityID, actionID, statusID, err)
-	}
-
-	return lateststatus.UpdateLatestStatus(ctx, tx, "entityone", entityID, entityStatusID)
-}
-
 // SelectEntityone returns sqlx.Rows
 func (link *Link) SelectEntityone(
 	ctx context.Context,
@@ -93,30 +31,91 @@ func (link *Link) SelectEntityone(
 	)
 }
 
-// insertNewStatus will insert a new status into db
-func (link *Link) insertNewStatus(
+// Create will insert a new entity in the DB
+func (link *Link) Create(
 	ctx context.Context,
 	tx *sqlx.Tx,
 	actionID int,
 	statusID int,
 ) (int64, error) {
 
-	res, err := tx.NamedExecContext(
-		ctx,
-		`INSERT INTO entityone_status(action_id, status_id) VALUES (:actionID, :statusID)`,
-		map[string]interface{}{
-			"actionID": actionID,
-			"statusID": statusID,
-		},
-	)
-	if err != nil {
-		return 0, fmt.Errorf("entityone insertNewStatus(%d, %d): %v", actionID, statusID, err)
+	entityoneID, errIO := link.insertOne(ctx, tx)
+	if errIO != nil {
+		return 0, fmt.Errorf("entityone Create(): %v", errIO)
 	}
 
-	id, errL := res.LastInsertId()
-	if errL != nil {
-		return 0, fmt.Errorf("entityone insertNewStatus(%d, %d): %v", actionID, statusID, errL)
+	entityoneStatusID, errS := link.insertNewStatus(ctx, tx, entityoneID, actionID, statusID)
+	if errS != nil {
+		return 0, fmt.Errorf("entityone Create(): %v", errS)
+	}
+
+	errE := link.insertLatestStatus(ctx, tx, entityoneID, entityoneStatusID)
+	if errE != nil {
+		return 0, fmt.Errorf("entityone Create(): %v", errE)
+	}
+
+	return entityoneID, nil
+}
+
+// SaveStatus will save the status in database for the selected entity
+func (link *Link) SaveStatus(
+	ctx context.Context,
+	tx *sqlx.Tx,
+	entityoneID int64,
+	actionID int,
+	statusID int,
+) error {
+	entityStatusID, err := link.insertNewStatus(ctx, tx, entityoneID, actionID, statusID)
+	if err != nil {
+		return fmt.Errorf("entityone SaveStatus(%d, %d, %d): %v", entityoneID, actionID, statusID, err)
+	}
+
+	return link.updateLatestStatus(ctx, tx, entityoneID, entityStatusID)
+}
+
+// insertOne will insert a Entityone into db
+func (link *Link) insertOne(ctx context.Context, exec *sqlx.Tx) (id int64, err error) {
+
+	res, err := exec.ExecContext(ctx, `INSERT INTO entityone DEFAULT VALUES`)
+	if err != nil {
+		return id, fmt.Errorf("entityone Insert(): %v", err)
+	}
+
+	id, err = res.LastInsertId()
+	if err != nil {
+		return id, fmt.Errorf("entityone Insert(): %v", err)
 	}
 
 	return id, nil
+}
+
+// insertNewStatus will insert a new status into db
+func (link *Link) insertNewStatus(
+	ctx context.Context,
+	tx *sqlx.Tx,
+	entityoneID int64,
+	actionID int,
+	statusID int,
+) (int64, error) {
+	return lateststatus.InsertNewStatus(ctx, tx, entityoneID, actionID, statusID)
+}
+
+// insertLatestStatus will insert a new status into db
+func (link *Link) insertLatestStatus(
+	ctx context.Context,
+	tx *sqlx.Tx,
+	entityoneID int64,
+	entityoneStatusID int64,
+) error {
+	return lateststatus.InsertLatestStatus(ctx, tx, entityoneID, entityoneStatusID)
+}
+
+// updateLatestStatus will insert a new status into db
+func (link *Link) updateLatestStatus(
+	ctx context.Context,
+	tx *sqlx.Tx,
+	entityoneID int64,
+	entityoneStatusID int64,
+) error {
+	return lateststatus.UpdateLatestStatus(ctx, tx, entityoneID, entityoneStatusID)
 }

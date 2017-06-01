@@ -17,63 +17,39 @@ func (link *Link) Create(
 	actionID int,
 	statusID int,
 ) (int64, error) {
-	entityoneStatusID, errS := link.insertNewStatus(ctx, tx, actionID, statusID)
+
+	entityoneID, errIO := link.insertOne(ctx, tx)
+	if errIO != nil {
+		return 0, fmt.Errorf("entityone Create(): %v", errIO)
+	}
+
+	entityoneStatusID, errS := link.insertNewStatus(ctx, tx, entityoneID, actionID, statusID)
 	if errS != nil {
 		return 0, fmt.Errorf("entityone Create(): %v", errS)
 	}
 
-	entityID, errE := link.insertOne(ctx, tx, entityoneStatusID)
+	errE := link.insertLatestStatus(ctx, tx, entityoneID, entityoneStatusID)
 	if errE != nil {
 		return 0, fmt.Errorf("entityone Create(): %v", errE)
 	}
 
-	return entityID, nil
-}
-
-// insertOne will insert a Entityone into db
-func (link *Link) insertOne(
-	ctx context.Context,
-	tx *sqlx.Tx,
-	entityoneStatusID int64,
-) (int64, error) {
-
-	res, err := tx.NamedExecContext(
-		ctx,
-		`INSERT INTO entityone (entityone_id, entityone_status_id)
-		 VALUES (default, :entityoneStatusID)
-		 RETURNING entityone_id /*LastInsertId*/ INTO :id
-		 `,
-		map[string]interface{}{
-			"entityoneStatusID": entityoneStatusID,
-			"id":                nil,
-		},
-	)
-	if err != nil {
-		return 0, fmt.Errorf("entityone Insert(): %v", err)
-	}
-
-	id, errL := res.LastInsertId()
-	if err != nil {
-		return 0, fmt.Errorf("entityone Insert(): %v", errL)
-	}
-
-	return id, nil
+	return entityoneID, nil
 }
 
 // SaveStatus will save the status in database for the selected entity
 func (link *Link) SaveStatus(
 	ctx context.Context,
 	tx *sqlx.Tx,
-	entityID int64,
+	entityoneID int64,
 	actionID int,
 	statusID int,
 ) error {
-	entityStatusID, err := link.insertNewStatus(ctx, tx, actionID, statusID)
+	entityStatusID, err := link.insertNewStatus(ctx, tx, entityoneID, actionID, statusID)
 	if err != nil {
-		return fmt.Errorf("entityone SaveStatus(%d, %d, %d): %v", entityID, actionID, statusID, err)
+		return fmt.Errorf("entityone SaveStatus(%d, %d, %d): %v", entityoneID, actionID, statusID, err)
 	}
 
-	return lateststatus.UpdateLatestStatus(ctx, tx, "entityone", entityID, entityStatusID)
+	return link.updateLatestStatus(ctx, tx, entityoneID, entityStatusID)
 }
 
 // SelectEntityone retrieves a slice of entityones
@@ -94,7 +70,8 @@ func (link *Link) SelectEntityone(
                 es.action_id as "action_id", es.status_id as "status_id",
 				es.time_created as "status_time_created"
             FROM entityone e
-            INNER JOIN entityone_status es ON es.entityone_status_id = e.entityone_status_id
+			INNER JOIN entityone_lateststatus el ON el.entityone_id = e.entityone_id
+            INNER JOIN entityone_status es ON es.entityone_status_id = el.entityone_status_id
             WHERE 0 = 0
         `
 
@@ -122,10 +99,31 @@ func (link *Link) SelectEntityone(
 
 }
 
+// insertOne will insert a Entityone into db
+func (link *Link) insertOne(ctx context.Context, exec *sqlx.Tx) (id int64, err error) {
+
+	res, err := exec.ExecContext(ctx,
+		`
+		INSERT INTO entityone(entityone_id) VALUES (default)
+		RETURNING entityone_id /*LastInsertId*/ INTO :id
+	`, nil)
+	if err != nil {
+		return id, fmt.Errorf("entityone Insert(): %v", err)
+	}
+
+	id, err = res.LastInsertId()
+	if err != nil {
+		return id, fmt.Errorf("entityone Insert(): %v", err)
+	}
+
+	return id, nil
+}
+
 // insertNewStatus will insert a new status into db
 func (link *Link) insertNewStatus(
 	ctx context.Context,
 	tx *sqlx.Tx,
+	entityoneID int64,
 	actionID int,
 	statusID int,
 ) (int64, error) {
@@ -133,14 +131,15 @@ func (link *Link) insertNewStatus(
 	res, err := tx.NamedExecContext(
 		ctx,
 		`
-		INSERT INTO entityone_status(entityone_status_id, action_id, status_id)
-		VALUES (default, :actionID, :statusID)
+		INSERT INTO entityone_status(entityone_status_id, time_created, entityone_id, action_id, status_id)
+		VALUES (default, default, :entityoneID, :actionID, :statusID)
 		RETURNING entityone_status_id /*LastInsertId*/ INTO :id
 		`,
 		map[string]interface{}{
-			"actionID": actionID,
-			"statusID": statusID,
-			"id":       nil,
+			"entityoneID": entityoneID,
+			"actionID":    actionID,
+			"statusID":    statusID,
+			"id":          nil,
 		},
 	)
 	if err != nil {
@@ -153,4 +152,24 @@ func (link *Link) insertNewStatus(
 	}
 
 	return id, nil
+}
+
+// insertLatestStatus will insert a new status into db
+func (link *Link) insertLatestStatus(
+	ctx context.Context,
+	tx *sqlx.Tx,
+	entityoneID int64,
+	entityoneStatusID int64,
+) error {
+	return lateststatus.InsertLatestStatus(ctx, tx, entityoneID, entityoneStatusID)
+}
+
+// updateLatestStatus will insert a new status into db
+func (link *Link) updateLatestStatus(
+	ctx context.Context,
+	tx *sqlx.Tx,
+	entityoneID int64,
+	entityoneStatusID int64,
+) error {
+	return lateststatus.UpdateLatestStatus(ctx, tx, entityoneID, entityoneStatusID)
 }

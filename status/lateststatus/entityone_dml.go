@@ -25,7 +25,8 @@ func SelectEntityone(
                 e.entityone_id, e.time_created,
                	es.action_id, es.status_id, es.time_created as status_time_created
             FROM entityone e
-            INNER JOIN entityone_status es ON es.entityone_status_id = e.entityone_status_id
+			INNER JOIN entityone_lateststatus el ON el.entityone_id = e.entityone_id
+            INNER JOIN entityone_status es ON es.entityone_status_id = el.entityone_status_id
         `
 
 	namedParams, queryFilter := GetFilterSelectEntityOneNamedQuery(entityIDs, isStatusIDs)
@@ -74,53 +75,87 @@ func GetFilterSelectEntityOneNamedQuery(
 	return namedParams, queryFilter
 }
 
-// UpdateLatestStatus will update the entityone row to the latest updated status
-func UpdateLatestStatus(
+// InsertNewStatus will insert a new status into db
+func InsertNewStatus(
 	ctx context.Context,
-	exec *sqlx.Tx,
-	typeEntity string,
-	entityID int64,
-	entityStatusID int64,
-) error {
-	queryIns := fmt.Sprintf(
-		"UPDATE %s SET entityone_status_id = :entityStatusID"+
-			" WHERE %s_id = :entityID",
-		typeEntity,
-		typeEntity,
-	)
+	tx *sqlx.Tx,
+	entityoneID int64,
+	actionID int,
+	statusID int,
+) (int64, error) {
 
-	res, err := exec.NamedExecContext(
+	res, err := tx.NamedExecContext(
 		ctx,
-		queryIns,
+		`
+			INSERT INTO entityone_status(entityone_id, action_id, status_id)
+			VALUES (:entityoneID, :actionID, :statusID)
+		`,
 		map[string]interface{}{
-			"entityID":       entityID,
-			"entityStatusID": entityStatusID,
+			"entityoneID": entityoneID,
+			"actionID":    actionID,
+			"statusID":    statusID,
 		},
 	)
 	if err != nil {
-		return fmt.Errorf("lateststatus %s updateLatestStatus(%d, %d): err %v",
-			typeEntity,
-			entityID,
-			entityStatusID,
-			err,
-		)
+		return 0, fmt.Errorf("entityone insertNewStatus(%d, %d): %v", actionID, statusID, err)
 	}
 
-	rowsAffected, errAff := res.RowsAffected()
-	if errAff != nil {
-		return fmt.Errorf("lateststatus %s updateLatestStatus(%d, %d): err %v",
-			typeEntity,
-			entityID,
-			entityStatusID,
-			err,
-		)
+	id, errL := res.LastInsertId()
+	if errL != nil {
+		return 0, fmt.Errorf("entityone insertNewStatus(%d, %d): %v", actionID, statusID, errL)
 	}
-	if rowsAffected != 1 {
-		return fmt.Errorf("lateststatus %s updateLatestStatus(%d, %d): err no rows inserted",
-			typeEntity,
-			entityID,
-			entityStatusID,
-		)
+
+	return id, nil
+}
+
+// UpdateLatestStatus will insert a new status into db
+func UpdateLatestStatus(
+	ctx context.Context,
+	tx *sqlx.Tx,
+	entityoneID int64,
+	entityoneStatusID int64,
+) error {
+
+	_, err := tx.NamedExecContext(
+		ctx,
+		`
+			UPDATE entityone_lateststatus
+			SET entityone_status_id = :entityoneStatusID
+			WHERE entityone_id = :entityoneID
+		`,
+		map[string]interface{}{
+			"entityoneID":       entityoneID,
+			"entityoneStatusID": entityoneStatusID,
+		},
+	)
+	if err != nil {
+		return fmt.Errorf("entityone updateLatestStatus(%d, %d): %v", entityoneID, entityoneStatusID, err)
+	}
+
+	return nil
+}
+
+// InsertLatestStatus will insert a new status into db
+func InsertLatestStatus(
+	ctx context.Context,
+	tx *sqlx.Tx,
+	entityoneID int64,
+	entityoneStatusID int64,
+) error {
+
+	_, err := tx.NamedExecContext(
+		ctx,
+		`
+			INSERT INTO entityone_lateststatus(entityone_id, entityone_status_id)
+			VALUES (:entityoneID, :entityoneStatusID)
+		`,
+		map[string]interface{}{
+			"entityoneID":       entityoneID,
+			"entityoneStatusID": entityoneStatusID,
+		},
+	)
+	if err != nil {
+		return fmt.Errorf("entityone insertLatestStatus(%d, %d): %v", entityoneID, entityoneStatusID, err)
 	}
 
 	return nil
