@@ -65,14 +65,6 @@ func Get(dbType string, host string, dbName string) (db *sqlx.DB, err error) {
 			Password: "thank5MsSQLforcingMe",
 			Dbname:   dbName,
 		}
-	case "oracle":
-		conf = &OracleDB{
-			Host:     host,
-			Port:     "1521",
-			User:     dbName,
-			Password: "dev",
-			Sid:      "XE",
-		}
 	}
 
 	return conf.NewDBHandler()

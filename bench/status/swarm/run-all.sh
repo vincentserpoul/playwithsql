@@ -11,7 +11,6 @@ echo "[" > ./bench/status/swarm/$SCH/results.log
 ./infra/databases/swarm/mysql/launch-solo.sh && ./bench/status/swarm/run-bench.sh mysql mysql $SCH 10000 10;
 ./infra/databases/swarm/mariadb/launch-solo.sh && ./bench/status/swarm/run-bench.sh mariadb mariadb $SCH 10000 10;
 ./infra/databases/swarm/percona/launch-solo.sh && ./bench/status/swarm/run-bench.sh percona percona $SCH 10000 10;
-# ./infra/databases/swarm/oracle/launch-solo.sh && ./bench/status/swarm/run-bench.sh oracle oracle $SCH 100000 1;
 ./infra/databases/swarm/postgres/launch-solo.sh && ./bench/status/swarm/run-bench.sh postgres postgres $SCH 10000 10;
 ./bench/status/swarm/run-bench.sh sqlite pws_sqlite $SCH 10000 1;
 

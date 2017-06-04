@@ -28,8 +28,6 @@ torch.svg
 .DS_Store
 *.mwb.bak
 
-infra/oracle/instantclient*
-
 playwithsql-cmd-status
 
 bench/dotoken

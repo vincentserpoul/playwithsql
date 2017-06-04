@@ -275,61 +275,6 @@
         ]
     },
     {
-        "DBType": "oracle",
-        "MaxConns": 1,
-        "Date": "2017-05-29T16:43:18.029465933Z",
-        "BenchResults": [
-            {
-                "Action": "create",
-                "Loops": 1000000,
-                "Concurrency": 50,
-                "PauseTime": 2000000,
-                "Errors": 19,
-                "Min": 3758367,
-                "Max": 4122101861,
-                "Median": 92117841,
-                "StandDev": 538893956,
-                "Throughput": 223
-            },
-            {
-                "Action": "updateStatus",
-                "Loops": 1000000,
-                "Concurrency": 50,
-                "PauseTime": 2000000,
-                "Errors": 9,
-                "Min": 3350640,
-                "Max": 2368252719,
-                "Median": 92557413,
-                "StandDev": 395668736,
-                "Throughput": 274
-            },
-            {
-                "Action": "selectEntityoneByStatus",
-                "Loops": 1000000,
-                "Concurrency": 50,
-                "PauseTime": 0,
-                "Errors": 611,
-                "Min": 3097753,
-                "Max": 102906871,
-                "Median": 44825424,
-                "StandDev": 28393045,
-                "Throughput": 1103
-            },
-            {
-                "Action": "selectEntityoneOneByPK",
-                "Loops": 1000000,
-                "Concurrency": 50,
-                "PauseTime": 0,
-                "Errors": 407,
-                "Min": 1340654,
-                "Max": 103544675,
-                "Median": 38861839,
-                "StandDev": 28136205,
-                "Throughput": 1301
-            }
-        ]
-    },
-    {
         "DBType": "cockroachdb",
         "MaxConns": 1,
         "Date": "2017-05-30T15:43:18.134469636Z",

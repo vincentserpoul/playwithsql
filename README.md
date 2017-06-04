@@ -28,7 +28,6 @@ Just check them [here](https://playwithsql-summary.surge.sh)!
 - [x] CockroachDB
 - [x] SQLite
 - [x] Microsoft SQL Server
-- [x] Oracle
 - [x] Reference hosted MySQL on GCP
 - [x] Reference hosted Postgres on GCP
 - [ ] Vitess
@@ -43,8 +42,6 @@ Just check them [here](https://playwithsql-summary.surge.sh)!
 - [ ] kubernetes cluster - gcloud cluster db containers
 
 # Rebuilding the docker image
-
-Download [Oracle instant client](http://www.oracle.com/technetwork/topics/linuxx86-64soft-092277.html) for Oracle (basic and SDK) to the infra/build folder
 
 ```
 ./build-docker-cmd-status.sh

@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# for DB in cockroachdb mssql mysql oracle postgres;
 for DB in cockroachdb mssql mysql postgres;
 do
     ./infra/databases/swarm/$DB/launch-solo.sh;

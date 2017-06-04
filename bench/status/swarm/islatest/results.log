@@ -220,61 +220,6 @@
         ]
     },
     {
-        "DBType": "oracle",
-        "MaxConns": 1,
-        "Date": "2017-05-30T07:54:38.854945506Z",
-        "BenchResults": [
-            {
-                "Action": "create",
-                "Loops": 1000000,
-                "Concurrency": 50,
-                "PauseTime": 2000000,
-                "Errors": 1,
-                "Min": 1473987,
-                "Max": 1314803914,
-                "Median": 43386347,
-                "StandDev": 215378392,
-                "Throughput": 572
-            },
-            {
-                "Action": "updateStatus",
-                "Loops": 1000000,
-                "Concurrency": 50,
-                "PauseTime": 2000000,
-                "Errors": 0,
-                "Min": 1410676,
-                "Max": 1335991347,
-                "Median": 87235705,
-                "StandDev": 180713276,
-                "Throughput": 659
-            },
-            {
-                "Action": "selectEntityoneByStatus",
-                "Loops": 1000000,
-                "Concurrency": 50,
-                "PauseTime": 0,
-                "Errors": 435,
-                "Min": 1093975,
-                "Max": 103078254,
-                "Median": 38432041,
-                "StandDev": 28687814,
-                "Throughput": 1310
-            },
-            {
-                "Action": "selectEntityoneOneByPK",
-                "Loops": 1000000,
-                "Concurrency": 50,
-                "PauseTime": 0,
-                "Errors": 156,
-                "Min": 550874,
-                "Max": 100538813,
-                "Median": 44264549,
-                "StandDev": 25481475,
-                "Throughput": 2079
-            }
-        ]
-    },
-    {
         "DBType": "postgres",
         "MaxConns": 100,
         "Date": "2017-05-30T07:55:54.457145084Z",

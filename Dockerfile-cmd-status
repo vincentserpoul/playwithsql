@@ -1,51 +1,19 @@
-# TO DO AFTER VENDORING IS DONE
-# # build stage
-#
-# FROM golang:alpine AS build-env
-# ADD . /src
-# RUN cd /src && \
-#    GOOS=linux GOARCH=amd64 go build -o playwithsql-cmd-status ./cmd/status/main.go
+FROM golang:1.8.3
 
-# final stage
-FROM ubuntu:17.04
+COPY ./ $GOPATH/src/github.com/vincentserpoul/playwithsql
 
+WORKDIR $GOPATH/src/github.com/vincentserpoul/playwithsql
+RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=1 go build -o /playwithsql-cmd-status ./bench/status/main.go
+
+FROM alpine:3.6
 MAINTAINER Vincent Serpoul "<vincent@serpoul.com>"
 
-COPY ./infra/oracle/instantclient-basiclite-linux.x64-12.2.0.1.0.zip /root/
-COPY ./infra/oracle/instantclient-sdk-linux.x64-12.2.0.1.0.zip /root/
-COPY ./infra/oracle/oci8.pc /root/
+RUN apk add --no-cache ca-certificates apache2-utils sqlite
 
-## ORACLE NEEDS
-RUN apt-get clean && apt-get update && apt-get install -y --no-install-recommends \
-        sqlite3 \
-        gcc \
-        alien \
-        libaio1 \
-        pkg-config \
-        unzip && \
-    rm -rf /var/lib/apt/lists/*
-RUN mkdir -p /opt/oracle
-WORKDIR /opt/oracle
-RUN unzip /root/instantclient-basiclite-linux.x64-12.2.0.1.0.zip && \
-    unzip /root/instantclient-sdk-linux.x64-12.2.0.1.0.zip
-
-ENV LD_LIBRARY_PATH=/opt/oracle/instantclient_12_2:/opt/oracle/instantclient_12_2/sdk/include
-ENV PKG_CONFIG_PATH=/opt/oracle
-ENV PATH=/opt/oracle/instantclient_12_2:$PATH
-ENV ORACLE_HOME=/opt/oracle/instantclient_12_2:/opt/oracle/instantclient_12_2/sdk/include
-
-RUN ln -sf /opt/oracle/instantclient_12_2/libclntsh.so.12.1 /opt/oracle/instantclient_12_2/libclntsh.so && \
-    ln -sf /opt/oracle/instantclient_12_2/libocci.so.12.1 /opt/oracle/instantclient_12_2/libocci.so
-
-RUN cp -aL /root/oci8.pc $PKG_CONFIG_PATH/oci8.pc
-
-WORKDIR /app
+# https://stackoverflow.com/questions/34729748/installed-go-binary-not-found-in-path-on-alpine-linux-docker/35613430#35613430
+RUN mkdir /lib64 && ln -s /lib/libc.musl-x86_64.so.1 /lib64/ld-linux-x86-64.so.2
 
 # copy binary into image
-# COPY --from=build-env /src/playwithsql-cmd-status /app/
-COPY playwithsql-cmd-status /app/
+COPY --from=0 /playwithsql-cmd-status /app/
 
-# Add influxd to the PATH
-ENV PATH=/app:$PATH
-
-ENTRYPOINT ["playwithsql-cmd-status"]
+#ENTRYPOINT ["/app/playwithsql-cmd-status"]

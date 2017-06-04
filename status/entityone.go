@@ -9,12 +9,10 @@ import (
 	"github.com/jmoiron/sqlx"
 	ilmssql "github.com/vincentserpoul/playwithsql/status/islatest/mssql"
 	ilmysql "github.com/vincentserpoul/playwithsql/status/islatest/mysql"
-	iloracle "github.com/vincentserpoul/playwithsql/status/islatest/oracle"
 	ilpostgres "github.com/vincentserpoul/playwithsql/status/islatest/postgres"
 	ilsqlite "github.com/vincentserpoul/playwithsql/status/islatest/sqlite"
 	lsmssql "github.com/vincentserpoul/playwithsql/status/lateststatus/mssql"
 	lsmysql "github.com/vincentserpoul/playwithsql/status/lateststatus/mysql"
-	lsoracle "github.com/vincentserpoul/playwithsql/status/lateststatus/oracle"
 	lspostgres "github.com/vincentserpoul/playwithsql/status/lateststatus/postgres"
 	lssqlite "github.com/vincentserpoul/playwithsql/status/lateststatus/sqlite"
 )
@@ -226,8 +224,6 @@ func GetSQLIntImpl(dbType string, schemaType string) *SQLIntImpl {
 			return &SQLIntImpl{&lspostgres.Link{}}
 		case "mssql":
 			return &SQLIntImpl{&lsmssql.Link{}}
-		case "oracle":
-			return &SQLIntImpl{&lsoracle.Link{}}
 		}
 	case "islatest":
 		switch dbType {
@@ -239,8 +235,6 @@ func GetSQLIntImpl(dbType string, schemaType string) *SQLIntImpl {
 			return &SQLIntImpl{&ilpostgres.Link{}}
 		case "mssql":
 			return &SQLIntImpl{&ilmssql.Link{}}
-		case "oracle":
-			return &SQLIntImpl{&iloracle.Link{}}
 		}
 	}
 	return nil

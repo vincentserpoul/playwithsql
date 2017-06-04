@@ -12,21 +12,6 @@ according to their [example repo](https://github.com/cockroachdb/examples-go), i
 
 Determined by the arg --max-connections
 
-# Oracle
-
-in SQLPlus
-
-```
-SQL> SET LIN 200
-SQL> select * from v$resource_limit where resource_name in ('processes', 'sessions', 'transactions');
-
-RESOURCE_NAME		       CURRENT_UTILIZATION MAX_UTILIZATION INITIAL_ALLOCATION			    LIMIT_VALUE
------------------------------- ------------------- --------------- ---------------------------------------- ----------------------------------------
-processes					29		90	  100					   100
-sessions					30		72	  172					   172
-transactions					 0		 0	  189				     UNLIMITED
-```
-
 # Postgres
 
 ```

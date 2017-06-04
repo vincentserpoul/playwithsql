@@ -62,25 +62,6 @@ PASS
 ok  	github.com/vincentserpoul/playwithsql/status	15.019s
 
 
-oracle
-
-islatest
-BenchmarkCreate-4                    	    2000	   2212492 ns/op
-BenchmarkUpdateStatus-4              	    2000	   2077987 ns/op
-BenchmarkSelectEntityoneByStatus-4   	   10000	    489922 ns/op
-BenchmarkSelectEntityoneOneByPK-4    	   10000	    968997 ns/op
-PASS
-ok  	github.com/vincentserpoul/playwithsql/status	24.098s
-
-lateststatus
-BenchmarkCreate-4                    	    2000	   2243791 ns/op
-BenchmarkUpdateStatus-4              	    2000	   2188894 ns/op
-BenchmarkSelectEntityoneByStatus-4   	   10000	    455243 ns/op
-BenchmarkSelectEntityoneOneByPK-4    	   10000	    420578 ns/op
-PASS
-ok  	github.com/vincentserpoul/playwithsql/status	18.936s
-
-
 postgres
 
 islatest
