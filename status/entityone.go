@@ -7,6 +7,10 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
+	hmssql "github.com/vincentserpoul/playwithsql/status/history/mssql"
+	hmysql "github.com/vincentserpoul/playwithsql/status/history/mysql"
+	hpostgres "github.com/vincentserpoul/playwithsql/status/history/postgres"
+	hsqlite "github.com/vincentserpoul/playwithsql/status/history/sqlite"
 	ilmssql "github.com/vincentserpoul/playwithsql/status/islatest/mssql"
 	ilmysql "github.com/vincentserpoul/playwithsql/status/islatest/mysql"
 	ilpostgres "github.com/vincentserpoul/playwithsql/status/islatest/postgres"
@@ -235,6 +239,17 @@ func GetSQLIntImpl(dbType string, schemaType string) *SQLIntImpl {
 			return &SQLIntImpl{&ilpostgres.Link{}}
 		case "mssql":
 			return &SQLIntImpl{&ilmssql.Link{}}
+		}
+	case "history":
+		switch dbType {
+		case "mysql", "percona", "mariadb", "gcpmysql":
+			return &SQLIntImpl{&hmysql.Link{}}
+		case "sqlite":
+			return &SQLIntImpl{&hsqlite.Link{}}
+		case "postgres", "gcppostgres", "cockroachdb":
+			return &SQLIntImpl{&hpostgres.Link{}}
+		case "mssql":
+			return &SQLIntImpl{&hmssql.Link{}}
 		}
 	}
 	return nil
