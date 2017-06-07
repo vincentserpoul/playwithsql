@@ -13,7 +13,7 @@ spec:
         app: cockroachdb
     spec:
       containers:
-      - image: cockroachdb/cockroach:v1.0.1
+      - image: cockroachdb/cockroach:release-1.0
         imagePullPolicy: IfNotPresent
         name: cockroachdb
         args:
