@@ -46,7 +46,7 @@ func (link *Link) MigrateUp(ctx context.Context, exec sqlx.ExecerContext) (errEx
 
 	_, errExec = exec.ExecContext(
 		ctx,
-		`CREATE INDEX es_idx_eid ON entityone_history(entityone_id ASC)`,
+		`CREATE INDEX es_idx_eid ON entityone_history(entityone_id)`,
 	)
 	if errExec != nil {
 		return errExec
@@ -54,7 +54,7 @@ func (link *Link) MigrateUp(ctx context.Context, exec sqlx.ExecerContext) (errEx
 
 	_, errExec = exec.ExecContext(
 		ctx,
-		`CREATE INDEX e_idx_sid ON entityone(status_id ASC)`,
+		`CREATE INDEX e_idx_sid ON entityone(status_id)`,
 	)
 	if errExec != nil {
 		return errExec
