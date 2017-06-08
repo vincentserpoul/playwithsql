@@ -1,11 +1,15 @@
+
 -- CREATE
+
 INSERT INTO entityone(action_id, status_id)
     VALUES (:actionID, :statusID);
 
 INSERT INTO entityone_history(entityone_id, action_id, status_id)
     VALUES (:entityoneID, :actionID, :statusID);
 
+
 -- UPDATE
+
 UPDATE entityone
 SET
     action_id = :actionID,
@@ -15,6 +19,7 @@ WHERE entityone_id = :entityoneID;
 
 INSERT INTO entityone_history(entityone_id, action_id, status_id)
     VALUES (:entityoneID, :actionID, :statusID);
+
 
 -- SELECT
 

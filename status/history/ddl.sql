@@ -1,3 +1,4 @@
+
 CREATE TABLE IF NOT EXISTS entityone (
     entityone_id BIGSERIAL NOT NULL,
     status_id INT NOT NULL DEFAULT 1,
