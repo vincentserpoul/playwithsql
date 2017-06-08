@@ -7,6 +7,8 @@ initdb () {
         --execute="CREATE DATABASE entityone_test;";
     kubectl exec -i $POD_NAME -- ./cockroach sql --insecure \
         --execute="CREATE DATABASE playwithsql;";
+    kubectl exec -i $POD_NAME -- ./cockroach sql --insecure \
+        --execute="set cluster setting sql.defaults.distsql = 0;";        
 }
 
 removeService () {
