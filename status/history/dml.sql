@@ -1,15 +1,15 @@
-
+--
 -- CREATE
-
+--
 INSERT INTO entityone(action_id, status_id)
     VALUES (:actionID, :statusID);
 
 INSERT INTO entityone_history(entityone_id, action_id, status_id)
     VALUES (:entityoneID, :actionID, :statusID);
 
-
+--
 -- UPDATE
-
+--
 UPDATE entityone
 SET
     action_id = :actionID,
@@ -18,11 +18,11 @@ SET
 WHERE entityone_id = :entityoneID;
 
 INSERT INTO entityone_history(entityone_id, action_id, status_id)
-    VALUES (:entityoneID, :actionID, :statusID);
-
-
+    VALUES (:entityoneID, :actionID, :statusID);\
+    
+--
 -- SELECT
-
+--
 SELECT
     e.entityone_id, e.time_created,
     e.action_id, e.status_id, e.time_updated as status_time_created
