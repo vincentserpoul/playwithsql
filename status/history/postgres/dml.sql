@@ -1,5 +1,5 @@
 --
--- CREATE
+-- Create
 --
 INSERT INTO entityone(action_id, status_id)
     VALUES (1, 1)
@@ -9,7 +9,7 @@ INSERT INTO entityone_history(entityone_id, action_id, status_id)
     VALUES (1, 1, 1);
 
 --
--- UPDATE
+-- SaveStatus
 --
 UPDATE entityone
 SET
@@ -22,15 +22,15 @@ INSERT INTO entityone_history(entityone_id, action_id, status_id)
     VALUES (1, 1, 1);
 
 --
--- SELECT
+-- SelectEntityone
 --
 SELECT
     e.entityone_id, e.time_created,
     e.action_id, e.status_id, e.time_updated as status_time_created
 FROM entityone e
 WHERE 0=0
--- filter on PK
-AND e.entityone_id IN (1, 2, 3)
--- filter on status
+-- selectEntityoneByStatus filter
 AND e.status_id IN (1, 2, 3)
-LIMIT 3
+-- selectEntityoneByPK filter
+AND e.entityone_id IN (1, 2, 3)
+LIMIT 3;

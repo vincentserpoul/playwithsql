@@ -37,4 +37,4 @@ WHERE 0=0
 AND es.status_id IN (1, 2, 3)
 -- selectEntityoneByPK filter
 AND e.entityone_id IN (1, 2, 3)
-LIMIT 3
+LIMIT 3;
