@@ -2,7 +2,8 @@
 -- CREATE
 --
 INSERT INTO entityone(action_id, status_id)
-    VALUES (1, 1);
+    VALUES (1, 1)
+    RETURNING entityone_id;
 
 INSERT INTO entityone_history(entityone_id, action_id, status_id)
     VALUES (1, 1, 1);
