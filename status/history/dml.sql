@@ -2,24 +2,24 @@
 -- CREATE
 --
 INSERT INTO entityone(action_id, status_id)
-    VALUES (:actionID, :statusID);
+    VALUES (1, 1);
 
 INSERT INTO entityone_history(entityone_id, action_id, status_id)
-    VALUES (:entityoneID, :actionID, :statusID);
+    VALUES (1, 1, 1);
 
 --
 -- UPDATE
 --
 UPDATE entityone
 SET
-    action_id = :actionID,
-    status_id = :statusID,
-    time_updated=:timeUpdated
-WHERE entityone_id = :entityoneID;
+    action_id = 1,
+    status_id = 1,
+    time_updated= '2017-01-01 13:13:25'
+WHERE entityone_id = 1;
 
 INSERT INTO entityone_history(entityone_id, action_id, status_id)
-    VALUES (:entityoneID, :actionID, :statusID);\
-    
+    VALUES (1, 1, 1);
+
 --
 -- SELECT
 --
@@ -29,7 +29,7 @@ SELECT
 FROM entityone e
 WHERE 0=0
 -- filter on PK
-AND e.entityone_id IN (:entityoneIDs)
+AND e.entityone_id IN (1, 2, 3)
 -- filter on status
-AND e.status_id IN (:statusIDs)
+AND e.status_id IN (1, 2, 3)
 LIMIT 3
