@@ -21,12 +21,6 @@ func Get(dbType string, host string, dbName string) (db *sqlx.DB, err error) {
 			User:     "root",
 			Password: "test",
 			Dbname:   dbName,
-			SSL: SSL{
-				CertPath:   "",
-				KeyPath:    "",
-				CAPath:     "",
-				ServerName: "",
-			},
 		}
 	case "sqlite":
 		conf = &SQLiteDB{}
@@ -37,12 +31,6 @@ func Get(dbType string, host string, dbName string) (db *sqlx.DB, err error) {
 			User:     "root",
 			Password: "test",
 			Dbname:   dbName,
-			SSL: SSL{
-				CertPath:   "",
-				KeyPath:    "",
-				CAPath:     "",
-				ServerName: "",
-			},
 		}
 	case "cockroachdb":
 		conf = &CockroachDB{
@@ -50,12 +38,6 @@ func Get(dbType string, host string, dbName string) (db *sqlx.DB, err error) {
 			Port:   "26257",
 			User:   "root",
 			Dbname: dbName,
-			SSL: SSL{
-				CertPath:   "",
-				KeyPath:    "",
-				CAPath:     "",
-				ServerName: "",
-			},
 		}
 	case "mssql":
 		conf = &MSSQLDB{

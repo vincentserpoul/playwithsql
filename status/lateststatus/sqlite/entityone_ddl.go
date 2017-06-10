@@ -17,15 +17,8 @@ func (link *Link) MigrateUp(ctx context.Context, exec sqlx.ExecerContext) (errEx
             CREATE TABLE IF NOT EXISTS entityone (
                 entityone_id INTEGER PRIMARY KEY ASC,
                 time_created DATETIME NOT NULL DEFAULT (datetime('now','localtime'))
-            )
-    `)
-	if errExec != nil {
-		return errExec
-	}
+            );
 
-	_, errExec = exec.ExecContext(
-		ctx,
-		`
             CREATE TABLE IF NOT EXISTS entityone_status (
                 entityone_status_id INTEGER PRIMARY KEY ASC,
                 entityone_id INTEGER NOT NULL,
@@ -35,15 +28,8 @@ func (link *Link) MigrateUp(ctx context.Context, exec sqlx.ExecerContext) (errEx
                 CONSTRAINT es_fk_ei_e
                     FOREIGN KEY (entityone_id)
                     REFERENCES entityone (entityone_id)
-            )
-    `)
-	if errExec != nil {
-		return errExec
-	}
+            );
 
-	_, errExec = exec.ExecContext(
-		ctx,
-		`
             CREATE TABLE IF NOT EXISTS entityone_lateststatus (
                 entityone_id INTEGER NOT NULL,
                 entityone_status_id INTEGER NOT NULL,
@@ -56,43 +42,23 @@ func (link *Link) MigrateUp(ctx context.Context, exec sqlx.ExecerContext) (errEx
                 CONSTRAINT el_fk_es_esi
                     FOREIGN KEY (entityone_status_id)
                     REFERENCES entityone_status (entityone_status_id)
-            )
-    `)
-	if errExec != nil {
-		return errExec
-	}
+            );
 
-	_, errExec = exec.ExecContext(
-		ctx,
-		`CREATE INDEX es_idx_sid ON entityone_status(status_id)`,
-	)
-	if errExec != nil {
-		return errExec
-	}
+			CREATE INDEX es_idx_sid ON entityone_status(status_id);
 
-	_, errExec = exec.ExecContext(
-		ctx,
-		`CREATE INDEX es_fk_ei_e_idx ON entityone_status(entityone_id)`,
-	)
-	if errExec != nil {
-		return errExec
-	}
+			CREATE INDEX es_fk_ei_e_idx ON entityone_status(entityone_id);
+	`)
 
 	return errExec
 }
 
 // MigrateDown destroys the needed tables
 func (link *Link) MigrateDown(ctx context.Context, exec sqlx.ExecerContext) (errExec error) {
-	_, errExec = exec.ExecContext(ctx, `DROP TABLE IF EXISTS entityone_lateststatus`)
-	if errExec != nil {
-		return errExec
-	}
-
-	_, errExec = exec.ExecContext(ctx, `DROP TABLE IF EXISTS entityone_status`)
-	if errExec != nil {
-		return errExec
-	}
-
-	_, errExec = exec.ExecContext(ctx, `DROP TABLE IF EXISTS entityone`)
+	_, errExec = exec.ExecContext(ctx,
+		`
+			DROP TABLE IF EXISTS entityone_lateststatus;
+			DROP TABLE IF EXISTS entityone_status;
+			DROP TABLE IF EXISTS entityone;
+	`)
 	return errExec
 }

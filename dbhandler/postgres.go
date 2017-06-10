@@ -13,7 +13,6 @@ type PostgresDB struct {
 	User     string
 	Password string
 	Dbname   string
-	SSL      SSL
 }
 
 // NewDBHandler connect to db and return the connection

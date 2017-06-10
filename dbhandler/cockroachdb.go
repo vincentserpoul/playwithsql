@@ -12,7 +12,6 @@ type CockroachDB struct {
 	Port   string
 	User   string
 	Dbname string
-	SSL    SSL
 }
 
 // NewDBHandler connect to db and return the connection

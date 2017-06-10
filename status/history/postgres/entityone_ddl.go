@@ -21,15 +21,8 @@ func (link *Link) MigrateUp(ctx context.Context, exec sqlx.ExecerContext) (errEx
                 time_created DATE NOT NULL DEFAULT CURRENT_DATE,
                 time_updated DATE NOT NULL DEFAULT CURRENT_DATE,
                 PRIMARY KEY (entityone_id)
-            )
-    `)
-	if errExec != nil {
-		return errExec
-	}
+            );
 
-	_, errExec = exec.ExecContext(
-		ctx,
-		`
             CREATE TABLE IF NOT EXISTS entityone_history (
                 entityone_id BIGINT NOT NULL,
                 action_id INT NOT NULL DEFAULT 1,
@@ -38,50 +31,25 @@ func (link *Link) MigrateUp(ctx context.Context, exec sqlx.ExecerContext) (errEx
                 CONSTRAINT es_fk_e_eid
                     FOREIGN KEY (entityone_id)
                     REFERENCES entityone (entityone_id)
-            )
-    `)
-	if errExec != nil {
-		return errExec
-	}
+            );
 
-	_, errExec = exec.ExecContext(
-		ctx,
-		`CREATE INDEX es_idx_eid ON entityone_history(entityone_id)`,
-	)
-	if errExec != nil {
-		return errExec
-	}
+			CREATE INDEX es_idx_eid ON entityone_history(entityone_id);
 
-	_, errExec = exec.ExecContext(
-		ctx,
-		`CREATE INDEX e_idx_sid ON entityone(status_id)`,
-	)
-	if errExec != nil {
-		return errExec
-	}
+			CREATE INDEX e_idx_sid ON entityone(status_id);
 
-	_, errExec = exec.ExecContext(
-		ctx,
-		`CREATE INDEX es_idx_sid ON entityone_history(status_id)`,
-	)
-	if errExec != nil {
-		return errExec
-	}
+			CREATE INDEX es_idx_sid ON entityone_history(status_id);
 
-	_, errExec = exec.ExecContext(
-		ctx,
-		`CREATE INDEX es_idx_aid ON entityone_history(action_id)`,
-	)
+			CREATE INDEX es_idx_aid ON entityone_history(action_id);
+	`)
 	return errExec
 }
 
 // MigrateDown destroys the needed tables
 func (link *Link) MigrateDown(ctx context.Context, exec sqlx.ExecerContext) (errExec error) {
-	_, errExec = exec.ExecContext(ctx, `DROP TABLE IF EXISTS entityone_history`)
-	if errExec != nil {
-		return errExec
-	}
+	_, errExec = exec.ExecContext(ctx, `
+		DROP TABLE IF EXISTS entityone_history;
+		DROP TABLE IF EXISTS entityone;
+	`)
 
-	_, errExec = exec.ExecContext(ctx, `DROP TABLE IF EXISTS entityone`)
 	return errExec
 }
