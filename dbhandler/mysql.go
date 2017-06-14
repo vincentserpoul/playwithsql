@@ -1,8 +1,10 @@
 package dbhandler
 
 import (
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
+
+	// to connect to mysql \
+	_ "github.com/go-sql-driver/mysql"
 )
 
 // MySQLDB is a conf for the mysql database
