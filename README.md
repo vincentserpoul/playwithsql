@@ -56,18 +56,17 @@ Just check them [here](https://playwithsql-summary.surge.sh)!
 # Launch local status benches
 
 ```
-./bench/status/swarm/run-all.sh schematype (islatest or lateststatus)
+./bench/status/swarm/run-all.sh (islatest or lateststatus or history)
 ```
 
 # Launch remote tests on kubernetes
 
 ```
-./bench/status/kubernetes/run-all.sh (islatest or lateststatus)
+./bench/status/kubernetes/run-all.sh (islatest or lateststatus or history)
 ```
 
 # TODO list
 
-- [ ] Simplify migrations thanks to multiple sql queries handling in golang 1.8
 - [ ] Bench 1000000 loops and get the best of 5 runs for each db
 - [ ] Test different storage (mounted standard disk, mounted ssd, local ssd)
 - [ ] Test High Availability
