@@ -13,7 +13,7 @@ spec:
         app: mysql
     spec:
       containers:
-      - image: mysql:8.0.1
+      - image: mysql:8.0.2
         imagePullPolicy: IfNotPresent
         name: mysql
         args:

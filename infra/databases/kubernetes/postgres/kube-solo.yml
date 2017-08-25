@@ -4,7 +4,7 @@ metadata:
   name: postgres
   namespace: default
   labels:
-    type: db  
+    type: db
 spec:
   replicas: 1
   template:
@@ -13,14 +13,14 @@ spec:
         app: postgres
     spec:
       containers:
-      - image: postgres:9.6.2
+      - image: postgres:10-beta3
         imagePullPolicy: IfNotPresent
         name: postgres
         env:
         - name: POSTGRES_USER
           value: "root"
         - name: POSTGRES_PASSWORD
-          value: "test"               
+          value: "test"
         ports:
         - containerPort: 5432
 ---
